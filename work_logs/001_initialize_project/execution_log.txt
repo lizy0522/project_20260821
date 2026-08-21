@@ -1,0 +1,84 @@
+工作目标
+--------
+
+按照标准四目录 Python 工程模板生成 project_20260821，创建同名 Conda 环境，
+固定 OpenBLAS 数值后端，初始化 Git，并关联指定 GitHub 远程仓库。
+
+任务类型
+--------
+
+非脚本结果任务。工程初始化本身未创建任务脚本，因此建立 results/001_initialize_project
+和 work_logs/001_initialize_project，不建立 scripts/001_initialize_project。
+
+实际操作
+--------
+
+1. 检查目标目录 D:\Project_Files\python_project\project_20260821。
+   目标目录在本任务开始前仅包含上一轮中断留下的空目录，没有用户文件、Git 仓库或 Conda 环境。
+2. 写入工程配置和规则文件：
+   AGENTS.md、PROJECT_TEMPLATE.txt、environment.yml、pyproject.toml、.gitignore、
+   .gitattributes 和 README.md。
+3. 建立四个业务目录及其基础占位文件：
+   data/raw、data/processed、results、scripts 和 work_logs。
+4. environment.yml 与实际 Conda 创建依赖包含：
+   libblas=*=*_openblas、liblapack=*=*_openblas 和 libcblas=*=*_openblas。
+5. 使用 conda-forge、--override-channels 和 --strict-channel-priority 创建环境。
+6. 初始化本地 main 分支，配置 origin：
+   https://github.com/lizy0522/project_20260821.git
+
+关键路径
+--------
+
+项目根目录：
+D:\Project_Files\python_project\project_20260821
+
+Conda 环境：
+D:\Project_Files\python_project\conda_envs\project_20260821
+
+总体交接记录：
+D:\Project_Files\python_project\project_20260821\work_logs\codex_handoff\codex_handoff.txt
+
+验证结果
+--------
+
+- 实际解释器：
+  D:\Project_Files\python_project\conda_envs\project_20260821\python.exe
+- Python：3.11.15
+- NumPy：2.4.6，可正常导入
+- SciPy：1.17.1，可正常导入
+- libblas：3.11.0，9_h0adab6e_openblas，来自 conda-forge
+- libcblas：3.11.0，9_h2a8eebe_openblas，来自 conda-forge
+- liblapack：3.11.0，9_hd232482_openblas，来自 conda-forge
+- libopenblas：0.3.34，来自 conda-forge
+- ruff check --no-cache scripts：通过；当前没有 Python 脚本
+- python -m pip check：No broken requirements found.
+- 远程仓库查询未发现已有分支，目标仓库可作为本地初始提交的远程。
+
+Git 状态
+--------
+
+本地仓库使用 main 分支，origin 指向：
+https://github.com/lizy0522/project_20260821.git
+
+本任务启用本地提交和 GitHub 推送；提交完成后应确认：
+git status --short --branch
+git branch -vv
+git remote show origin
+
+遇到的问题及处理
+----------------
+
+Conda 元数据收集和安装事务耗时较长，但最终正常完成；未使用不带 BLAS 约束的
+默认求解，也未使用 MKL 2026 组合。
+
+未完成事项
+----------
+
+无。若后续新增脚本或数据分析任务，必须从任务编号 002 开始，并按 AGENTS.md
+建立同名的任务目录和两级执行记录。
+
+下一步建议
+----------
+
+从 002_task_name 开始创建实际分析任务；脚本、结果和详细日志分别写入对应的
+scripts/002_task_name、results/002_task_name 和 work_logs/002_task_name。

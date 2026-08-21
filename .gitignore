@@ -1,0 +1,26 @@
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+
+# Tool caches
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Local environments and secrets
+.venv/
+.conda/
+.env
+*.local
+
+# IDE and operating-system files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Raw and processed data are local by default
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep

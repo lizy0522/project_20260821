@@ -1,0 +1,756 @@
+标准四目录 Python 工程模板生成规范
+==================================
+
+用途
+----
+
+这是一份可以直接交给 Codex 执行的工程模板规范。
+
+使用方法：
+
+1. 复制本文件；
+2. 填写“项目参数”中的必填项；
+3. 将完整文件发送给 Codex；
+4. 告诉 Codex：“按照这份规范生成工程模板”；
+5. Codex 应完成创建、配置、验证和工作记录，而不仅是给出说明。
+
+
+一、项目参数（每次使用前填写）
+================================
+
+必填参数：
+
+    PROJECT_NAME=<项目文件夹名称>
+    PROJECT_ROOT=<项目完整绝对路径>
+    CONDA_ENV_NAME=<必须与 PROJECT_NAME 完全相同>
+
+可选参数：
+
+    PROJECT_DESCRIPTION=<项目用途；可以留空>
+    PYTHON_VERSION=3.11
+    CONDA_ENVS_ROOT=D:\Project_Files\python_project\conda_envs
+    GITHUB_REPOSITORY_URL=<GitHub HTTPS 地址；没有则留空>
+    GIT_USER_NAME=<Git 提交用户名；没有则读取现有配置>
+    GIT_USER_EMAIL=<Git 提交邮箱；没有则读取现有配置>
+    EXTRA_CONDA_DEPENDENCIES=<额外 Conda 依赖；没有则留空>
+    EXTRA_PIP_DEPENDENCIES=<额外 pip 依赖；没有则留空>
+    CREATE_CONDA_ENVIRONMENT=yes
+    INITIALIZE_GIT=yes
+    PUSH_TO_GITHUB=yes
+
+参数一致性要求：
+
+- CONDA_ENV_NAME 必须与 PROJECT_NAME 完全相同，包括字母、数字、下划线和大小写。
+- PROJECT_DESCRIPTION 为可选项；未提供项目用途时可以留空。
+
+参数逐项说明：
+
+1. PROJECT_NAME
+
+    项目文件夹名称，也是工程的主要标识。建议使用小写英文、数字和下划线，
+    例如 project_008_device_analysis。不要填写完整路径。
+
+2. PROJECT_ROOT
+
+    项目根目录的完整绝对路径。Codex 将在该位置创建或整理工程，
+    例如 D:\Project_Files\python_project\project_008_device_analysis。
+    如果目录已经存在且非空，必须先检查并保护已有文件，不得直接覆盖。
+
+3. PROJECT_DESCRIPTION
+
+    可选的项目用途说明。填写后用于 README.md 和 pyproject.toml，
+    例如“器件测量数据的清洗、分析和绘图”。可以填写中文或英文；
+    未提供项目用途时可以留空。
+
+4. CONDA_ENV_NAME
+
+    项目专用的 Conda 环境名称，必须与 PROJECT_NAME 完全相同。
+    例如 PROJECT_NAME=project_008_device_analysis 时，必须填写
+    CONDA_ENV_NAME=project_008_device_analysis。不要改用连字符或其他名称，
+    也不要与来源不明的已有环境重名。
+
+5. PYTHON_VERSION
+
+    Conda 环境使用的 Python 版本。默认值为 3.11；没有特殊兼容性要求时，
+    保持默认值即可。
+
+6. CONDA_ENVS_ROOT
+
+    项目 Conda 环境的统一存放目录。环境必须创建在该目录下，不得放入
+    PROJECT_ROOT。实际环境路径通常为
+    <CONDA_ENVS_ROOT>\<CONDA_ENV_NAME>。
+
+7. GITHUB_REPOSITORY_URL
+
+    GitHub 远程仓库的 HTTPS 地址，例如
+    https://github.com/lizy0522/project_008_device_analysis.git。
+    没有远程仓库或暂时不关联 GitHub 时留空。
+
+8. GIT_USER_NAME
+
+    写入 Git 提交记录的用户名。留空时读取本机现有 Git 配置；该字段仅用于
+    提交作者信息，不是 GitHub 登录用户名或访问凭据。
+
+9. GIT_USER_EMAIL
+
+    写入 Git 提交记录的邮箱。留空时读取本机现有 Git 配置。可以填写与
+    GitHub 账户关联的邮箱或 GitHub 提供的隐私邮箱。
+
+10. EXTRA_CONDA_DEPENDENCIES
+
+    除默认依赖外，需要通过 Conda 安装的额外软件包，例如 openpyxl、h5py
+    或 scikit-learn。没有额外依赖时留空；Conda 能安装的包优先填写在此处。
+
+11. EXTRA_PIP_DEPENDENCIES
+
+    需要通过 pip 安装的额外软件包。仅当 Conda 没有合适的软件包时使用；
+    没有额外 pip 依赖时留空。
+
+12. CREATE_CONDA_ENVIRONMENT
+
+    是否实际创建并验证 Conda 环境。yes 表示生成 environment.yml 后创建环境
+    并检查 Python 解释器；no 表示只生成配置文件，不创建环境。
+
+13. INITIALIZE_GIT
+
+    是否初始化和配置本地 Git 仓库。yes 表示在非 Git 项目中初始化仓库、检查
+    忽略规则并创建初始提交；no 表示不执行这些操作。已有仓库必须保留现有历史
+    和用户修改。
+
+14. PUSH_TO_GITHUB
+
+    是否将本地提交推送到 GitHub。yes 表示在 GITHUB_REPOSITORY_URL 有效且用户
+    已具备访问权限时执行推送；no 表示不推送。若仓库地址留空，该项应设为 no。
+
+示例：
+
+    PROJECT_NAME=project_007_polling_gate_voltage
+    PROJECT_ROOT=D:\Project_Files\python_project\project_007_polling_gate_voltage
+    PROJECT_DESCRIPTION=Polling gate voltage data analysis
+    CONDA_ENV_NAME=project_007_polling_gate_voltage
+    PYTHON_VERSION=3.11
+    CONDA_ENVS_ROOT=D:\Project_Files\python_project\conda_envs
+    GITHUB_REPOSITORY_URL=https://github.com/lizy0522/project_007_polling_gate_voltage.git
+    EXTRA_CONDA_DEPENDENCIES=
+    EXTRA_PIP_DEPENDENCIES=
+    CREATE_CONDA_ENVIRONMENT=yes
+    INITIALIZE_GIT=yes
+    PUSH_TO_GITHUB=yes
+
+
+二、Codex 执行目标
+==================
+
+在 PROJECT_ROOT 中建立一个基于 Anaconda/Conda、可使用 Git 管理的数据分析工程。
+
+工程根目录只能有以下四个业务文件夹：
+
+    data       数据
+    results    结果
+    scripts    脚本
+    work_logs  工作日志
+
+根目录允许存在环境、Git 和文档配置文件，但不允许再创建其他业务目录。
+
+明确禁止创建以下旧式目录：
+
+    src
+    tests
+    notebooks
+    outputs
+
+除非用户在当次任务中明确要求，否则不要创建上述目录。
+
+
+三、标准目录结构
+================
+
+    PROJECT_ROOT/
+    ├─ data/
+    │  ├─ raw/
+    │  │  └─ .gitkeep
+    │  └─ processed/
+    │     └─ .gitkeep
+    ├─ results/
+    │  └─ .gitkeep
+    ├─ scripts/
+    │  └─ .gitkeep
+    ├─ work_logs/
+    │  ├─ codex_handoff/
+    │  │  └─ codex_handoff.txt
+    │  └─ NNN_task_name/
+    │     └─ execution_log.txt
+    ├─ AGENTS.md
+    ├─ environment.yml
+    ├─ pyproject.toml
+    ├─ .gitignore
+    ├─ .gitattributes
+    └─ README.md
+
+说明：
+
+- “四个业务文件夹”指根目录下只能有 data、results、scripts 和 work_logs。
+- data 内允许使用 raw 和 processed 子目录。
+- work_logs 内使用任务记录子目录和 codex_handoff 子目录。
+- AGENTS.md 是工程根目录中的 Codex 执行规则文件，每次任务开始前必须读取并遵守。
+- .git 是 Git 自动生成的隐藏目录，不计入业务文件夹。
+- Conda 环境必须放在 CONDA_ENVS_ROOT，不得放进 PROJECT_ROOT。
+
+
+四、四个业务目录的职责
+======================
+
+1. data
+
+    data/raw        保存未处理的数据；原则上只读，不覆盖。
+    data/processed  保存从未处理数据清洗、转换或计算得到的数据。
+
+2. results
+
+    每次任务建立一个结果子目录，保存本次任务产生的结果，例如：
+
+    - MAT 文件；
+    - CSV 或 Excel 表格；
+    - PNG、SVG 或 PDF 图形；
+    - 模型参数；
+    - 最终导出文件。
+
+    结果不得直接散落在 results 根目录中。
+
+    凡属于本次任务的产出，无论由脚本、人工操作、仪器还是第三方软件生成，
+    都必须放入对应的 results/NNN_task_name。原始输入、参考资料和待处理文件
+    不属于结果，应放入 data/raw；清洗或转换后的中间数据放入 data/processed。
+
+3. scripts
+
+    每次任务建立一个脚本子目录，保存本次任务的所有 Python 脚本，例如：
+
+    - 数据读取；
+    - 数据清洗；
+    - 数值分析；
+    - 模型拟合；
+    - 绘图；
+    - 结果导出。
+
+    默认使用可直接运行的脚本，不采用 src 包布局。
+
+脚本、结果与工作记录的任务目录规则：
+
+    scripts/001_task_name/  <->  results/001_task_name/  <->  work_logs/001_task_name/
+    scripts/002_task_name/  <->  results/002_task_name/  <->  work_logs/002_task_name/
+    scripts/003_task_name/  <->  results/003_task_name/  <->  work_logs/003_task_name/
+
+对于不使用脚本但会产生结果的任务：
+
+    results/004_manual_result/  <->  work_logs/004_manual_result/
+    不创建空的 scripts/004_manual_result/
+
+要求：
+
+- 任务编号属于任务本身，并在整个工程中按照任务下发顺序统一递增；
+- 脚本任务的子脚本目录、子结果目录和子记录目录必须完全同名；
+- 非脚本结果任务只建立完全同名的 results 和 work_logs 子目录，不建立空的 scripts 子目录；
+- 名称格式固定为 NNN_task_name；
+- NNN 是三位十进制序号，从 001 开始；
+- 序号按照任务下发顺序递增；
+- 009 的下一个序号是 010，099 的下一个序号是 100；
+- 已使用的序号不得重复、重排或因为删除旧任务而复用；
+- scripts 中允许出现由非脚本任务造成的编号缺口，缺失编号不得在以后补用；
+- task_name 推荐使用简短的小写英文 snake_case；
+- 一个任务的所有输出只能写入该任务对应的结果目录。
+- 每个任务记录目录必须包含 execution_log.txt。
+
+4. work_logs
+
+    每次任务都建立与对应结果目录完全同名的子记录目录；脚本任务还必须与对应脚本目录同名。
+    子记录目录使用 execution_log.txt 记录本次任务的执行过程。
+    work_logs/codex_handoff/codex_handoff.txt 持续汇总不同任务的执行状态。
+    所有记录采用 UTF-8 编码和 TXT 格式。
+
+
+五、路径规则
+============
+
+所有脚本必须通过脚本文件位置推导工程根目录，不能硬编码某台电脑的完整项目路径。
+
+scripts/NNN_task_name/main.py 推荐写法：
+
+    from pathlib import Path
+
+    PROJECT_ROOT = Path(__file__).resolve().parents[2]
+    TASK_NAME = Path(__file__).resolve().parent.name
+    DATA_DIR = PROJECT_ROOT / "data"
+    RESULTS_DIR = PROJECT_ROOT / "results" / TASK_NAME
+
+
+    def main() -> None:
+        RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+        print(f"Project root: {PROJECT_ROOT}")
+        print(f"Data directory: {DATA_DIR}")
+        print(f"Results directory: {RESULTS_DIR}")
+
+
+    if __name__ == "__main__":
+        main()
+
+要求：
+
+- 输入默认从 data 读取；
+- 输出必须写入 results 下与当前脚本任务目录同名的子目录；
+- 工作记录写入 work_logs；
+- 不从当前终端目录推断项目根目录；
+- Windows 和其他系统都使用 pathlib.Path 拼接路径。
+
+
+六、environment.yml 标准
+========================
+
+默认内容（必须固定 OpenBLAS 后端；不得让 Conda 自动选择 BLAS 后端）：
+
+    name: <CONDA_ENV_NAME>
+
+    channels:
+      - conda-forge
+
+    dependencies:
+      - python=<PYTHON_VERSION>
+      - numpy
+      - pandas
+      - scipy
+      - matplotlib
+      - seaborn
+      - ruff
+      - pip
+      - "libblas=*=*_openblas"
+      - "liblapack=*=*_openblas"
+      - "libcblas=*=*_openblas"
+
+如果 EXTRA_CONDA_DEPENDENCIES 不为空，将其逐项加入 dependencies。
+
+如果 EXTRA_PIP_DEPENDENCIES 不为空，使用：
+
+      - pip
+      - pip:
+          - <pip-package-1>
+          - <pip-package-2>
+
+规则：
+
+- 只允许使用 conda-forge；创建命令必须显式覆盖其他默认频道并启用 strict channel priority；
+- libblas、liblapack 和 libcblas 的 OpenBLAS 变体约束必须保留，不得删改为未限定的 BLAS 依赖；
+- EXTRA_CONDA_DEPENDENCIES 只能追加依赖，不得覆盖或替换上述 OpenBLAS 约束；
+- Conda 能安装的依赖优先使用 Conda；
+- 仅在 Conda 没有合适包时使用 pip；
+- 不要一次安装与项目无关的大量包；
+- 不要修改 base 环境。
+
+
+七、Conda 环境创建流程
+======================
+
+当 CREATE_CONDA_ENVIRONMENT=yes 时执行：
+
+1. 检查 CONDA_ENV_NAME 与 PROJECT_NAME 是否完全相同；如不相同，停止创建并修正参数；
+2. 定位本机 conda.exe；
+3. 检查 CONDA_ENVS_ROOT 是否存在并可写；
+4. 将 CONDA_ENVS_ROOT 设置为 Conda 首选环境目录；
+5. 检查是否已经存在同名环境；
+6. 不得未经确认覆盖一个来源不明的已有同名环境；
+7. 新建时显式指定环境路径，并将 environment.yml 中的依赖展开为等价的显式创建命令。
+   实际求解必须只使用 conda-forge、覆盖默认频道并启用严格频道优先级：
+
+       conda create `
+         --yes `
+         --prefix "<CONDA_ENVS_ROOT>\<CONDA_ENV_NAME>" `
+         --override-channels `
+         --strict-channel-priority `
+         -c conda-forge `
+         python=<PYTHON_VERSION> numpy pandas scipy matplotlib seaborn ruff pip `
+         "libblas=*=*_openblas" `
+         "liblapack=*=*_openblas" `
+         "libcblas=*=*_openblas"
+
+   EXTRA_CONDA_DEPENDENCIES 逐项追加到该命令；EXTRA_PIP_DEPENDENCIES 在 Conda
+   环境创建成功后使用该环境的 python -m pip install 安装。environment.yml
+   仍必须生成，并与实际创建命令中的依赖保持一致，作为工程的可复现依赖记录。
+
+8. 创建后检查实际解释器：
+
+       conda run --no-capture-output --prefix "<CONDA_ENVS_ROOT>\<CONDA_ENV_NAME>" python -c "import sys; print(sys.executable); print(sys.version)"
+
+9. 检查 NumPy、SciPy 和 BLAS 后端：
+
+       conda run --no-capture-output --prefix "<CONDA_ENVS_ROOT>\<CONDA_ENV_NAME>" python -c "import numpy, scipy; print(numpy.__version__, scipy.__version__); numpy.__config__.show()"
+
+       conda list --prefix "<CONDA_ENVS_ROOT>\<CONDA_ENV_NAME>" | findstr /I "libblas liblapack libcblas openblas mkl"
+
+   验证输出必须表明 NumPy 和 SciPy 可以正常导入，并显示 OpenBLAS；不得出现
+   未预期的 MKL 2026 组合。若导入 NumPy/SciPy 秒退、exit code 127 或出现
+   Windows 致命浮点异常，应立即停止并检查 BLAS 依赖，不得继续执行科学计算。
+
+预期路径：
+
+    <CONDA_ENVS_ROOT>\<CONDA_ENV_NAME>\python.exe
+
+如果用户需要 Jupyter，再安装 ipykernel 并注册内核；默认模板不创建 notebooks 文件夹。
+
+
+八、pyproject.toml 标准
+======================
+
+默认内容：
+
+    [project]
+    name = "<PROJECT_NAME 转换为适合项目元数据的名称>"
+    version = "0.1.0"
+    description = "<PROJECT_DESCRIPTION；留空时使用空字符串>"
+    readme = "README.md"
+    requires-python = ">=<PYTHON_VERSION>,<下一次要版本>"
+
+    [tool.ruff]
+    line-length = 100
+    target-version = "py311"
+
+    [tool.ruff.lint]
+    select = ["E", "F", "I", "UP"]
+
+默认不配置 pytest，因为标准骨架没有 tests 文件夹。
+
+
+九、.gitignore 标准
+===================
+
+默认内容：
+
+    # Python cache and compiled files
+    __pycache__/
+    *.py[cod]
+
+    # Tool caches
+    .pytest_cache/
+    .ruff_cache/
+    .ipynb_checkpoints/
+
+    # Local environments and secrets
+    .venv/
+    .conda/
+    .env
+    *.local
+
+    # IDE and operating-system files
+    .idea/
+    .vscode/
+    .DS_Store
+    Thumbs.db
+
+    # Raw and processed data are local by default
+    data/raw/*
+    !data/raw/.gitkeep
+    data/processed/*
+    !data/processed/.gitkeep
+
+规则：
+
+- data 中的真实数据默认不进入 Git；
+- results 默认允许 Git 检测，由用户决定是否提交；
+- Conda 环境本体不得进入 Git；
+- 密码、Token、API Key 和 .env 不得进入 Git；
+- 如果结果文件很大，应先询问用户是否忽略或使用 Git LFS。
+
+
+十、.gitattributes 标准
+=======================
+
+至少配置：
+
+    * text=auto
+
+    *.py text eol=lf
+    *.md text eol=lf
+    *.txt text eol=lf
+    *.toml text eol=lf
+    *.yml text eol=lf
+    *.yaml text eol=lf
+    *.json text eol=lf
+    *.csv text eol=lf
+    *.ps1 text eol=crlf
+    *.bat text eol=crlf
+    *.cmd text eol=crlf
+
+    *.png binary
+    *.jpg binary
+    *.jpeg binary
+    *.pdf binary
+    *.xlsx binary
+    *.xls binary
+    *.docx binary
+    *.pptx binary
+    *.npy binary
+    *.npz binary
+    *.mat binary
+    *.h5 binary
+    *.hdf5 binary
+
+
+十一、README.md 标准
+===================
+
+README 必须包含：
+
+1. 项目名称；如果填写了 PROJECT_DESCRIPTION，同时写明项目用途；
+2. 四个业务目录的说明；
+3. Conda 环境名称；
+4. 环境创建和激活命令；
+5. 主要脚本运行方式；
+6. 输入数据位置；
+7. 输出结果位置；
+8. Ruff 检查命令；
+9. Git 拉取和推送命令。
+
+目录说明必须明确写为：
+
+    data       数据
+    results    结果
+    scripts    脚本
+    work_logs  工作日志
+
+
+十二、工作日志标准
+==================
+
+每次任务必须同时创建：
+
+    work_logs/NNN_task_name/execution_log.txt
+
+子记录目录名称必须与 scripts/NNN_task_name 和 results/NNN_task_name 完全一致。
+
+工程中固定保留一个 Codex 总交接文件：
+
+    work_logs/codex_handoff/codex_handoff.txt
+
+每次任务完成后，既要写入该任务的 execution_log.txt，也要在 codex_handoff.txt 中追加任务状态摘要，并更新下一个任务序号。
+
+每份记录至少包含：
+
+- 工作目标；
+- 实际操作；
+- 新建、移动、修改或删除的文件；
+- 关键路径；
+- 关键命令；
+- 验证结果；
+- 未完成事项；
+- 下一步建议。
+
+记录必须采用 TXT 格式和 UTF-8 编码，不得包含任何敏感凭据。
+
+工程根目录必须包含 AGENTS.md。该文件用于约束 Codex 每次执行任务时的目录和记录行为，
+至少包含以下规则：
+
+- 脚本任务必须同时建立 scripts/NNN_task_name、results/NNN_task_name 和
+  work_logs/NNN_task_name 三个完全同名的子目录；
+- 非脚本结果任务只建立完全同名的 results/NNN_task_name 和
+  work_logs/NNN_task_name，不建立空的 scripts 子目录；
+- 任务编号在整个工程中统一递增；scripts 中由非脚本任务造成的编号缺口不得补用；
+- 本次任务的脚本只能写入对应的 scripts/NNN_task_name；
+- 本次任务产生的结果，无论是否由脚本生成，都只能写入对应的 results/NNN_task_name；
+- 本次任务的详细执行记录写入
+  work_logs/NNN_task_name/execution_log.txt；
+- 工程总体执行记录追加写入
+  work_logs/codex_handoff/codex_handoff.txt；
+- 总体记录只保存任务摘要，详细过程保存在对应任务的 execution_log.txt；
+- 任务完成后更新 codex_handoff.txt 中的下一个任务序号。
+
+生成新工程时，将本规范同目录下的 AGENTS.md 复制到 PROJECT_ROOT/AGENTS.md。
+
+
+十三、已有非空项目的迁移保护规则
+================================
+
+如果 PROJECT_ROOT 已经存在且非空，Codex 必须先检查实际内容。
+
+迁移顺序：
+
+1. 执行 git status，确认已有修改；
+2. 列出所有目录和文件；
+3. 区分用户文件、生成结果、模板文件和缓存；
+4. 用户脚本迁移到 scripts/NNN_task_name；
+5. 用户结果迁移到 results/NNN_task_name；
+6. 为该任务建立 work_logs/NNN_task_name/execution_log.txt；
+7. 用户数据保留在 data；
+8. 原有工作记录整合到对应任务记录或 codex_handoff.txt；
+9. 更新脚本中的相对路径；
+10. 只有确认内容已经迁移后，才删除旧目录；
+11. 不得覆盖同名文件；如发生冲突，停止并报告。
+
+需要清理的旧模板目录：
+
+    src
+    tests
+    notebooks
+    outputs
+
+迁移映射：
+
+    src 或 src/.../scripts  -> scripts/NNN_task_name
+    outputs 或 .../results  -> results/NNN_task_name
+    原任务工作记录          -> work_logs/NNN_task_name/execution_log.txt
+    data                    -> data
+    总体交接信息            -> work_logs/codex_handoff/codex_handoff.txt
+
+严禁删除用户原始数据、实际脚本或无法确认用途的结果文件。
+
+
+十四、脚本验证标准
+==================
+
+创建或迁移脚本后，至少完成：
+
+1. 脚本任务检查脚本、结果和工作记录目录完全对应；非脚本结果任务检查结果和工作记录目录完全对应，且没有空脚本目录；
+2. Python 语法或实际运行检查；
+3. 使用项目 Conda 环境运行；
+4. 检查输入路径存在；
+5. 检查输出写入对应的 results/NNN_task_name；
+6. 检查结果文件存在且非空；
+7. 记录关键数组形状、数据类型或行列数；
+8. 执行：
+
+       ruff check --no-cache scripts
+
+9. 验证后不得在根目录留下 .pytest_cache、.ruff_cache 或 __pycache__。
+
+如果运行脚本会覆盖用户结果或触发高成本计算，必须先说明风险；不能静默覆盖重要文件。
+
+
+十五、Git 初始化和关联
+======================
+
+当 INITIALIZE_GIT=yes 时：
+
+1. 如果不是 Git 仓库：
+
+       git init -b main
+
+2. 检查 Git 用户信息；错误时仅修正当前仓库配置。
+3. 检查 .gitignore 是否生效。
+4. 执行：
+
+       git add .
+       git diff --cached --check
+       git commit -m "Initialize <PROJECT_NAME>"
+
+5. 如果已有仓库和用户修改，不得擅自覆盖、重置或改写历史。
+
+当 GITHUB_REPOSITORY_URL 不为空时：
+
+1. 检查远程仓库是否存在；
+2. 如果没有 origin：
+
+       git remote add origin <GITHUB_REPOSITORY_URL>
+
+3. 如果 origin 指向旧地址，在确认新地址后：
+
+       git remote set-url origin <GITHUB_REPOSITORY_URL>
+
+4. 当 PUSH_TO_GITHUB=yes 且用户已授权推送时：
+
+       git push -u origin main
+
+5. 验证：
+
+       git fetch origin
+       git status --short --branch
+       git branch -vv
+       git remote show origin
+
+
+十六、网络与代理规则
+====================
+
+如果 Git 无法访问 GitHub：
+
+1. 先检查网络和实际代理端口；
+2. 只在代理已经验证可用时配置；
+3. 优先只对当前仓库配置代理；
+4. 不要把用户名、密码或 Token 写进远程 URL。
+
+示例：
+
+    git config --local http.proxy "http://127.0.0.1:<PORT>"
+    git config --local https.proxy "http://127.0.0.1:<PORT>"
+
+不得未经当前验证直接假定代理端口仍然有效。
+
+
+十七、最终验收清单
+==================
+
+Codex 完成任务前必须确认：
+
+[ ] PROJECT_ROOT 存在；
+[ ] 根目录只有 data、results、scripts、work_logs 四个业务文件夹；
+[ ] PROJECT_ROOT/AGENTS.md 存在，并包含脚本任务三目录对应、非脚本结果任务两目录对应和两级执行记录规则；
+[ ] 没有 src、tests、notebooks、outputs；
+[ ] environment.yml 可用于创建环境；
+[ ] environment.yml 包含 libblas、liblapack 和 libcblas 的 OpenBLAS 变体约束；
+[ ] CONDA_ENV_NAME 与 PROJECT_NAME 完全相同；
+[ ] Conda 环境位于 CONDA_ENVS_ROOT；
+[ ] 实际 Python 解释器路径正确；
+[ ] 实际创建只使用 conda-forge，并启用了 override channels 和 strict channel priority；
+[ ] NumPy 和 SciPy 可以正常导入；
+[ ] BLAS 后端已验证为 OpenBLAS，未出现未预期的 MKL 2026 组合；
+[ ] 脚本任务的 scripts、results 和 work_logs 子目录完全对应，非脚本结果任务的 results 和 work_logs 子目录完全对应；
+[ ] 任务序号为三位且按照下发顺序递增；
+[ ] 脚本任务的实际主脚本可运行；
+[ ] 输出写入对应的 results/NNN_task_name；
+[ ] Ruff 检查通过；
+[ ] data 中的真实数据默认被 Git 忽略；
+[ ] 没有缓存或敏感信息进入 Git；
+[ ] work_logs/NNN_task_name 中存在 UTF-8 execution_log.txt；
+[ ] work_logs/codex_handoff 中只有一个持续更新的 codex_handoff.txt；
+[ ] 如果启用 Git，本地提交状态清楚；
+[ ] 如果启用 GitHub，main 正确跟踪 origin/main；
+[ ] 最终向用户报告未提交、未推送或未完成的事项。
+
+
+十八、Codex 最终回复格式
+========================
+
+最终回复应简要报告：
+
+1. 工程完整路径；
+2. 四个业务目录；
+3. Conda 环境名称和实际路径；
+4. 创建或迁移的主要脚本；
+5. 验证结果；
+6. Git 和 GitHub 状态；
+7. 尚未执行的事项。
+
+示例：
+
+    已完成标准四目录工程模板：
+
+    data/       数据
+    results/    结果
+    scripts/    脚本
+    work_logs/  工作日志
+
+    Conda 环境已创建并验证，脚本运行正常，Ruff 检查通过。
+    Git 已初始化并推送到 origin/main。
+
+
+十九、交给 Codex 的标准指令
+==========================
+
+填写第一节参数后，将本文件完整发送给 Codex，并附加以下指令：
+
+    请严格按照《标准四目录 Python 工程模板生成规范》执行。
+    先检查目标路径；如果目录非空，保留并迁移已有数据、结果和脚本。
+    根目录只保留 data、results、scripts、work_logs 四个业务文件夹。
+    将模板配置目录中的 AGENTS.md 复制到工程根目录，并在每次任务开始前读取。
+    脚本任务必须建立三位序号开头且完全同名的 scripts、results 和 work_logs 子目录。
+    非脚本结果任务只建立完全同名的 results 和 work_logs 子目录，不建立空的 scripts 子目录；
+    scripts 中因此产生的编号缺口不得补用。
+    详细执行记录写入对应任务目录的 execution_log.txt；总体执行摘要持续追加到
+    work_logs/codex_handoff/codex_handoff.txt，并更新下一个任务序号。
+    完成 Conda、验证、工作记录以及我在参数中启用的 Git/GitHub 操作。
+    请直接执行，不要只给出说明。

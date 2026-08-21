@@ -1,0 +1,16 @@
+name: project_20260821
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.11
+  - numpy
+  - pandas
+  - scipy
+  - matplotlib
+  - seaborn
+  - ruff
+  - pip
+  - "libblas=*=*_openblas"
+  - "liblapack=*=*_openblas"
+  - "libcblas=*=*_openblas"
