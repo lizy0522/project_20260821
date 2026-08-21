@@ -15,6 +15,8 @@ Conda 环境路径：D:\Project_Files\python_project\conda_envs\project_20260821
 环境使用 conda-forge、严格频道优先级和 OpenBLAS 变体约束创建。
 NumPy 2.4.6、SciPy 1.17.1 可以正常导入；OpenBLAS 后端已通过 Conda 包构建和
 NumPy 配置检查确认。Ruff 和 pip check 均通过。
+已删除生成工程根目录中不属于标准结构的 PROJECT_TEMPLATE.txt 副本；
+源模板配置目录中的原始规范文件保留。
 
 Git 已初始化为 main，初始提交 b857068 已创建并成功推送到 origin/main。
 origin 配置为：

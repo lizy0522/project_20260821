@@ -16,8 +16,7 @@
 1. 检查目标目录 D:\Project_Files\python_project\project_20260821。
    目标目录在本任务开始前仅包含上一轮中断留下的空目录，没有用户文件、Git 仓库或 Conda 环境。
 2. 写入工程配置和规则文件：
-   AGENTS.md、PROJECT_TEMPLATE.txt、environment.yml、pyproject.toml、.gitignore、
-   .gitattributes 和 README.md。
+   AGENTS.md、environment.yml、pyproject.toml、.gitignore、.gitattributes 和 README.md。
 3. 建立四个业务目录及其基础占位文件：
    data/raw、data/processed、results、scripts 和 work_logs。
 4. environment.yml 与实际 Conda 创建依赖包含：
@@ -25,6 +24,8 @@
 5. 使用 conda-forge、--override-channels 和 --strict-channel-priority 创建环境。
 6. 初始化本地 main 分支，配置 origin：
    https://github.com/lizy0522/project_20260821.git
+7. 对照标准工程结构清理根目录，删除不属于生成工程的模板规范副本：
+   PROJECT_TEMPLATE.txt。源模板配置目录中的 PROJECT_TEMPLATE.txt 保留。
 
 关键路径
 --------
@@ -53,6 +54,12 @@ D:\Project_Files\python_project\project_20260821\work_logs\codex_handoff\codex_h
 - ruff check --no-cache scripts：通过；当前没有 Python 脚本
 - python -m pip check：No broken requirements found.
 - 远程仓库查询未发现已有分支，目标仓库可作为本地初始提交的远程。
+
+模板清理
+--------
+
+生成工程根目录中的 PROJECT_TEMPLATE.txt 是模板规范副本，不属于标准工程结构，
+已删除；源模板配置目录中的原始规范文件保留。
 
 Git 状态
 --------
