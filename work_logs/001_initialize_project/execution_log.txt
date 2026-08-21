@@ -60,7 +60,10 @@ Git 状态
 本地仓库使用 main 分支，origin 指向：
 https://github.com/lizy0522/project_20260821.git
 
-本任务启用本地提交和 GitHub 推送；提交完成后应确认：
+初始提交已创建：
+b857068 Initialize project_20260821
+
+初始提交已成功推送到 origin/main。最终状态应确认：
 git status --short --branch
 git branch -vv
 git remote show origin

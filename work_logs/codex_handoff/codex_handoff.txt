@@ -16,7 +16,8 @@ Conda 环境路径：D:\Project_Files\python_project\conda_envs\project_20260821
 NumPy 2.4.6、SciPy 1.17.1 可以正常导入；OpenBLAS 后端已通过 Conda 包构建和
 NumPy 配置检查确认。Ruff 和 pip check 均通过。
 
-Git 已初始化为 main，origin 配置为：
+Git 已初始化为 main，初始提交 b857068 已创建并成功推送到 origin/main。
+origin 配置为：
 https://github.com/lizy0522/project_20260821.git
 
 详细记录：
