@@ -1,0 +1,10 @@
+Codex 工程交接记录
+==================
+
+2026-08-23 工程级维护：统一 Conda 解释器管理
+状态：已完成；不创建新任务，不产生研究结果。
+变更：更新 .vscode/settings.json，显式固定解释器为
+D:\Project_Files\python_project\conda_envs\project_20260821\python.exe，
+并启用 Conda 环境/包管理与终端自动激活。
+验证：Python 3.11.15；conda-meta/history、Conda env list、声明依赖导入和 pip check 均 PASS。
+未修改 data/raw、data/processed、脚本或结果；未 commit/push。
