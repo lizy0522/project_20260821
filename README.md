@@ -17,6 +17,7 @@ project_20260821/
 │   └── processed/
 ├── scripts/
 │   ├── _core/
+│   ├── signal_segmentation/
 │   └── task_name/
 ├── results/
 │   └── task_name/
@@ -33,6 +34,7 @@ project_20260821/
 - `data/raw/`：保存原始输入数据和原始实验数据，原则上保持只读，默认不进入 Git。
 - `data/processed/`：保存清洗、转换、对齐、重采样或其他可复用的中间数据。
 - `scripts/_core/`：保存跨任务复用的公共模块。
+- `scripts/signal_segmentation/`：基于完整 `xin` 时间轴生成固定 A/B/C 样点所有权，并对规定的原始 PA 输入输出执行完整捕获同步、ABC切分及段内独立复增益调整。
 - `scripts/task_name/`：保存某个具体任务使用的脚本。
 - `results/task_name/`：保存对应任务的分析结果、图形、表格、模型或其他输出。
 - `work_logs/task_name/`：保存对应任务从首次执行到后续持续维护的完整执行记录。
@@ -190,6 +192,12 @@ git status --short --branch
 git pull --ff-only
 git push
 ```
+
+### 提交范围
+
+GitHub 只提交 `scripts/` 下的源代码、测试代码和运行所需的必要配置。代码运行产生的结果、数据、图形、模型、缓存和执行日志不提交，相关文件保存在本地的 `results/`、`data/` 和 `work_logs/` 目录。
+
+提交前应使用 `git diff --cached --name-only` 检查暂存区，不要使用 `git add .` 或 `git add -A` 添加整个工程。完整提交规则见 `AGENTS.md` 的“Git 提交规则”章节。
 
 涉及自动修改、提交、文件删除和历史操作时，应遵守 `AGENTS.md` 中的 Git 安全规则。
 

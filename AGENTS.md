@@ -763,3 +763,345 @@ Codex 在本工程中始终遵守以下原则：
 11. **不创建无意义占位文件；**
 12. **不覆盖用户已有工作；**
 13. **在满足用户目标的前提下，保持工程结构简单、清晰、可复现、可回滚。**
+
+---
+
+## 十二、Conda 环境与扩展包管理
+
+### 1. 固定 Conda 环境
+
+本工程必须使用以下独立 Conda 环境：
+
+```text
+D:\Project_Files\python_project\conda_envs\project_20260821
+```
+
+本工程固定 Python 解释器为：
+
+```text
+D:\Project_Files\python_project\conda_envs\project_20260821\python.exe
+```
+
+Conda 管理程序固定使用：
+
+```text
+D:\Program_Files\anaconda3\Scripts\conda.exe
+```
+
+执行任何 Python 命令、安装依赖、运行测试、运行 Ruff 或执行任务脚本时，必须确认实际解释器属于上述工程环境。
+
+不得为本工程另行创建：
+
+```text
+.venv/
+venv/
+env/
+```
+
+不得使用：
+
+- Anaconda `base` 环境；
+- 系统 Python；
+- 用户级全局 Python；
+- 其他工程的 Conda 环境；
+- 未确认解释器来源的 `python`、`pip`、`pytest` 或 `ruff` 命令。
+
+### 2. 新扩展包默认通过 Conda 安装
+
+每次任务需要新的 Python 扩展包时，默认必须通过 Conda 安装到本工程固定环境。
+
+安装时必须：
+
+1. 使用完整 `--prefix` 指定本工程环境；
+2. 使用 `conda-forge`；
+3. 使用 `--override-channels`；
+4. 使用 `--strict-channel-priority`；
+5. 保持本工程既有 OpenBLAS 约束；
+6. 不得把扩展包安装到 `base` 或其他工程环境。
+
+标准安装形式为：
+
+```powershell
+$projectConda = "D:\Program_Files\anaconda3\Scripts\conda.exe"
+$projectEnv = "D:\Project_Files\python_project\conda_envs\project_20260821"
+
+& $projectConda install --yes `
+  --prefix $projectEnv `
+  --override-channels `
+  --channel conda-forge `
+  --strict-channel-priority `
+  <package-name> `
+  "libblas=*=*_openblas" `
+  "liblapack=*=*_openblas" `
+  "libcblas=*=*_openblas"
+```
+
+不得仅依赖当前终端的激活状态执行：
+
+```powershell
+conda install <package-name>
+```
+
+因为该命令可能把扩展包安装到错误环境。
+
+### 3. 安装前检查求解计划
+
+正式安装新扩展包前，应先检查 Conda 的求解结果。
+
+对于可能影响 NumPy、SciPy、BLAS、编译运行时或大量传递依赖的扩展包，应先执行 `--dry-run`：
+
+```powershell
+$projectConda = "D:\Program_Files\anaconda3\Scripts\conda.exe"
+$projectEnv = "D:\Project_Files\python_project\conda_envs\project_20260821"
+
+& $projectConda install --dry-run `
+  --prefix $projectEnv `
+  --override-channels `
+  --channel conda-forge `
+  --strict-channel-priority `
+  <package-name> `
+  "libblas=*=*_openblas" `
+  "liblapack=*=*_openblas" `
+  "libcblas=*=*_openblas"
+```
+
+如果求解计划出现以下情况，应停止安装并报告：
+
+- Python 主版本或次版本发生变化；
+- NumPy、SciPy 或其他核心科学计算包发生非必要的大幅升级或降级；
+- OpenBLAS 被替换为 MKL、BLIS 或其他 BLAS 实现；
+- 大量现有包被删除；
+- 出现明显与当前任务无关的依赖变更；
+- 求解器需要混用未经批准的 channel；
+- 现有工程代码可能因此失去兼容性。
+
+不得为了安装一个扩展包而默认执行：
+
+```powershell
+conda update --all
+```
+
+不得顺带升级与当前任务无关的依赖。
+
+### 4. OpenBLAS 不变量
+
+本工程的 `environment.yml` 已固定：
+
+```yaml
+- "libblas=*=*_openblas"
+- "liblapack=*=*_openblas"
+- "libcblas=*=*_openblas"
+```
+
+新增或更新扩展包时，必须保持上述 OpenBLAS 约束。
+
+不得静默将本工程切换到 MKL。
+
+安装完成后，应检查：
+
+```powershell
+$projectConda = "D:\Program_Files\anaconda3\Scripts\conda.exe"
+$projectEnv = "D:\Project_Files\python_project\conda_envs\project_20260821"
+
+& $projectConda list --prefix $projectEnv |
+  Select-String -Pattern "libblas|liblapack|libcblas|openblas|mkl"
+```
+
+如果发现 MKL 被引入、OpenBLAS 被替换，或者 BLAS 依赖状态与 `environment.yml` 不一致，应停止后续科研计算并处理环境问题。
+
+### 5. 同步更新 environment.yml
+
+成功安装任务实际需要的扩展包后，必须同步更新工程根目录中的：
+
+```text
+environment.yml
+```
+
+只将本工程直接依赖的包加入 `dependencies`。
+
+不得用完整的自动导出结果覆盖现有 `environment.yml`，避免写入大量平台相关、构建相关或传递依赖。
+
+例如新增 `openpyxl` 时，应在现有依赖中增加：
+
+```yaml
+dependencies:
+  - python=3.11
+  - numpy
+  - pandas
+  - scipy
+  - matplotlib
+  - seaborn
+  - openpyxl
+  - ruff
+  - pip
+  - "libblas=*=*_openblas"
+  - "liblapack=*=*_openblas"
+  - "libcblas=*=*_openblas"
+```
+
+如果任务要求固定特定版本，应在任务依据充分的情况下明确记录版本约束，不得无依据地随意锁定版本。
+
+### 6. pip 仅作为受控例外
+
+只有满足以下至少一种情况时，才允许使用 pip：
+
+- conda-forge 不提供该包；
+- conda-forge 没有与本工程 Python 版本兼容的版本；
+- 软件官方明确要求通过 pip 安装；
+- 所需功能只存在于官方 pip wheel；
+- Conda 包经过核验不能满足当前任务需求。
+
+使用 pip 前必须先说明：
+
+1. 为什么 Conda/conda-forge 无法满足需求；
+2. 准备安装的准确包名和版本；
+3. 是否会影响现有核心依赖；
+4. 安装后的验证方法。
+
+使用 pip 时，必须通过本工程固定解释器调用：
+
+```powershell
+$projectPython = "D:\Project_Files\python_project\conda_envs\project_20260821\python.exe"
+
+& $projectPython -m pip install <package-name>
+```
+
+禁止使用：
+
+```powershell
+pip install <package-name>
+```
+
+禁止使用其他 Python 解释器调用 pip。
+
+如果使用 pip，应在 `environment.yml` 的 `pip:` 子项中记录直接依赖，并在任务日志或工程 handoff 中记录使用 pip 的原因。
+
+### 7. 安装后的强制验证
+
+扩展包安装完成后，至少执行以下验证。
+
+#### 解释器路径
+
+```powershell
+$projectPython = "D:\Project_Files\python_project\conda_envs\project_20260821\python.exe"
+
+& $projectPython -c "import sys; print(sys.executable); print(sys.version)"
+```
+
+必须确认：
+
+```text
+sys.executable =
+D:\Project_Files\python_project\conda_envs\project_20260821\python.exe
+```
+
+#### 扩展包导入
+
+```powershell
+& $projectPython -c "import <package_name>; print(<package_name>.__version__)"
+```
+
+如果该包没有 `__version__`，应采用其官方支持的版本查询方式。
+
+#### 依赖一致性
+
+```powershell
+& $projectPython -m pip check
+```
+
+必须得到：
+
+```text
+No broken requirements found.
+```
+
+#### 工程验证
+
+如果新增扩展包影响工程代码，还必须：
+
+- 运行相关 pytest；
+- 运行 Ruff；
+- 运行与该扩展包直接相关的最小功能检查；
+- 确认没有修改 `data/raw/`；
+- 确认没有破坏已有任务结果；
+- 检查 Git 状态，区分用户既有修改和本次修改。
+
+如果验证失败，不得继续生成正式科研结果，不得把失败的环境状态视为任务完成。
+
+### 8. 任务模式与记录归属
+
+新增依赖本身通常属于工程配置维护，不自动构成新的科研任务。
+
+如果新增依赖服务于某个明确的新任务或已有任务：
+
+- 将安装原因、包名、版本、安装方式和验证结果记录到该任务的 `execution_log.txt`；
+- 在总体 `codex_handoff.txt` 中记录简短摘要；
+- 不为依赖安装单独创建没有研究意义的任务目录。
+
+如果依赖变更无法合理归属于具体任务，则按工程级维护处理：
+
+- 不创建虚构任务目录；
+- 直接在 `work_logs/codex_handoff/codex_handoff.txt` 中记录；
+- 说明修改的 `environment.yml`、安装包、版本、验证结果和未完成事项。
+
+### 9. 最小变更原则
+
+每次扩展包安装必须只服务于当前任务的实际需求。
+
+禁止：
+
+- 提前安装“以后可能会用到”的包；
+- 为了方便一次性安装大型综合环境；
+- 无依据地升级 Python；
+- 无依据地升级 NumPy、SciPy、pandas 或 Matplotlib；
+- 创建第二套工程解释器；
+- 修改 Anaconda `base` 环境；
+- 把其他工程环境中的包作为本工程的隐式依赖；
+- 通过复制 `site-packages` 的方式安装扩展包；
+- 在没有验证的情况下继续运行正式分析。
+
+核心原则是：
+
+> 本工程使用一套固定、可追溯、可复现的 Conda 环境；新增依赖默认通过 conda-forge 安装，pip 仅作为有记录、有验证的受控例外。
+
+## 十三、Git 提交规则：只提交代码和必要配置
+
+本工程的 GitHub 仓库只保存可维护的源代码、测试代码和运行所需的必要配置。代码运行产生的结果、数据和过程记录只保存在本地任务目录，不进入新的 Git 提交。
+
+### 1. 允许提交的内容
+
+- `scripts/` 下的 Python、JavaScript、MJS、MATLAB 等源代码和测试代码；
+- 运行代码所必需的工程配置，例如 `environment.yml`、`pyproject.toml`、`.gitignore`；
+- 维护工程所必需的规则和说明，例如 `AGENTS.md`、`README.md`；
+- 小型、明确属于源代码契约的固定配置，不包括脚本运行后生成的分析数据。
+
+### 2. 禁止提交的内容
+
+- `results/` 下的分析结果、图形、表格、模型、指纹、缓存和导出文件；
+- `work_logs/` 下的任务执行日志和交接记录；
+- `data/raw/`、`data/processed/` 下的数据；
+- 代码运行产生的 `.npz`、`.npy`、`.mat`、`.pkl`、`.joblib`、`.xlsx`、`.xls`、`.parquet`、`.h5`、`.hdf5`、`.ndjson`、图片和 PDF；
+- Python 缓存、测试缓存、Ruff 缓存、临时文件、本地环境和密钥。
+
+### 3. 提交前检查
+
+提交前必须确认暂存区只包含源代码和必要配置：
+
+```powershell
+git status --short
+git diff --cached --name-only
+git diff --cached --stat
+```
+
+不得直接使用 `git add .` 或 `git add -A` 将整个工程加入暂存区。应按明确的代码或配置路径选择性暂存，例如：
+
+```powershell
+git add scripts/
+git add environment.yml pyproject.toml .gitignore AGENTS.md README.md
+```
+
+如果发现 `results/`、`work_logs/` 或其他生成物已经被 Git 跟踪，`.gitignore` 不会自动取消其跟踪。取消跟踪或重写尚未推送的历史必须先检查文件用途，并获得明确授权；不得静默删除本地结果、修改历史或强制推送。
+
+### 4. 规则边界
+
+本规则只约束新的 Git 提交，不删除已有本地结果，也不自动清理历史。结果和日志仍按任务规则写入本地 `results/`、`work_logs/` 目录，用于复现和交接，但不作为 GitHub 仓库内容发布。

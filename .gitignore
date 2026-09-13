@@ -24,3 +24,26 @@ data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+
+# Code-generated results and execution records are local-only
+results/
+work_logs/
+
+# Common generated binary and inspection artifacts
+*.npz
+*.npy
+*.mat
+*.pkl
+*.pickle
+*.joblib
+*.xlsx
+*.xls
+*.parquet
+*.h5
+*.hdf5
+*.inspect.ndjson
+*.png
+*.jpg
+*.jpeg
+*.pdf
+*.svg
