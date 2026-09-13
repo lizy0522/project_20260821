@@ -1,0 +1,703 @@
+project_20260821 当前工程工作详细梳理
+=====================================
+
+生成日期：2026-08-26（Asia/Shanghai）
+工程根目录：D:\Project_Files\python_project\project_20260821
+Git分支：main
+当前HEAD：46c9507
+远程仓库：https://github.com/lizy0522/project_20260821.git
+
+本文档用途
+----------
+本文档汇总当前磁盘上已经完成的工程建设、数据入口、canonical信号处理、State0正向行为模型、
+X/Y等效验证和Ridge诊断扫描，并记录当前冻结边界、主要数值、测试状态、Git状态及后续工作。
+
+本文档只陈述当前磁盘证据和已经执行的结果。以下内容尚未执行，不能理解为已经完成：
+- 425状态行为模型批量提取；
+- Behavior Index；
+- LUT建立、检索或聚类；
+- 正式无偏lambda选择与冻结；
+- AM-AM、AM-PM、PSD和时域的OLS/Ridge对照；
+- 跨带宽、滤波或重采样分析。
+
+
+一、工程当前总体状态
+====================
+
+当前工程已经形成四层主要能力：
+
+1. scripts/_core
+   MATLAB兼容的底层信号处理和指标函数。
+
+2. scripts/data_manager
+   425个PA状态的state_id、条件、MAT路径和只读加载入口。
+
+3. scripts/signal_segmentation
+   从规定的原始PA输入输出关系生成唯一canonical A/B/C数据对。
+
+4. scripts/behavior_model
+   冻结10基函数Memory Polynomial、State0基线、canonical X/Y等效验证和Ridge诊断扫描。
+
+当前脚本目录：
+scripts/
+├── _core/                 12个Python文件
+├── data_manager/           7个Python文件
+├── signal_segmentation/    9个Python文件
+└── behavior_model/        16个Python文件
+
+当前结果目录：
+results/
+├── behavior_model/state_000/
+│   ├── X/、Y/                         整记录初始基线
+│   ├── xy_equivalence/                canonical X/Y等效验证
+│   └── ridge_scan/                    统一lambda Ridge诊断扫描
+└── signal_segmentation/
+    └── state0_validation_summary.csv
+
+当前日志目录：
+work_logs/
+├── behavior_model/execution_log.txt
+├── core_module_build/core_module_build_summary.txt
+├── data_manager_build/data_manager_build_summary.txt
+├── signal_segmentation_build/execution_log.txt
+└── codex_handoff/
+    ├── codex_handoff.txt
+    └── project_work_summary_2026-08-26.txt（本文档）
+
+当前工程仍处于未提交状态，详见第十二节。没有执行Git commit或push。
+
+
+二、运行环境与工程规范
+======================
+
+Conda环境：
+D:\Project_Files\python_project\conda_envs\project_20260821
+
+当前验证版本：
+- Python 3.11.15
+- NumPy 2.4.6
+- SciPy 1.17.1
+- Pandas 3.0.5
+- Matplotlib 3.11.1
+
+环境使用conda-forge和OpenBLAS约束。工程遵守根目录AGENTS.md：
+- data/raw默认只读；
+- 新科研任务使用语义化snake_case目录；
+- 持续维护复用原日志；
+- 结果写入results；
+- 执行记录写入work_logs；
+- 不自动commit/push/reset/clean/checkout；
+- 不覆盖用户已有未提交工作。
+
+共享代码导入约束：
+- 应把项目scripts/加入sys.path，然后导入_core.signal等完整包名；
+- 不要把scripts/_core本身加入sys.path，否则_core/signal可能遮蔽Python标准库signal。
+
+
+三、原始数据与当前数据边界
+==========================
+
+原始目录：
+data/raw/experiment_2026_0816/
+
+当前重新枚举结果：
+- 总文件：428
+- MAT文件：427
+- 总字节：2,258,448,112 bytes，约2.10 GiB
+- 数据采集MATLAB脚本：1个
+- signal_library MAT：1个
+- scenario_2状态MAT：425个
+- scenario_2 nominal_reference MAT：1个
+- scenario_1文件：0
+- data_process文件：0
+
+425状态结构：
+- 基波有效条件：25个
+  (0,0°) + {10,20,30} × {0,45,...,315°}
+- 二次谐波有效条件：17个
+  (0,0°) + {15,30} × {0,45,...,315°}
+- Vm固定：2.30 V
+- Pin固定：-21 dBm
+- 总状态：25 × 17 = 425
+
+nominal_reference中的1个MAT是基准内容的重复存放，不进入state_id 0...424。
+
+所有主要波形的完整时间长度为24576。State0当前：
+- xin                              (24576,1)
+- yout_withoutdpd_ori              (24576,1)
+- xin_pd_ori_ilc                   (24576,5)
+- yout_withdpd_ori_ilc             (24576,5)
+- xin_pd_nominal                   (24576,1)
+- yout_withdpd_stale_ori           (24576,1)
+- nth_inter                        5
+
+原始/已处理波形语义：
+- *_ori是仪器原始接收输出；
+- 不带_ori的yout_*已经过采集流程的Rough/Fine/adjust；
+- xin_pd_ori_ilc在每次发送前峰值归一化之前保存；
+- 对应真实发送输入必须逐列除以该列max(abs(x))；
+- times=10是采集/平均参数，不代表保存了10条独立波形。
+
+原始数据从未被本工程代码修改、覆盖、移动或重命名。
+
+早期“audit_experiment_2026_0816”脚本、结果和任务日志已按用户要求永久删除，当前工程中不存在
+该任务目录；本文档的原始数据计数来自本次重新枚举和当前data_manager/验收结果。
+
+
+四、_core：MATLAB兼容公共基础能力
+==================================
+
+位置：scripts/_core/
+构建方式：工程级持续维护
+
+参考MATLAB源码：
+- Rough_Align.m
+- Fine_Align.m
+- adjust.m
+- nmsecount_old.m
+- aclr.m
+- chan_pow.m
+- dbp.m
+
+公开信号函数：
+1. rough_align(x,y) -> y_aligned, delay
+   完整线性互相关估计整数延迟，并循环移动y。
+
+2. fine_align(x,y,subtime=256,ns=None) -> y_aligned, fraction_delay
+   频域相位旋转进行分数采样延迟补偿；默认分辨率1/256采样。
+
+3. adjust_complex_gain(x,y) -> y_adjusted, gain
+   gain=(y^H x)/(y^H y)，只做复增益最小二乘匹配。
+
+4. preprocess_pair(x,y)
+   Rough -> Fine -> 完整记录complex gain adjust。
+   注意：canonical A/B/C流程不能调用该函数，因为canonical要求先分段、后逐段adjust。
+
+公开指标函数：
+- nmse(x,y)
+- cnmse(y_ref,y_test)
+- acpr(signal,fs,bandwidth,spacing)
+
+ACPR复现MATLAB Hann窗、不超过信号长度的最大2次幂FFT、MATLAB频带bin边界和下/上邻道顺序。
+
+MATLAB交叉验证：
+- 三种模式NMSE/ACPR最大差约1.78e-14 dB；
+- Python Rough/Fine/adjust与保存MATLAB处理波形relative-L2约5.99e-16；
+- 样例rough delay=7721，fraction delay=-1/256。
+
+测试：7项全部PASS。
+
+
+五、data_manager：425状态统一数据入口
+====================================
+
+位置：scripts/data_manager/
+构建方式：工程公共能力持续维护
+
+实际配置路径：
+- DATA_ROOT=data/raw
+- EXPERIMENT_ROOT=data/raw/experiment_2026_0816
+- SCENARIO_ROOT=EXPERIMENT_ROOT/data_record/scenario_2
+- STATE_DATA_DIR=SCENARIO_ROOT/withoutdpd_withdpd_own_stale_fixPa_diffState
+- NOMINAL_DIR=SCENARIO_ROOT/nominal_reference
+
+state_id排序：
+funMng -> funAng -> secMng -> secAng -> Vm -> Pin
+
+代表状态：
+- state_id=0   -> (0,0,0,0,2.30,-21)
+- state_id=100 -> (10,180,30,270,2.30,-21)
+- state_id=424 -> (30,315,30,315,2.30,-21)
+
+公开接口：
+- build_state_table()
+- get_state_info(state_id)
+- get_state_id(funMng,funAng,secMng,secAng,Vm,Pin)
+- get_file_by_id / get_file_by_condition / get_state_id_by_file
+- load_by_id / load_by_condition / load_variable_by_id
+- PAStateDataset
+
+三套映射：
+- STATE_FILE_MAP：state_id -> MAT Path，425项
+- PARAM_FILE_MAP：六参数 -> MAT Path，425项
+- FILE_STATE_MAP：MAT Path -> state_id，425项
+
+MAT深路径通过Windows扩展长度前缀\\?\读取；公开Path保持普通可读形式。
+load_by_id会移除__header__/__version__/__globals__，保留原数组维度；每个状态返回46个业务变量。
+
+测试：5项全部PASS，包括425状态完整性、正反向映射、state0加载、条件加载和Dataset。
+
+
+六、signal_segmentation：canonical A/B/C
+======================================
+
+位置：scripts/signal_segmentation/
+构建方式：工程公共能力持续维护
+
+正式处理链：
+actual PA input preparation
+-> FULL Rough
+-> FULL Fine(subtime=256)
+-> 唯一ABC ownership split
+-> A/B/C independent complex gain adjust
+
+唯一Partition只由完整xin的axis=0长度建立一次：
+n_A=floor(0.5N)
+n_B=floor(0.2N)
+n_C=N-n_A-n_B
+
+N=24576时：
+- A=[0,12288)，ownership 12288
+- B=[12288,17203)，ownership 4915
+- C=[17203,24576)，ownership 7373
+
+B/C奇数长度严格保留，不偶数化、不借点。Partition不包含MP order、memory depth、ridge或max_delay。
+
+三类正式原始数据对：
+- OFF：xin + yout_withoutdpd_ori
+- ILC-n：peak-normalized xin_pd_ori_ilc[:,n] + yout_withdpd_ori_ilc[:,n]
+- STALE：xin_pd_nominal + yout_withdpd_stale_ori
+
+canonical流程明确不使用已处理的yout_withoutdpd/yout_withdpd/yout_withdpd_stale。
+
+主要接口：
+- build_partition / build_partition_from_xin
+- split_signal / split_signals
+- get_off_pair / get_ilc_pair / get_stale_pair
+- get_common_probe（固定返回xin_B）
+- preprocess_full_pair
+- build_off_segments / build_ilc_segments / build_stale_segments
+- SegmentPartition / RawBehaviorPair / CanonicalSegment / CanonicalSegments
+
+State0真实验收共7组：1 OFF、5 ILC、1 STALE，全部finite，A/B/C长度一致。
+5列ILC原始峰值：
+1.0528736212, 1.0204908352, 1.0002506166, 1.0002626983, 1.0002179423
+逐列恢复后canonical输入峰值均约为1。
+
+State0同步结果：所有组rough delay=7721；Fine delay为-0.00390625或0.49609375。
+机器可读摘要：results/signal_segmentation/state0_validation_summary.csv
+
+测试：12项全部PASS，包括奇数长度、1D/2D切分、无重叠遗漏、ILC归一化、异常防护、段内独立
+adjust和真实State0集成。
+
+
+七、behavior_model：冻结MP模型
+================================
+
+位置：scripts/behavior_model/
+任务/维护日志：work_logs/behavior_model/execution_log.txt
+
+冻结模型：包含p=2偶数项的阶数相关记忆深度复基带Memory Polynomial。
+
+orders=[1,2,3,5,7,9]
+memory_depth={1:3,2:2,3:2,5:1,7:1,9:1}
+基函数顺序：
+(1,0),(1,1),(1,2),(2,0),(2,1),(3,0),(3,1),(5,0),(7,0),(9,0)
+
+总系数：10个complex128
+max_delay=2
+OLS：np.linalg.lstsq(...,rcond=None)
+无bias、无矩阵求逆、无正规方程。
+
+主要代码：
+- config.py：冻结结构
+- basis.py：segment-local MP设计矩阵
+- coefficient.py：OLS内部求解入口
+- mp_model.py：fit/predict封装
+- prediction.py：Phi@theta
+- evaluation.py：NMSE/CNMSE
+- xy_equivalence.py：State0 canonical 11模型等效分析
+- ridge.py：lambda验证和增广复Ridge
+- ridge_scan.py：16点统一lambda扫描
+
+
+八、State0整记录初始行为模型基线
+================================
+
+结果位置：results/behavior_model/state_000/X、Y及summary.csv
+
+该基线早于canonical A/B/C模型，保留用于历史和回归，不作为当前2.2.2等效验证的正式分段结果。
+
+模型数：
+- X整记录：1
+- Y整记录：5
+
+结果：
+- X NMSE=-42.4222000598 dB
+- Y iter1=-41.7103392902 dB
+- Y iter2=-41.2351388601 dB
+- Y iter3=-41.2568578843 dB
+- Y iter4=-41.2595133412 dB
+- Y iter5=-41.3530554729 dB
+
+全部theta shape=(10,)、complex128、finite、rank=10，有效样本24574。
+测试：behavior_model基础5项PASS。
+
+
+九、State0 canonical X/Y等效验证
+================================
+
+结果位置：results/behavior_model/state_000/xy_equivalence/
+结果文件数：18
+主要结果表：state0_xy_equivalence_summary.csv
+
+模型定义：
+- X-A：OFF.A.input -> OFF.A.output，1个
+- Y-A-n：ILC[n].A.input -> ILC[n].A.output，5个
+- Y-C-n：ILC[n].C.input -> ILC[n].C.output，5个
+- 总模型：11
+
+MP local valid长度：
+- A ownership 12288 -> valid 12286
+- B ownership 4915  -> valid 4913
+- C ownership 7373  -> valid 7371
+- B不能从A借历史，C不能从B借历史。
+
+Train NMSE / B generalization NMSE：
+X-A     -42.5208354161 / -41.4771246171 dB
+Y-A-1   -41.8999952278 / -40.7672140813 dB
+Y-A-2   -41.3238602853 / -40.2163318465 dB
+Y-A-3   -41.3250613573 / -40.3140012662 dB
+Y-A-4   -41.4198939851 / -40.2750139192 dB
+Y-A-5   -41.3770230620 / -40.3538262877 dB
+Y-C-1   -42.1102792023 / -37.0435462687 dB
+Y-C-2   -41.9599459651 / -35.9401676248 dB
+Y-C-3   -41.9743623585 / -35.9009693351 dB
+Y-C-4   -41.8597110403 / -35.9428913476 dB
+Y-C-5   -42.1896193883 / -35.9513606274 dB
+
+B泛化口径：
+- X-A使用OFF.B.input，参考OFF.B.output[2:]；
+- 每个Y-A/Y-C使用对应ILC[n].B.input，参考对应ILC[n].B.output[2:]；
+- 不能把Y真实B泛化与公共probe等效验证混淆。
+
+公共probe固定：xin_B=OFF.B.input，ownership长度4915。
+所有11模型在相同xin_B上产生长度4913的响应；real_B=OFF.B.output[2:]。
+
+CNMSE方向：
+- X vs Real：cnmse(real_B,X_response)，1个
+- Y vs X：cnmse(X_response,Y_response)，10个
+- Y vs Real：cnmse(real_B,Y_response)，10个
+- 总非NaN CNMSE：21
+
+聚合观察：
+- Y-A B泛化median约-40.3140 dB；
+- Y-C B泛化median约-35.9429 dB；
+- Y-C Train约-42 dB但B泛化明显较弱，这是后续Ridge诊断的直接动机。
+
+结果包含：
+- 11行CSV；
+- 11个theta文件；
+- common_B_responses.npz（xin_B_valid、real_B和11条响应，均4913点）；
+- validation.json；
+- 4张基础数值图。
+
+测试：新增7项全部PASS；旧整记录结果和signal_segmentation哈希均保持不变。
+
+
+十、State0统一lambda Ridge诊断扫描
+===================================
+
+结果位置：results/behavior_model/state_000/ridge_scan/
+结果文件数：9
+
+Ridge目标：
+min_theta [ ||y-Phi theta||²/N + lambda ||theta||² ]
+
+lambda=0：直接走现有OLS代码路径。
+lambda>0：使用[Phi;sqrt(N lambda)I]和[y;0]的增广复数lstsq。
+生产代码不使用显式逆、正规方程、feature/column scaling、bias或其它正则项。
+
+扫描点：
+0,1e-12,1e-11,1e-10,1e-9,1e-8,1e-7,1e-6,1e-5,1e-4,1e-3,
+1e-2,1e-1,1,10,100
+
+规模：
+- lambda数：16
+- 每lambda模型：11
+- 总拟合：176
+- 每lambda Train NMSE：11
+- 每lambda B泛化NMSE：11
+- 每lambda非NaN CNMSE：21
+
+lambda=0回归：
+- 与xy_equivalence 11组theta最大误差=0；
+- 所有Train/B/CNMSE最大误差=0；
+- OLS全部18个结果文件执行前后SHA-256不变。
+
+OLS聚合基线：
+- X B-gen=-41.477124617 dB
+- Y-A B-gen median=-40.314001266 dB
+- Y-C B-gen median=-35.942891348 dB
+- Y-C vs X median=-36.352657458 dB
+- Y-C vs Real median=-34.697511425 dB
+- Y-C theta norm median=25.4636985
+
+诊断最强内部扫描点lambda=1e-8：
+- X Train=-42.222536694 dB，相对OLS恶化约0.2983 dB
+- X B-gen=-41.459667292 dB，相对OLS恶化约0.0175 dB
+- Y-A Train median=-41.003157771 dB，相对OLS恶化约0.3739 dB
+- Y-A B-gen median=-40.435012069 dB，相对OLS改善约0.1210 dB
+- Y-C Train median=-41.145283556 dB，相对OLS恶化约0.8291 dB
+- Y-C B-gen median=-40.289386911 dB，相对OLS改善约4.3465 dB
+- Y-C vs X median=-40.024811956 dB，相对OLS改善约3.6722 dB
+- Y-C vs Real median=-37.560415273 dB，相对OLS改善约2.8629 dB
+- Y-C theta norm median=16.9435569，较OLS 25.4636985明显下降
+
+lambda=1e-8时5个Y-C迭代的B泛化全部改善：
+- iter1 -37.0435 -> -40.6852 dB
+- iter2 -35.9402 -> -40.1864 dB
+- iter3 -35.9010 -> -40.2897 dB
+- iter4 -35.9429 -> -40.2262 dB
+- iter5 -35.9514 -> -40.2894 dB
+
+透明诊断约束：
+- X B-gen恶化不超过1 dB；
+- Y-A B-gen median恶化不超过1 dB；
+- Y-C Train median恶化不超过1 dB；
+- 同时要求Y-C B-gen/vsX/vsReal三项改善。
+
+满足条件的扫描点：1e-12至1e-8。
+candidate region=[1e-12,1e-8]，下端接触扫描边界；但三项目标指标各自最佳点均为内部1e-8。
+
+诊断分类：RIDGE_SIMULTANEOUS_Y_C_IMPROVEMENT_OBSERVED。
+
+科研解释边界：
+当前State0 B段诊断支持“适度Ridge对Y-C跨段泛化有正作用”。但B段同时参与诊断和候选区观察，
+因此1e-8不是无偏论文最终最优lambda，尚未写入config或冻结。正式lambda选择必须另设开发状态集、
+独立验证集或训练内部验证规则。
+
+结果文件：
+- state0_ridge_scan_models.csv，176行；
+- state0_ridge_scan_summary.csv，16行；
+- theta_ridge_scan.npz，theta shape=(16,11,10) complex128；
+- ridge_scan_validation.json；
+- 5张lambda扫描图。
+
+没有保存176个碎片NPY，也没有保存16×11条公共B响应。
+新增8项Ridge测试全部PASS。
+
+
+十一、测试与验证总览
+====================
+
+当前最终回归：
+- _core：7项PASS
+- data_manager：5项PASS
+- signal_segmentation：12项PASS
+- behavior_model基础：5项PASS
+- State0 xy_equivalence：7项PASS
+- State0 Ridge：8项PASS
+- 合计：44项PASS
+
+代码质量：
+- Ruff check：PASS
+- Ruff format：已执行
+- git diff --check：PASS
+- 无__pycache__、pyc或临时MAT进入交付范围
+- 无超过10MB的新增结果文件
+
+保护检查：
+- data/raw无Git差异；
+- 原始文件仍为428，状态MAT仍为425；
+- signal_segmentation 9个Python文件SHA-256在后续行为模型任务前后不变；
+- xy_equivalence 18个OLS结果文件SHA-256在Ridge扫描前后不变；
+- lambda=0数值逐点复现OLS。
+
+已处理的执行问题：
+1. _core直接测试最初出现标准库signal被scripts/_core/signal遮蔽；已改为从父目录scripts导入完整包。
+2. Windows深层MAT路径普通stat/load可能误报不存在；数据管理统一使用\\?\ I/O路径。
+3. Ridge首次正式绘图时，两条曲线传入三种颜色导致zip(strict=True)报错；修正为按曲线数截取颜色后
+   完整重跑，数值扫描本身未失败。
+4. 最终批量哈希复核曾因手工抄写一个期望哈希漏字符产生假阳性；使用执行前完整哈希复核后确认
+   文件实际未变化，过程已写入behavior_model日志。
+
+
+十二、当前Git状态与可恢复性
+==========================
+
+当前branch：main
+当前HEAD：46c9507
+
+git status当前显示：
+- README.md已修改；
+- work_logs/codex_handoff/codex_handoff.txt已修改；
+- results/behavior_model、results/signal_segmentation为未跟踪内容；
+- scripts/_core、scripts/data_manager、scripts/signal_segmentation、scripts/behavior_model为未跟踪内容；
+- work_logs/behavior_model、core_module_build、data_manager_build、signal_segmentation_build为未跟踪内容。
+
+这意味着当前大量新增代码、结果和日志尚未进入Git历史。若直接删除未跟踪文件，Git不能恢复。
+
+本工程迄今未执行：
+- git commit
+- git push
+- git reset
+- git clean
+- git checkout覆盖
+
+data/raw默认被保护且当前无Git差异。
+
+项目根目录还存在.ruff_cache目录，属于工具缓存，不是科研结果；当前未出现在
+git status中。后续如需清理，必须按精确路径单独确认，不能使用广泛git clean。
+
+
+十三、当前冻结科研契约
+======================
+
+1. 数据状态契约
+- state_id 0...424对应425个有效状态；
+- nominal重复文件不进入state_id；
+- State0是当前所有模型结论的唯一状态，不能外推为425状态结论。
+
+2. canonical数据契约
+- OFF只用xin+yout_withoutdpd_ori；
+- ILC只用逐列峰值归一化xin_pd_ori_ilc+yout_withdpd_ori_ilc；
+- STALE只用xin_pd_nominal+yout_withdpd_stale_ori；
+- FULL Rough -> FULL Fine -> ABC -> segment-wise adjust；
+- 不能使用已处理yout_*作为canonical原始输入；
+- 不能每段重新时间同步；
+- 不能完整记录先adjust再切ABC。
+
+3. ABC ownership契约
+- A/B/C=12288/4915/7373；
+- B/C奇数长度保留；
+- 后续算法不能修改ownership；
+- MP有效区在每段内部计算，B/C不能借历史。
+
+4. MP契约
+- orders=[1,2,3,5,7,9]；
+- memory_depth={1:3,2:2,3:2,5:1,7:1,9:1}；
+- 10个复数系数；max_delay=2；
+- OLS默认保持不变；
+- Ridge只改变lambda，不改变特征尺度或结构。
+
+5. 指标契约
+- Train NMSE与B泛化NMSE必须分开；
+- Y的B泛化使用各自ILC[n].B，不是公共xin_B；
+- 公共probe固定为OFF.B.input=xin_B；
+- XvsReal=cnmse(real_B,X)；YvsX=cnmse(X,Y)；YvsReal=cnmse(real_B,Y)；
+- CNMSE前不再对齐或adjust；
+- 比较模型响应，不比较theta向量。
+
+6. Ridge解释契约
+- improvement=OLS metric-Ridge metric，正值表示误差更负、性能改善；
+- 当前scan是diagnostic，不是最终超参数选择；
+- candidate region下端触及1e-12边界；
+- 1e-8是三个目标指标的内部最佳诊断点，但未冻结；
+- 不能用同一个B段既调参又宣称无偏最终性能。
+
+
+十四、当前明确未完成事项
+========================
+
+1. 正式lambda选择与验证
+   需要开发状态集/独立状态集或训练内部验证设计，解决B段调参泄漏。
+
+2. lambda候选区细扫描
+   尚未在[1e-12,1e-8]内执行更密扫描；由于当前三个指标最佳点为内部1e-8，是否细扫需单独授权。
+
+3. OLS vs Ridge候选的物理/图形诊断
+   尚未执行AM-AM、AM-PM、PSD、时域比较。
+
+4. 全425状态扩展
+   当前所有X/Y/Ridge结果只属于State0。
+
+5. Behavior Index和LUT
+   尚未建立行为指纹、跨状态距离、检索、共享DPD、聚类或全状态LUT。
+
+6. 跨带宽
+   尚未执行滤波、重采样、nB/5B或跨带宽保持性分析。
+
+7. Git版本化
+   当前代码和结果尚未提交；如需版本化，应先审查diff、确定提交边界，再由用户明确授权commit/push。
+
+
+十五、建议后续顺序
+==================
+
+建议按以下顺序继续，避免扩大科研结论：
+
+第一步：决定Ridge后续验证设计
+- 先确定lambda选择和最终验证的数据所有权；
+- 避免继续使用同一个State0 B段作为选择和最终报告。
+
+第二步：如有授权，比较OLS与诊断点1e-8
+- 在不冻结lambda的前提下补AM-AM、AM-PM、PSD和时域；
+- 重点验证Y-C改善是否具有合理物理表现，而不是数值偶然。
+
+第三步：设计多状态开发/验证拆分
+- 选取开发状态寻找候选区；
+- 使用独立状态验证；
+- 再决定是否冻结统一lambda。
+
+第四步：扩展canonical行为模型
+- 批量到425状态；
+- 保持A训练、C query、公共xin_B及B泛化口径；
+- 保持Train和B-Probe指标分离。
+
+第五步：进入Behavior Index和LUT
+- 在模型、lambda和验证口径冻结后，再建立行为索引、距离、检索和LUT；
+- 不把当前State0结果直接解释为跨状态检索证据。
+
+
+十六、常用复现命令
+==================
+
+环境解释器：
+D:\Project_Files\python_project\conda_envs\project_20260821\python.exe
+
+公共核心测试：
+python -B scripts\_core\test_core_modules.py
+
+数据管理测试：
+python -B scripts\data_manager\test_data_manager.py
+
+canonical A/B/C测试：
+python -B scripts\signal_segmentation\test_signal_segmentation.py
+
+State0 canonical验收：
+python -B scripts\signal_segmentation\run_state0_validation.py
+
+整记录行为模型基础测试：
+python -B scripts\behavior_model\test_behavior_model.py
+
+State0 canonical X/Y测试：
+python -B scripts\behavior_model\test_state0_xy_equivalence.py
+
+State0 canonical X/Y正式分析：
+python -B scripts\behavior_model\run_state0_xy_equivalence.py
+
+State0 Ridge测试：
+python -B scripts\behavior_model\test_state0_ridge_scan.py
+
+State0 Ridge正式扫描：
+python -B scripts\behavior_model\run_state0_ridge_scan.py
+
+Ruff：
+ruff check scripts
+ruff format scripts
+
+Git只读检查：
+git status --short
+git diff --check
+
+
+十七、当前结论摘要
+==================
+
+工程层面：
+- 已具备MATLAB兼容信号处理、425状态数据入口、canonical A/B/C生成和冻结MP建模能力；
+- 当前44项测试、Ruff和git diff --check通过；
+- raw数据、旧OLS结果和冻结segmentation均受到哈希/状态保护。
+
+科研层面：
+- State0的11个canonical模型均能在训练段达到约-41至-42 dB；
+- Y-A B泛化约-40 dB；OLS Y-C B泛化约-36 dB，存在明显跨段损失；
+- 统一Ridge在lambda=1e-8处使Y-C B泛化median改善约4.35 dB，且5次ILC均改善；
+- X基本不变、Y-A未明显受损、Y-C系数范数下降，支持Ridge对State0 Y-C跨段稳定性有正作用；
+- 该结论仍是使用State0 B段得到的诊断证据，不是无偏全状态结论，也不是正式lambda冻结。
+
+当前最重要的边界：
+不要把“State0诊断点lambda=1e-8”直接写成论文最终lambda；下一步首先应解决超参数选择和独立验证。
+
+文档结束。

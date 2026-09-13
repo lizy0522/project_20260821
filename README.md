@@ -195,7 +195,9 @@ git push
 
 ### 提交范围
 
-GitHub 只提交 `scripts/` 下的源代码、测试代码和运行所需的必要配置。代码运行产生的结果、数据、图形、模型、缓存和执行日志不提交，相关文件保存在本地的 `results/`、`data/` 和 `work_logs/` 目录。
+GitHub 提交 `scripts/` 下的源代码、测试代码、配置型文件、`work_logs/` 下的工作日志和交接文档，以及必要工程规则。配置型文件包括 `environment.yml`、`pyproject.toml`、`.yaml`、`.yml`、`.toml`、`.ini`、`.cfg` 以及手写的配置型 `.json`。代码运行产生的结果、数据、图形、模型和缓存不提交，相关文件保存在本地的 `results/`、`data/` 等目录。
+
+文件按用途而不是只按扩展名判断：脚本生成的 `.json`、`.csv`、`.txt`、`.ndjson` 等结果文件同样不提交。
 
 提交前应使用 `git diff --cached --name-only` 检查暂存区，不要使用 `git add .` 或 `git add -A` 添加整个工程。完整提交规则见 `AGENTS.md` 的“Git 提交规则”章节。
 

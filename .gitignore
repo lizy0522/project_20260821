@@ -25,9 +25,10 @@ data/raw/*
 data/processed/*
 !data/processed/.gitkeep
 
-# Code-generated results and execution records are local-only
+# Code-generated results are local-only
 results/
-work_logs/
+
+# Work logs and handoff documents are reviewable project records and may be committed
 
 # Common generated binary and inspection artifacts
 *.npz

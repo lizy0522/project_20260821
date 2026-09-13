@@ -1,0 +1,137 @@
+共享核心模块构建摘要
+====================
+
+时间：2026-08-25（Asia/Shanghai）
+工作模式：工程级持续维护
+状态：完成
+
+一、目标与边界
+----------------
+在 scripts/_core/ 建立可供后续科研任务复用的 MATLAB 兼容基础模块。本次只实现：
+- 整数采样时间对齐；
+- 分数采样时间对齐；
+- 复增益最小二乘调整；
+- 固定输入输出预处理链；
+- NMSE、CNMSE、ACPR；
+- 统一输入验证和直接可运行的回归测试。
+
+未实现多项式行为模型、LUT、行为指纹、跨带宽分析、聚类或检索算法。
+
+二、MATLAB 参考源码
+------------------
+- D:\Project_Files\matlab_project\sub_function\Rough_Align.m
+- D:\Project_Files\matlab_project\sub_function\Fine_Align.m
+- D:\Project_Files\matlab_project\sub_function\adjust.m
+- D:\Project_Files\matlab_project\sub_function\nmsecount_old.m
+- D:\Project_Files\matlab_project\sub_function\aclr.m
+- D:\Project_Files\matlab_project\sub_function\chan_pow.m
+- D:\Project_Files\matlab_project\sub_function\dbp.m
+
+三、新增文件
+------------
+- scripts/_core/__init__.py
+- scripts/_core/signal/__init__.py
+- scripts/_core/signal/alignment.py
+- scripts/_core/signal/calibration.py
+- scripts/_core/signal/preprocess.py
+- scripts/_core/metrics/__init__.py
+- scripts/_core/metrics/nmse.py
+- scripts/_core/metrics/cnmse.py
+- scripts/_core/metrics/acpr.py
+- scripts/_core/utils/__init__.py
+- scripts/_core/utils/validation.py
+- scripts/_core/test_core_modules.py
+
+四、公开函数
+------------
+1. rough_align(x, y) -> (y_aligned, delay)
+   通过完整线性互相关估计整数延迟，再对 y 执行循环移位。delay 是实际施加到 y 的整数位移。
+
+2. fine_align(x, y, subtime=256, ns=None) -> (y_aligned, fraction_delay)
+   按 Fine_Align.m 在 [-subtime, subtime-1] 网格搜索频域相关峰值并进行相位旋转。
+   MATLAB 返回网格整数，本 Python 接口返回实际施加的采样位移 grid_delay/subtime。
+   默认 subtime=256，与 experiment_2026_0816 采集脚本一致。
+
+3. adjust_complex_gain(x, y) -> (y_adjusted, gain)
+   gain=(y^H x)/(y^H y)，y_adjusted=gain*y。只做复增益匹配，不做峰值或功率归一化。
+
+4. preprocess_pair(x, y, subtime=256, ns=None) -> y_processed
+   固定执行 rough_align -> fine_align -> adjust_complex_gain。
+
+5. nmse(x, y) -> nmse_db
+   只计算 10*log10(sum(|x-y|^2)/sum(|x|^2))；完全相同时返回 -Inf。
+
+6. cnmse(y_ref, y_test) -> cnmse_db
+   只计算 10*log10(sum(|y_ref-y_test|^2)/sum(|y_ref|^2))；不调用对齐、校准或归一化。
+
+7. acpr(signal, fs, bandwidth, spacing) -> (lower_db, upper_db)
+   迁移 aclr.m/chan_pow.m/dbp.m：默认 Hann 窗、向下取不超过输入长度的最大 2 次幂 FFT、
+   MATLAB 一基频带边界换算、主信道与正负 spacing 邻道功率积分。输出顺序为下邻道、上邻道。
+
+五、输入约束
+------------
+- signal 对齐和校准要求等长、非空、一维、有限 complex ndarray。
+- NMSE/CNMSE/ACPR 接受一维有限数值 ndarray。
+- 函数不修改输入数组。
+- 零参考能量、零主信道功率、非法频带或非法搜索参数会显式抛出 ValueError。
+
+六、测试与验证
+--------------
+执行命令：
+D:\Project_Files\python_project\conda_envs\project_20260821\python.exe scripts\_core\test_core_modules.py
+
+合成回归测试：7/7 PASS
+- 整数延迟 20 点恢复；
+- 1/64 网格分数延迟恢复；
+- 已知幅相复增益恢复；
+- nmse(x,x)=-Inf；
+- cnmse(y,y)=-Inf；
+- 上下邻道双音 ACPR；
+- 完整 preprocess_pair 流水线及输入不变性。
+
+实际 MAT 交叉验证：
+输入文件：data/raw/experiment_2026_0816/data_record/scenario_2/nominal_reference/
+funMng_000_funAng_000_secMng_000_secAng_000_vCarrier_2.30_inputPower_-21.00.mat
+
+- withoutdpd、withdpd、withdpd_stale 三种模式的 NMSE、下邻道 ACPR、上邻道 ACPR：
+  Python 与 MAT 保存的 MATLAB 值最大绝对差约 1.78e-14 dB。
+- yout_withoutdpd_ori 经 Python Rough -> Fine -> adjust 后，与保存的 MATLAB yout_withoutdpd：
+  relative-L2=5.99e-16，最大绝对样本差=7.71e-16。
+- 该样本估计结果：rough delay=7721，fraction delay=-1/256。
+
+代码质量验证：
+- ruff check --fix：PASS
+- ruff format：PASS
+- 最终 ruff check：PASS
+- compileall：PASS
+- git diff --check：PASS
+- 测试生成的 4 个 __pycache__ 目录已清理。
+
+七、后续调用方式
+----------------
+任务入口脚本应将项目 scripts/ 加入 Python 搜索路径，再通过完整包名导入；不要把
+scripts/_core/ 本身加入 sys.path，否则 _core/signal 可能遮蔽 Python 标准库 signal。
+
+示例：
+
+from pathlib import Path
+import sys
+
+scripts_root = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(scripts_root))
+
+from _core.signal import preprocess_pair
+from _core.metrics import acpr, cnmse, nmse
+
+y_processed = preprocess_pair(x, y, subtime=256)
+nmse_db = nmse(x, y_processed)
+lower_db, upper_db = acpr(y_processed, fs, bandwidth, spacing)
+
+CNMSE 的两个输入必须由调用方预先按研究设计完成处理；cnmse() 内部不会自动对齐或调整复增益。
+
+八、安全与工程状态
+------------------
+- 未修改 data/raw。
+- 未创建新的科研任务目录。
+- 保留了执行前已有的其他未提交工作和 handoff 修改。
+- 未执行 git commit、push、reset、clean 或 checkout。

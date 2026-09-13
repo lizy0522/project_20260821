@@ -1,0 +1,63 @@
+
+
+[2026-09-13T21:19:30+08:00] START scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B
+Result root: D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B
+Python: D:\Project_Files\python_project\conda_envs\project_20260821\python.exe
+Only common-B fingerprint excitation changes; model, clusters, representatives, DPD entries and metrics are frozen.
+[2026-09-13T21:20:26+08:00] FAILED
+RuntimeError: Engineering check failed: ruff: {'returncode': 1, 'stdout_tail': 'ne too long (140 > 100)\n    --> scripts\\behavior_fingerprint_lut_retrieval\\run_scenario2_C2_to_Aend_frozen_centered17_type3_commonB_control_5b.py:1128:101\n     |\n1126 | …\n1127 | …_ROOT, check=False, capture_output=True, text=True, encoding="utf-8", errors="replace")\n1128 | …code, "stdout_tail": completed.stdout[-600:], "stderr_tail": completed.stderr[-600:]}\n     |                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n1129 | …\n1130 | …\n     |\n\nFound 67 errors.\n[*] 1 fixable with the `--fix` option (1 hidden fix can be enabled with the `--unsafe-fixes` option).\n', 'stderr_tail': ''}
+No historical result, raw data, or Git cleanup operation was performed.
+
+
+[2026-09-13T21:21:40+08:00] START scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B
+Result root: D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B
+Python: D:\Project_Files\python_project\conda_envs\project_20260821\python.exe
+Only common-B fingerprint excitation changes; model, clusters, representatives, DPD entries and metrics are frozen.
+[2026-09-13T21:22:41+08:00] COMPLETE
+Completed scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B: commonB exact=67/425, same_cluster=309/425, Real-B pass=409/425, FAIL->PASS=274, PASS->FAIL=1, workers=12, result=D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B, elapsed=61.760s. Common-B source and all frozen historical inputs were read-only; DPD replay was not performed.
+
+
+[2026-09-13T21:44:10+08:00] START scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B
+Result root: D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B
+Python: D:\Project_Files\python_project\conda_envs\project_20260821\python.exe
+Only common-B fingerprint excitation changes; model, clusters, representatives, DPD entries and metrics are frozen.
+[2026-09-13T21:45:08+08:00] COMPLETE
+Completed scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B: commonB exact=67/425, same_cluster=309/425, Real-B pass=409/425, FAIL->PASS=274, PASS->FAIL=1, workers=12, result=D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B, elapsed=57.624s. Common-B source and all frozen historical inputs were read-only; DPD replay was not performed.
+
+
+[2026-09-13T21:48:29+08:00] START scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B
+Result root: D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B
+Python: D:\Project_Files\python_project\conda_envs\project_20260821\python.exe
+Only common-B fingerprint excitation changes; model, clusters, representatives, DPD entries and metrics are frozen.
+[2026-09-13T21:49:27+08:00] COMPLETE
+Completed scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B: commonB exact=67/425, same_cluster=309/425, Real-B pass=409/425, FAIL->PASS=274, PASS->FAIL=1, workers=12, result=D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B, elapsed=57.195s. Common-B source and all frozen historical inputs were read-only; DPD replay was not performed.
+
+
+[2026-09-13T21:49:53+08:00] START scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B
+Result root: D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B
+Python: D:\Project_Files\python_project\conda_envs\project_20260821\python.exe
+Only common-B fingerprint excitation changes; model, clusters, representatives, DPD entries and metrics are frozen.
+[2026-09-13T21:50:50+08:00] COMPLETE
+Completed scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B: commonB exact=67/425, same_cluster=309/425, Real-B pass=409/425, FAIL->PASS=274, PASS->FAIL=1, workers=12, result=D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B, elapsed=57.411s. Common-B source and all frozen historical inputs were read-only; DPD replay was not performed.
+
+
+[2026-09-13T21:51:55+08:00] START scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B
+Result root: D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B
+Python: D:\Project_Files\python_project\conda_envs\project_20260821\python.exe
+Only common-B fingerprint excitation changes; model, clusters, representatives, DPD entries and metrics are frozen.
+[2026-09-13T21:52:53+08:00] COMPLETE
+Completed scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B: commonB exact=67/425, same_cluster=309/425, Real-B pass=409/425, FAIL->PASS=274, PASS->FAIL=1, workers=12, result=D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B, elapsed=58.136s. Common-B source and all frozen historical inputs were read-only; DPD replay was not performed.
+
+
+[2026-09-13T21:53:47+08:00] START scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B
+Result root: D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B
+Python: D:\Project_Files\python_project\conda_envs\project_20260821\python.exe
+Only common-B fingerprint excitation changes; model, clusters, representatives, DPD entries and metrics are frozen.
+[2026-09-13T21:54:44+08:00] COMPLETE
+Completed scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B: commonB exact=67/425, same_cluster=309/425, Real-B pass=409/425, FAIL->PASS=274, PASS->FAIL=1, workers=12, result=D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B, elapsed=57.469s. Common-B source and all frozen historical inputs were read-only; DPD replay was not performed.
+[2026-09-13 final verification]
+Final primary paired result is state-specific-B 17-basis versus historical common-B 17-basis. Common-B source is the read-only historical ``lut_fingerprints_Aend.npz/common_B_input`` vector (4915 raw samples, 4913 valid samples), reused without re-normalization. The 17-basis Aend/C2 Train reproduction maximum error is 7.105e-15 dB; ranks are 17/17 for all 850 fits and the maximum condition number is within the 1e10 limit. Type-III mapping remains 425 states to 77 minimax-medoid representatives; representative DPD entries are bytewise unchanged.
+
+Final retrieval counts: common-B Exact=67/425, Same-cluster=309/425, Real-B CNMSE<-40 dB=409/425. Relative to the read-only state-specific-B baseline (9/425, 43/425, 136/425), count changes are +58, +266, +273 respectively; transitions are Real-B PASS->PASS=135, PASS->FAIL=1, FAIL->PASS=274, FAIL->FAIL=15; Same-cluster correct->correct=40, correct->wrong=3, wrong->correct=269, wrong->wrong=113. Finite Real-B CNMSE median/mean/worst are -43.181534064/-42.955682256/-37.181798925 dB; finite paired delta median/mean are -5.159223925/-5.277294442 dB, with better/equal-or-near-equal/worse=368/51/6. Common-B self Aend/C2 CNMSE median is -47.525576269 dB and 359/425 are below -40 dB. True-cluster representative rank is 1 for 309/425, <=3 for 407/425, <=5 for 422/425, and <=10 for all 425.
+
+Post-run artifact validation passed: result directory contains exactly the eight requested files; CSVs contain 425 rows; MAT probe and DPD arrays match their frozen sources; Excel was exported and five-sheet previews were visually checked; the paired comparison PNG was visually checked. Compileall, Ruff, pip check, git diff --check, core/data_manager/signal_segmentation/representative regressions passed. The existing retrieval regression functional tests passed but its pre-task whole-directory digest assertion remains stale and was accepted without modifying the old test. No raw data, historical result, formal Frozen model, Global G4, clustering, or low-bandwidth result was changed; no DPD replay was performed.

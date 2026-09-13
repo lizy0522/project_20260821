@@ -1,0 +1,174 @@
+PA实验数据管理模块构建摘要
+==========================
+
+时间：2026-08-25（Asia/Shanghai）
+工作模式：工程公共能力持续维护
+状态：完成
+
+一、建设目标与边界
+------------------
+在 scripts/data_manager/ 建立当前 experiment_2026_0816 场景2的统一数据入口，实现：
+- 425个有效状态的稳定 state_id；
+- state_id 与六状态参数双向映射；
+- state_id、六参数和MAT文件路径映射；
+- 全MAT、按条件和指定变量三种只读加载方式；
+- 支持长度、索引和遍历的 PAStateDataset。
+
+本次没有实现正向行为模型、多项式提取、LUT、行为指纹、CNMSE检索或聚类。
+
+二、新增文件
+------------
+- scripts/data_manager/__init__.py
+- scripts/data_manager/config.py
+- scripts/data_manager/state_index.py
+- scripts/data_manager/file_index.py
+- scripts/data_manager/loader.py
+- scripts/data_manager/dataset.py
+- scripts/data_manager/test_data_manager.py
+
+三、实际数据路径
+--------------
+任务文字中的 data/raw/scenario_2 不是当前磁盘路径。实现使用经重新核验的真实路径：
+
+DATA_ROOT
+= D:\Project_Files\python_project\project_20260821\data\raw
+
+EXPERIMENT_ROOT
+= DATA_ROOT\experiment_2026_0816
+
+SCENARIO_ROOT
+= EXPERIMENT_ROOT\data_record\scenario_2
+
+STATE_DATA_DIR
+= SCENARIO_ROOT\withoutdpd_withdpd_own_stale_fixPa_diffState
+
+NOMINAL_DIR
+= SCENARIO_ROOT\nominal_reference
+
+425状态映射只扫描 STATE_DATA_DIR。NOMINAL_DIR 中的1个重复标称参考文件不纳入 state_id，
+避免状态数量变为426。
+
+四、state_id定义
+---------------
+排序顺序固定为：
+
+funMng -> funAng -> secMng -> secAng -> Vm -> Pin
+
+状态空间不是四个幅相列表的直接笛卡尔积。零幅度时只允许零相位：
+
+- 基波有效条件：(0,0°) + {10,20,30} × {0,45,...,315°} = 25
+- 二次谐波有效条件：(0,0°) + {15,30} × {0,45,...,315°} = 17
+- Vm固定为2.30，Pin固定为-21
+- 总状态数：25 × 17 × 1 × 1 = 425
+- state_id范围：0至424
+
+代表状态：
+- state_id=0   -> (0, 0, 0, 0, 2.30, -21)
+- state_id=100 -> (10, 180, 30, 270, 2.30, -21)
+- state_id=424 -> (30, 315, 30, 315, 2.30, -21)
+
+build_state_table() 返回425行字典副本；get_state_info(state_id) 返回六参数字典；
+get_state_id(funMng,funAng,secMng,secAng,Vm,Pin) 执行反向查询。无效零幅度/非零相位组合会报错。
+
+五、文件索引
+------------
+实际文件名解析格式：
+
+funMng_010_funAng_045_secMng_015_secAng_090_
+vCarrier_2.30_inputPower_-21.00.mat
+
+公开映射：
+- STATE_FILE_MAP：state_id -> Path，共425项
+- PARAM_FILE_MAP：(funMng,funAng,secMng,secAng,Vm,Pin) -> Path，共425项
+- FILE_STATE_MAP：Path -> state_id，共425项
+
+索引初始化时会检查：
+- 文件名能否完整解析六参数；
+- 参数是否属于425个有效状态；
+- 是否存在重复 state_id 或重复参数；
+- 是否缺失任一 state_id；
+- 实际MAT数量是否严格等于425。
+
+Windows深路径扫描和MAT加载统一使用 \\?\ 扩展长度路径，公开映射仍保存普通可读 Path。
+
+六、数据访问方式
+----------------
+1. load_by_id(state_id)
+   读取指定状态MAT中的全部业务变量。返回字典会移除 __header__、__version__、__globals__，
+   不压缩原始数组维度。当前每个状态返回46个业务变量。
+
+2. load_by_condition(funMng,funAng,secMng,secAng,Vm,Pin)
+   先由六参数确定 state_id，再调用 load_by_id。
+
+3. load_variable_by_id(state_id,variable_name)
+   使用 scipy.io.loadmat(variable_names=[...]) 只读取指定变量；变量不存在时抛出 KeyError。
+
+4. PAStateDataset
+   len(dataset)=425；dataset[state_id]读取对应完整MAT；按state_id从0到424迭代。
+   Dataset不缓存MAT内容，重复访问会重新只读加载文件。
+
+七、测试结果
+------------
+执行命令：
+D:\Project_Files\python_project\conda_envs\project_20260821\python.exe -B \
+scripts\data_manager\test_data_manager.py
+
+输出：
+state table test: PASS
+file index test: PASS
+load by id test: PASS
+load by condition test: PASS
+dataset test: PASS
+
+补充验证：
+- 425个文件全部完成文件名解析、有效状态检查、重复检查和缺失ID检查；
+- STATE_FILE_MAP/PARAM_FILE_MAP/FILE_STATE_MAP 均为425项；
+- state_id 0、100、424正反向映射一致；
+- load_by_id(0)返回46个业务变量，无MAT内部元数据键；
+- xin shape=(24576,1)，为复数数组；
+- 指定变量读取与全MAT读取逐元素一致；
+- state_id=100文件路径反查得到100；
+- Ruff check --fix、Ruff format、最终Ruff check和git diff --check均通过。
+
+八、后续调用方式
+----------------
+任务脚本应将项目 scripts/ 加入Python搜索路径，然后通过 data_manager 包导入：
+
+from pathlib import Path
+import sys
+
+scripts_root = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(scripts_root))
+
+from data_manager import (
+    PAStateDataset,
+    get_state_id,
+    get_state_info,
+    load_by_condition,
+    load_by_id,
+    load_variable_by_id,
+)
+
+info = get_state_info(100)
+state_id = get_state_id(**info)
+data = load_by_id(state_id)
+y = load_variable_by_id(state_id, "yout_withoutdpd")
+
+same_data = load_by_condition(
+    funMng=10,
+    funAng=180,
+    secMng=30,
+    secAng=270,
+    Vm=2.30,
+    Pin=-21,
+)
+
+dataset = PAStateDataset()
+first_state = dataset[0]
+
+九、安全与工程状态
+------------------
+- data/raw 全程只读，未修改、移动、重命名或覆盖任何原始文件。
+- 未创建 scripts/task_name 或 results/task_name。
+- 执行前已有的 _core、其他未提交工作和 handoff 修改均已保留。
+- 未执行git commit、push、reset、clean或checkout。

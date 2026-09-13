@@ -1,0 +1,120 @@
+时间：2026-08-26（Asia/Shanghai）
+任务名称：pa_performance_observation
+任务类型：新任务模式
+任务目标：遍历scenario_2全部425个工作条件，按ILC迭代编号分别观察MAT已保存的上下邻道
+ACPR dB算术平均；每次迭代单独一张图，每张图仅一个数据系列。
+
+一、执行边界
+------------
+- 只读取data_manager提供的state_id=0...424。
+- 权威数据源仅为acpr_withdpd_ilc_tmp；未重新计算频谱或调用_core.acpr。
+- yout_withdpd_ori_ilc只用于验证列数与nth_inter一致。
+- 未计算NMSE、效率、功率、电流、STALE、无DPD、最终own-DPD或其它派生指标。
+- 未修改_core、data_manager、signal_segmentation、behavior_model或data/raw。
+
+二、ACPR定义与对应关系
+--------------------
+MAT acpr_withdpd_ilc_tmp[n-1,0]对应第n次ILC下邻道ACPR，
+acpr_withdpd_ilc_tmp[n-1,1]对应第n次ILC上邻道ACPR；行n与
+yout_withdpd_ori_ilc[:,n-1]列n一一对应。
+
+冻结平均定义：
+ACPR_avg_dB=(ACPR_lower_dB+ACPR_upper_dB)/2。
+直接对dBc数值做算术平均，不转换线性功率、不取worst/min/max/绝对值。
+
+三、新增文件
+------------
+- scripts/pa_performance_observation/__init__.py
+- scripts/pa_performance_observation/ilc_acpr_observation.py
+- scripts/pa_performance_observation/run_scenario2_ilc_acpr_observation.py
+- scripts/pa_performance_observation/test_ilc_acpr_observation.py
+- results/pa_performance_observation/scenario_2/ilc_acpr_average_by_state.csv
+- results/pa_performance_observation/scenario_2/ilc_iteration_01_acpr_average.png
+- results/pa_performance_observation/scenario_2/ilc_iteration_02_acpr_average.png
+- results/pa_performance_observation/scenario_2/ilc_iteration_03_acpr_average.png
+- results/pa_performance_observation/scenario_2/ilc_iteration_04_acpr_average.png
+- results/pa_performance_observation/scenario_2/ilc_iteration_05_acpr_average.png
+
+四、数据完整性结果
+----------------
+状态数：425，state_id严格为0...424，无重复、无缺失。
+nth_inter分布：
+- 2次：1个状态
+- 3次：416个状态
+- 4次：7个状态
+- 5次：1个状态
+
+动态max_iteration=5。
+各迭代有效状态数：
+- Iteration 1：425
+- Iteration 2：425
+- Iteration 3：424
+- Iteration 4：8
+- Iteration 5：1
+
+缺失数量：0/0/1/417/424；均在CSV中保存为NaN，没有补0、复制、插值或外推。
+
+五、CSV
+------
+路径：results/pa_performance_observation/scenario_2/ilc_acpr_average_by_state.csv
+shape=(425,13)，文件共426行（1行表头+425状态）。
+字段：state_id、funMng、funAng、secMng、secAng、Vm、Pin、nth_inter、
+iter_1_acpr_avg_db至iter_5_acpr_avg_db。
+
+各迭代有效值范围：
+- Iter1：[-45.1404683539,-35.9780877315] dBc
+- Iter2：[-51.9314122100,-43.2590763780] dBc
+- Iter3：[-55.1412660411,-49.7704164600] dBc
+- Iter4：[-54.7878736760,-50.8573725521] dBc
+- Iter5：唯一值-51.1761339939 dBc
+
+抽查state_id=0、100、424的全部已有iteration，CSV值与MAT保存上下邻道dB算术平均的误差
+不超过1e-12。
+
+六、图形
+--------
+生成5张300dpi PNG，均为2969x1409 RGBA：
+- ilc_iteration_01_acpr_average.png
+- ilc_iteration_02_acpr_average.png
+- ilc_iteration_03_acpr_average.png
+- ilc_iteration_04_acpr_average.png
+- ilc_iteration_05_acpr_average.png
+
+每张图只调用一次研究数据plot；无legend、无-50 dBc阈值线、无lower/upper辅助曲线。
+横轴固定State ID 0...424，纵轴统一使用全体有效ACPR的共同范围和5% margin。
+Iteration 5只有state_id=0一个有效点，以单marker绘制，没有人为连接其它状态。
+所有PNG存在、非空、可由PIL读取；人工查看Iteration 1和5布局正常。
+
+七、测试与质量
+--------------
+新增8项测试PASS：
+- dB算术平均公式；
+- State0 ACPR/yout/nth_inter结构；
+- 425状态完整性；
+- 动态max iteration；
+- 当前有效数量425/425/424/8/1；
+- 缺失iteration为NaN；
+- CSV数值来源与MAT一致；
+- 5张PNG数量、命名和可读性。
+
+执行前现有44项测试全部PASS。最终回归再次执行全部现有测试和新增8项。
+Ruff check --fix、Ruff format、最终Ruff check和git diff --check通过。
+
+八、安全与Git
+------------
+- data/raw只读，文件仍为428，状态MAT仍为425，无Git差异。
+- _core、data_manager、signal_segmentation、behavior_model执行前后聚合SHA-256保持不变。
+- 未生成临时MAT、__pycache__、pyc或无关大文件。
+- 当前工作区已有大量未提交工作，本次未clean/reset/checkout/restore/commit/push。
+
+当前状态：任务完成，无阻塞问题。
+
+追加维护（2026-08-26）：
+- 按用户要求新增五iteration组合图：
+  results/pa_performance_observation/scenario_2/ilc_iterations_01_to_05_acpr_average.png。
+- 组合图在同一坐标轴绘制Iteration 1...5五个独立数据系列，使用图例区分；仍不加入-50 dBc
+  阈值线或lower/upper辅助系列。
+- 缺失iteration继续通过finite mask排除；Iteration 4只含8个真实状态，Iteration 5只含
+  state_id=0单marker。
+- 组合图沿用5张单iteration图的全局统一纵轴，300dpi、2969x1409 RGBA，PIL读取和人工视觉检查通过。
+- 原5张单iteration图和CSV保留，当前结果为1个CSV+6张PNG；新模块测试增至9项。

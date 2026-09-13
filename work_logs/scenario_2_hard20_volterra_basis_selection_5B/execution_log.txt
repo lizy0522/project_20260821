@@ -1,0 +1,15 @@
+
+
+[2026-09-12T16:05:14+08:00] START scenario_2_hard20_volterra_basis_selection_5B
+Result root: D:\Project_Files\python_project\project_20260821\results\basis_function_selection\scenario_2_hard20_volterra_basis_selection_5B
+Python: D:\Project_Files\python_project\conda_envs\project_20260821\python.exe
+Mode: new independent research task; raw data and historical results are read-only.
+[2026-09-12T16:05:37+08:00] COMPLETE
+Completed scenario_2_hard20_volterra_basis_selection_5B. Hard20=[325, 332, 333, 334, 336, 353, 324, 338, 350, 326, 349, 339, 351, 342, 328, 323, 355, 331, 327, 356]; workers=12; capacity={'full81_all_full_rank': True, 'full81_q99_condition': 881120628.292375, 'numerically_reliable': True, 'train_failure_state_ids': [323, 324, 325, 326, 327, 328, 331, 332, 333, 334, 336, 338, 339, 342, 349, 350, 351, 353, 355, 356], 'capacity_failure': True, 'inconclusive': False}; result=D:\Project_Files\python_project\project_20260821\results\basis_function_selection\scenario_2_hard20_volterra_basis_selection_5B; elapsed=24.207s; data/raw and protected historical results unchanged.
+
+[2026-09-12T16:08:46+08:00] RESULT SEMANTICS CLARIFICATION
+The capacity gate stopped before Test preprocessing. The summary now explicitly records `Test gain computed: false` and describes the frozen policy separately. No scientific metric was changed.
+The final Train/Test CSV now includes `test_evaluated=False`; unevaluated Test pass fields are blank instead of being presented as ordinary failures.
+
+[2026-09-12T16:10:00+08:00] INDEPENDENT RESULT CROSS-CHECK
+State 325 was reloaded and independently reprocessed after scratch cleanup. Direct Full81 Train NMSE=-27.022578867690463 dB versus saved -27.022578867690010 dB (absolute delta 4.51e-13 dB). Direct Hard-20 ranking NMSE exactly matched the saved value. Full81 raw/scaled OLS ranks were both 81; their NMSE delta was 1.69e-12 dB. Ruff, compileall, and git diff --check passed after the summary clarification.

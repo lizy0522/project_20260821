@@ -1064,28 +1064,31 @@ No broken requirements found.
 
 > 本工程使用一套固定、可追溯、可复现的 Conda 环境；新增依赖默认通过 conda-forge 安装，pip 仅作为有记录、有验证的受控例外。
 
-## 十三、Git 提交规则：只提交代码和必要配置
+## 十三、Git 提交规则：提交代码、配置、工作日志和交接文档
 
-本工程的 GitHub 仓库只保存可维护的源代码、测试代码和运行所需的必要配置。代码运行产生的结果、数据和过程记录只保存在本地任务目录，不进入新的 Git 提交。
+本工程的 GitHub 仓库保存可维护的源代码、测试代码、配置型文件、工作日志、交接文档和必要工程规则。代码运行产生的结果、数据和过程产物不进入新的 Git 提交。
 
 ### 1. 允许提交的内容
 
 - `scripts/` 下的 Python、JavaScript、MJS、MATLAB 等源代码和测试代码；
-- 运行代码所必需的工程配置，例如 `environment.yml`、`pyproject.toml`、`.gitignore`；
+- 运行代码所必需的配置型文件，例如 `environment.yml`、`pyproject.toml`、`.gitignore`、`*.yaml`、`*.yml`、`*.toml`、`*.ini`、`*.cfg` 和手写的配置型 `*.json`；
+- `work_logs/` 下的工作日志、任务 `execution_log.txt` 和工程 `codex_handoff.txt` 交接文档；
 - 维护工程所必需的规则和说明，例如 `AGENTS.md`、`README.md`；
 - 小型、明确属于源代码契约的固定配置，不包括脚本运行后生成的分析数据。
 
 ### 2. 禁止提交的内容
 
 - `results/` 下的分析结果、图形、表格、模型、指纹、缓存和导出文件；
-- `work_logs/` 下的任务执行日志和交接记录；
 - `data/raw/`、`data/processed/` 下的数据；
-- 代码运行产生的 `.npz`、`.npy`、`.mat`、`.pkl`、`.joblib`、`.xlsx`、`.xls`、`.parquet`、`.h5`、`.hdf5`、`.ndjson`、图片和 PDF；
+- `work_logs/` 下的二进制结果、图形、模型、缓存或其他运行产物；工作日志和交接文档不属于此项；
+- 代码运行产生的 `.npz`、`.npy`、`.mat`、`.pkl`、`.joblib`、`.xlsx`、`.xls`、`.parquet`、`.h5`、`.hdf5`、`.ndjson`、`.json`、`.csv`、`.txt`、图片和 PDF；
 - Python 缓存、测试缓存、Ruff 缓存、临时文件、本地环境和密钥。
+
+文件是否允许提交按用途判断，而不只按扩展名判断：手写并作为程序输入的配置可以提交；脚本运行生成的 `validation.json`、`retrieval_results.csv`、`final_result_summary.txt` 等文件属于结果，即使扩展名是配置或文本格式，也不得提交。
 
 ### 3. 提交前检查
 
-提交前必须确认暂存区只包含源代码和必要配置：
+提交前必须确认暂存区只包含源代码、配置型文件、工作日志、交接文档和必要工程规则：
 
 ```powershell
 git status --short
@@ -1100,8 +1103,10 @@ git add scripts/
 git add environment.yml pyproject.toml .gitignore AGENTS.md README.md
 ```
 
+暂存区中出现 `results/`、`data/` 或脚本生成的结果文件时，必须先取消暂存，不能通过提交这些文件来保存分析结果。`work_logs/` 下的工作日志和交接文档可以保留在暂存区。
+
 如果发现 `results/`、`work_logs/` 或其他生成物已经被 Git 跟踪，`.gitignore` 不会自动取消其跟踪。取消跟踪或重写尚未推送的历史必须先检查文件用途，并获得明确授权；不得静默删除本地结果、修改历史或强制推送。
 
 ### 4. 规则边界
 
-本规则只约束新的 Git 提交，不删除已有本地结果，也不自动清理历史。结果和日志仍按任务规则写入本地 `results/`、`work_logs/` 目录，用于复现和交接，但不作为 GitHub 仓库内容发布。
+本规则只约束新的 Git 提交，不删除已有本地结果，也不自动清理历史。结果仍按任务规则写入本地 `results/` 目录；工作日志和交接文档写入 `work_logs/`，用于复现和交接，并允许作为工程记录发布到 GitHub。

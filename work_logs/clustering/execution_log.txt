@@ -1,0 +1,22 @@
+
+
+[2026-09-09T08:53:52.197279+00:00] scenario_2_yout_withoutdpd_ori_5B_A_complete_link_clustering
+scenario_2_yout_withoutdpd_ori_5B_A_complete_link_clustering completed: threshold=-40 dB, states=425, clusters=77, matrix=recomputed, workers=18, synthetic_gates={'chain_gate': True, 'compatible_gate': True, 'strict_less_gate': True}, preprocessing_gate=True, clustering_gates=True, raw/protected unchanged=True. Result: D:\Project_Files\python_project\project_20260821\results\clustering\scenario_2_yout_withoutdpd_ori_5B_A_complete_link_clustering\threshold_m40p0dB
+
+
+[2026-09-09T08:54:35.638863+00:00] scenario_2_yout_withoutdpd_ori_5B_A_complete_link_clustering
+scenario_2_yout_withoutdpd_ori_5B_A_complete_link_clustering completed: threshold=-40 dB, states=425, clusters=77, matrix=reused, workers=18, synthetic_gates={'chain_gate': True, 'compatible_gate': True, 'strict_less_gate': True}, preprocessing_gate=True, clustering_gates=True, raw/protected unchanged=True. Result: D:\Project_Files\python_project\project_20260821\results\clustering\scenario_2_yout_withoutdpd_ori_5B_A_complete_link_clustering\threshold_m40p0dB
+
+
+[2026-09-09T11:53:55.562255+00:00] scenario_2_yout_withoutdpd_ori_5B_A_complete_link_clustering representative selection
+scenario_2_yout_withoutdpd_ori_5B_A_complete_link_clustering representative-selection maintenance completed: threshold=-40 dB, clusters=77, representatives=77, matrix=reused, reproduction=True, all_cluster_gates=True, representative_gates=True, raw/protected unchanged=True. Updated cluster assignments/summary and added cluster_representatives.csv; no fingerprint/DPD payload copied.
+
+
+[2026-09-09T11:55:45.243405+00:00] scenario_2_yout_withoutdpd_ori_5B_A_complete_link_clustering representative selection
+scenario_2_yout_withoutdpd_ori_5B_A_complete_link_clustering representative-selection maintenance completed: threshold=-40 dB, clusters=77, representatives=77, matrix=reused, reproduction=True, all_cluster_gates=True, representative_gates=True, raw/protected unchanged=True. Updated cluster assignments/summary and added cluster_representatives.csv; no fingerprint/DPD payload copied.
+
+Tie-break refinement: Complete-Link ties now use score, merged size, the two source-cluster minimum state IDs, and internal IDs exactly as frozen; the -40 dB member-set reproduction remained PASS and representatives remained 77/77.
+
+
+[2026-09-09T11:56:40.735816+00:00] scenario_2_yout_withoutdpd_ori_5B_A_complete_link_clustering representative selection
+scenario_2_yout_withoutdpd_ori_5B_A_complete_link_clustering representative-selection maintenance completed: threshold=-40 dB, clusters=77, representatives=77, matrix=reused, reproduction=True, all_cluster_gates=True, representative_gates=True, raw/protected unchanged=True. Updated cluster assignments/summary and added cluster_representatives.csv; no fingerprint/DPD payload copied.

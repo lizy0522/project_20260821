@@ -1,0 +1,132 @@
+时间：2026-08-26（Asia/Shanghai）
+维护类型：工程公共能力持续维护
+维护目标：新增signal_segmentation canonical A/B/C数据生成模块，并完成state0真实验收。
+
+一、科研职责与边界
+------------------
+signal_segmentation只负责：
+actual PA input preparation -> FULL Rough -> FULL Fine -> ABC ownership split ->
+A/B/C independent complex gain adjust。
+
+本次不实现或执行：
+- MP行为模型拟合；
+- Behavior Index、CNMSE检索、LUT或聚类；
+- 滤波、重采样、跨带宽处理；
+- AM-AM、AM-PM、PSD或科研图；
+- A/B/C之外的借历史、偶数化或有效区裁剪。
+
+二、新增文件
+------------
+- scripts/signal_segmentation/__init__.py
+- scripts/signal_segmentation/config.py
+- scripts/signal_segmentation/partition.py
+- scripts/signal_segmentation/splitter.py
+- scripts/signal_segmentation/behavior_pairs.py
+- scripts/signal_segmentation/preprocessing.py
+- scripts/signal_segmentation/validation.py
+- scripts/signal_segmentation/test_signal_segmentation.py
+- scripts/signal_segmentation/run_state0_validation.py
+- results/signal_segmentation/state0_validation_summary.csv
+
+修改文件：
+- README.md：增加signal_segmentation模块的一行职责说明。
+- work_logs/codex_handoff/codex_handoff.txt：追加本次维护摘要。
+
+三、冻结ABC所有权
+----------------
+Partition仅由完整xin的axis=0长度建立一次：
+n_A=floor(0.5N)
+n_B=floor(0.2N)
+n_C=N-n_A-n_B
+
+当前N=24576：
+A=[0,12288)，长度12288
+B=[12288,17203)，长度4915
+C=[17203,24576)，长度7373
+
+B/C奇数长度保持原样。signal_segmentation不知道MP order、memory depth、ridge或max_delay。
+
+四、三类唯一原始数据对
+----------------------
+OFF：xin + yout_withoutdpd_ori
+ILC-n：peak-normalized xin_pd_ori_ilc[:,n] + yout_withdpd_ori_ilc[:,n]
+STALE：xin_pd_nominal + yout_withdpd_stale_ori
+
+canonical流程不使用yout_withoutdpd、yout_withdpd或yout_withdpd_stale。
+ILC严格先逐列峰值归一化，再以实际发送输入作为完整Rough/Fine参考。
+
+五、处理顺序
+------------
+1. 验证完整输入/raw输出等长、有限、复数且匹配唯一Partition。
+2. 调用_core.signal.rough_align处理完整记录。
+3. 调用_core.signal.fine_align(subtime=256)处理完整记录。
+4. 使用同一个Partition切分完整输入和已同步输出。
+5. A、B、C分别调用adjust_complex_gain。
+
+没有调用_core.signal.preprocess_pair，因为该函数会先执行全记录complex gain adjust，
+不符合本canonical流程。没有对A/B/C分别执行Rough/Fine。
+
+六、公开接口与结构
+------------------
+- build_partition / build_partition_from_xin
+- split_signal / split_signals
+- get_off_pair / get_ilc_pair / get_stale_pair
+- get_common_probe（固定返回xin_B）
+- preprocess_full_pair
+- build_off_segments / build_ilc_segments / build_stale_segments
+- SegmentPartition / RawBehaviorPair / CanonicalSegment / CanonicalSegments
+- 集中Partition、长度、ILC列数、峰值和canonical结果验证接口
+
+七、测试结果
+------------
+signal_segmentation共12项测试，全部PASS：
+- 24576 Partition；
+- 任意奇数长度Partition；
+- 一维切分可无损拼回；
+- 二维ILC只切axis=0；
+- 无重叠无遗漏；
+- ILC逐列峰值归一化；
+- 零峰值防护；
+- 完整输入输出长度防护；
+- ILC列数防护；
+- 段内独立adjust；
+- 三类原始字段契约；
+- state0 OFF/5列ILC/STALE真实集成。
+
+依赖回归在最终检查中执行：_core、data_manager、behavior_model原有测试必须保持PASS。
+
+八、state0真实验收
+------------------
+state_id=0，完整长度24576，ILC列数5，STALE数据存在；所有输入输出有限。
+
+类型,迭代,raw输入峰值,canonical输入峰值,Rough delay,Fine delay,有限
+OFF,-,1,1,7721,-0.00390625,True
+ILC,1,1.0528736211957446,1,7721,0.49609375,True
+ILC,2,1.0204908352489028,1,7721,-0.00390625,True
+ILC,3,1.0002506166091778,1,7721,0.49609375,True
+ILC,4,1.000262698335184,1,7721,0.49609375,True
+ILC,5,1.0002179423030293,1,7721,-0.00390625,True
+STALE,-,1,1,7721,-0.00390625,True
+
+每组均使用12288/4915/7373 ownership并在切分后独立adjust。详细机器可读摘要：
+results/signal_segmentation/state0_validation_summary.csv
+
+九、与现有模块的关系
+--------------------
+- data_manager保持原始数据访问职责，未增加预处理或重复数据保存。
+- _core三个原子算法保持不变，signal_segmentation直接复用。
+- behavior_model代码和results/behavior_model基线均未修改。本次没有迁移其整记录拟合入口，
+  后续应在独立维护中改为消费canonical A/C/B并验证结果变化。
+
+十、安全与状态
+--------------
+- data/raw未修改、移动、重命名或覆盖。
+- 未保存canonical NPY/MAT波形副本；results/signal_segmentation只保存轻量验收CSV。
+- 执行前已有未提交工作保持不变。
+- 未commit/push/reset/clean/checkout。
+
+追加维护（2026-08-26）：
+- 按用户要求，将state0_validation_summary.csv从work_logs/signal_segmentation_build移动到
+  results/signal_segmentation/。
+- 同步修改run_state0_validation.py的OUTPUT_PATH，后续复跑仍写入新的结果目录。
+- work_logs/signal_segmentation_build继续只保存执行日志。
