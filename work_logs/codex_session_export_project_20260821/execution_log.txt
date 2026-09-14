@@ -1,0 +1,15 @@
+
+[2026-09-14T09:31:15+08:00] START codex_session_export_project_20260821
+Project cwd filter: D:\Project_Files\python_project\project_20260821
+Source root: C:\Users\lizy\.codex\sessions
+[2026-09-14T09:31:22+08:00] COMPLETE
+Completed codex_session_export_project_20260821: matched_sessions=4, visible_messages=1296, source_bytes=241203293, archive_bytes=81070317, elapsed=7.651s. Source .codex session files were read-only.
+
+[2026-09-14 final verification]
+The export contains exactly five non-empty artifacts: a readable transcript, visible-message JSONL, gzip-compressed full-event JSONL, source manifest, and summary. Four session files matched the exact project working-directory filter; all matched source files had zero parse errors and did not change during export. The full event archive retains tool calls, tool outputs, context, compaction and token records. No source session file was moved, edited or deleted.
+
+[2026-09-14T09:34:16+08:00] START codex_session_export_project_20260821
+Project cwd filter: D:\Project_Files\python_project\project_20260821
+Source root: C:\Users\lizy\.codex\sessions
+[2026-09-14T09:34:26+08:00] COMPLETE
+Completed codex_session_export_project_20260821: matched_sessions=4, visible_messages=1300, source_bytes=241348299, archive_bytes=81109890, elapsed=10.322s. Source .codex session files were read-only.

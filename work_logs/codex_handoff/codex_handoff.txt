@@ -642,3 +642,13 @@ Completed scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B: comm
 
 2026-09-14 | Git 提交规则补充
 规则进一步调整为：允许提交源代码、测试代码、配置型文件、工作日志和交接文档；代码运行产生的结果、数据、模型、图形和缓存仍不提交。移除 work_logs/ 的整体忽略规则，保留 results/ 和生成结果扩展名的忽略规则。
+
+
+2026-09-14T09:31:22+08:00 | Codex session export for project_20260821
+Completed codex_session_export_project_20260821: matched_sessions=4, visible_messages=1296, source_bytes=241203293, archive_bytes=81070317, elapsed=7.651s. Source .codex session files were read-only.
+
+2026-09-14 | Codex session export final verification: exported the four local Codex rollout files whose session metadata cwd exactly matches project_20260821. The task result contains a readable transcript, visible-message JSONL, compressed complete event archive, manifest and summary; source files were unchanged and no session data was deleted or moved.
+
+
+2026-09-14T09:34:26+08:00 | Codex session export for project_20260821
+Completed codex_session_export_project_20260821: matched_sessions=4, visible_messages=1300, source_bytes=241348299, archive_bytes=81109890, elapsed=10.322s. Source .codex session files were read-only.
