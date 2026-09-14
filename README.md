@@ -4,7 +4,59 @@
 
 本工程用于组织原始数据、处理中间数据、分析脚本、任务结果和执行记录。
 
-Codex 或其他 Agent 在本工程中执行任务时，应遵守工程根目录中的 `AGENTS.md`。
+- **环境配置**：以根目录 `environment.yml` 为唯一事实来源。
+- **Agent 执行规则**：以根目录 `AGENTS.md` 为准。
+- **Python 工具配置**：以 `pyproject.toml` 为准。
+- **Git 排除规则**：以 `.gitignore` 为主要技术实现。
+
+---
+
+## Quick Start
+
+### 1. 创建工程环境
+
+首次在一台电脑上使用本工程：
+
+```bash
+conda env create -f environment.yml
+```
+
+`environment.yml` 当前声明的环境名称为（该名称仅用于当前使用示例，唯一事实来源仍是 `environment.yml`）：
+
+```text
+project_20260821
+```
+
+### 2. 激活环境
+
+```bash
+conda activate project_20260821
+```
+
+除 `conda env create`、`conda env update` 等 Conda 环境管理命令外，本文后续出现的 `python`、`pip`、`ruff` 以及任务测试命令，均默认在 `environment.yml` 声明的工程环境已经正确激活后执行。
+
+如果环境名称以后发生变化，应以 `environment.yml` 的 `name` 字段为准，并同步更新这里用于人工操作的激活示例。
+
+### 3. 已有环境同步配置
+
+当 `environment.yml` 更新后：
+
+```bash
+conda env update -f environment.yml
+```
+
+默认不使用 `--prune`。只有在明确需要清理环境并检查删除影响后，才使用该选项。
+
+### 4. 基本验证
+
+```bash
+python -c "import sys, platform; print(sys.executable); print(sys.version); print(platform.system()); print(platform.machine())"
+python -c "import numpy, scipy; print(numpy.__version__); print(scipy.__version__); numpy.__config__.show()"
+python -m pip check
+ruff check --no-cache scripts
+```
+
+正式科研计算前，还应运行与当前任务直接相关的已有测试入口或最小功能 smoke test。
 
 ---
 
@@ -26,113 +78,72 @@ project_20260821/
 │   └── codex_handoff/
 ├── AGENTS.md
 ├── README.md
-└── environment.yml
+├── environment.yml
+└── pyproject.toml
 ```
 
-各目录职责如下：
+目录职责：
 
-- `data/raw/`：保存原始输入数据和原始实验数据，原则上保持只读，默认不进入 Git。
-- `data/processed/`：保存清洗、转换、对齐、重采样或其他可复用的中间数据。
-- `scripts/_core/`：保存跨任务复用的公共模块。
-- `scripts/signal_segmentation/`：基于完整 `xin` 时间轴生成固定 A/B/C 样点所有权，并对规定的原始 PA 输入输出执行完整捕获同步、ABC切分及段内独立复增益调整。
-- `scripts/task_name/`：保存某个具体任务使用的脚本。
-- `results/task_name/`：保存对应任务的分析结果、图形、表格、模型或其他输出。
-- `work_logs/task_name/`：保存对应任务从首次执行到后续持续维护的完整执行记录。
-- `work_logs/codex_handoff/`：保存工程总体交接和执行摘要。
+- `data/raw/`：原始输入和实验数据，原则上保持只读。
+- `data/processed/`：可重复生成、可被多个任务复用的中间数据。
+- `scripts/_core/`：跨任务复用的公共模块。
+- `scripts/signal_segmentation/`：固定 A/B/C 样点所有权及相关规范信号处理。
+- `scripts/task_name/`：具体任务脚本。
+- `results/task_name/`：具体任务的分析结果和任务专属输出。
+- `work_logs/task_name/`：任务首次执行及后续维护的连续执行记录。
+- `work_logs/codex_handoff/`：工程总体交接和状态摘要。
 
-任务目录不使用数字编号，统一采用简短、明确的小写英文 `snake_case` 名称，例如：
+任务目录使用具有实际语义的小写英文 `snake_case` 名称，不使用数字任务编号。
 
-```text
-scripts/fit_behavior_model/
-results/fit_behavior_model/
-work_logs/fit_behavior_model/
-```
-
-如果某项工作属于已有任务的持续维护，应继续复用原任务目录，并把维护记录追加到原任务的：
-
-```text
-work_logs/task_name/execution_log.txt
-```
-
-具体任务判定、持续维护、结果保存、日志和 Git 安全规则，以 `AGENTS.md` 为准。
+完整任务判定、维护、数据保护和日志规则见 `AGENTS.md`。
 
 ---
 
-## Conda 环境
+## Python 环境
 
-环境名称：
+### 唯一事实来源
 
-```text
-project_20260821
-```
-
-环境路径：
+工程环境由：
 
 ```text
-D:\Project_Files\python_project\conda_envs\project_20260821
+environment.yml
 ```
 
-创建环境时只使用 `conda-forge`，并显式启用严格频道优先级和 OpenBLAS：
+定义。
 
-```powershell
-& "D:\Program_Files\anaconda3\Scripts\conda.exe" create --yes `
-  --prefix "D:\Project_Files\python_project\conda_envs\project_20260821" `
-  --override-channels `
-  --strict-channel-priority `
-  -c conda-forge `
-  python=3.11 `
-  numpy `
-  pandas `
-  scipy `
-  matplotlib `
-  seaborn `
-  ruff `
-  pip `
-  "libblas=*=*_openblas" `
-  "liblapack=*=*_openblas" `
-  "libcblas=*=*_openblas"
-```
+其中包括：
 
-`environment.yml` 应保存与工程环境一致的依赖约束。
+- 环境名称；
+- Conda channel；
+- Python 版本；
+- 直接 Python 依赖；
+- 当前数值计算后端约束。
 
----
+README 不重复维护完整依赖列表，以避免环境定义在多个文件之间漂移。
 
-## 环境验证
+当前 `environment.yml` 如需修改，应优先修改该文件，再同步 Conda 环境。
 
-Conda 环境创建完成后，先验证 NumPy、SciPy 和 BLAS 配置：
+### 跨平台原则
 
-```powershell
-& "D:\Program_Files\anaconda3\Scripts\conda.exe" run `
-  --no-capture-output `
-  --prefix "D:\Project_Files\python_project\conda_envs\project_20260821" `
-  python -c "import numpy, scipy; print(numpy.__version__, scipy.__version__); numpy.__config__.show()"
-```
+工程代码和规则不绑定 Windows、macOS 或 Linux 的用户绝对路径。
 
-验证结果应满足：
+不同电脑或操作系统之间迁移工程时：
 
-- NumPy 可以正常导入；
-- SciPy 可以正常导入；
-- BLAS 后端显示为 OpenBLAS。
+1. 同步源代码和配置；
+2. 同步必要的数据与本地结果；
+3. 根据 `environment.yml` 重新创建 Conda 环境；
+4. 不直接复制旧电脑的 Conda 环境目录；
+5. 重新执行基本环境和任务验证。
 
-如果出现 NumPy 导入崩溃、异常 MKL 组合或科学计算环境异常，应先解决环境问题，再执行后续分析。
-
----
-
-## 激活环境
-
-如果已经完成 Conda 的 PowerShell 初始化，可使用：
-
-```powershell
-conda activate "D:\Project_Files\python_project\conda_envs\project_20260821"
-```
+操作系统和 CPU 架构可以作为诊断信息，但不是 README 中的硬性运行平台限制。
 
 ---
 
 ## 脚本路径约定
 
-任务脚本应通过脚本自身位置推导工程根目录，不硬编码项目绝对路径。
+任务脚本应通过脚本自身位置推导工程根目录，不硬编码工程绝对路径。
 
-推荐写法：
+推荐：
 
 ```python
 from pathlib import Path
@@ -148,32 +159,62 @@ RESULTS_DIR = PROJECT_ROOT / "results" / TASK_NAME
 WORK_LOG_DIR = PROJECT_ROOT / "work_logs" / TASK_NAME
 ```
 
-任务输出原则上写入：
+任务结果原则上写入：
 
 ```text
 results/task_name/
 ```
 
-详细执行记录写入：
+任务执行记录写入：
 
 ```text
 work_logs/task_name/execution_log.txt
 ```
 
-对已有任务进行持续维护时，继续向同一个 `execution_log.txt` 追加记录，不另建维护日志目录。
+---
+
+## 环境与依赖变更
+
+新增 Python 依赖时：
+
+1. 优先使用 `conda-forge`；
+2. 只把工程直接依赖写入 `environment.yml`；
+3. 必要时先检查 Conda 求解计划；
+4. 修改 `environment.yml` 后使用：
+
+```bash
+conda env update -f environment.yml
+```
+
+5. 完成依赖一致性、Ruff 和受影响任务验证。
+
+pip 只作为 Conda 无法满足需求时的受控例外。详细要求见 `AGENTS.md`。
+
+当前数值计算后端的实际约束以 `environment.yml` 为准；不得仅根据 README 或旧机器环境推断。
 
 ---
 
-## 代码检查
+## 代码检查与验证
 
-使用 Ruff 检查 `scripts`：
+基础代码检查：
 
-```powershell
-& "D:\Program_Files\anaconda3\Scripts\conda.exe" run `
-  --no-capture-output `
-  --prefix "D:\Project_Files\python_project\conda_envs\project_20260821" `
-  ruff check --no-cache scripts
+```bash
+ruff check --no-cache scripts
 ```
+
+基础依赖检查：
+
+```bash
+python -m pip check
+```
+
+科学计算环境检查：
+
+```bash
+python -c "import numpy, scipy; print(numpy.__version__); print(scipy.__version__); numpy.__config__.show()"
+```
+
+对于具体科研任务，还应运行该任务已有测试或最小 smoke test。基础环境检查不能替代任务级数值验证。
 
 ---
 
@@ -193,35 +234,36 @@ git pull --ff-only
 git push
 ```
 
-### 提交范围
+仓库默认保存：
 
-GitHub 提交 `scripts/` 下的源代码、测试代码、配置型文件、`work_logs/` 下的工作日志和交接文档，以及必要工程规则。配置型文件包括 `environment.yml`、`pyproject.toml`、`.yaml`、`.yml`、`.toml`、`.ini`、`.cfg` 以及手写的配置型 `.json`。代码运行产生的结果、数据、图形、模型和缓存不提交，相关文件保存在本地的 `results/`、`data/` 等目录。
+- 源代码和测试；
+- 工程配置；
+- `AGENTS.md`、`README.md`；
+- 文本形式的工作日志和交接记录。
 
-文件按用途而不是只按扩展名判断：脚本生成的 `.json`、`.csv`、`.txt`、`.ndjson` 等结果文件同样不提交。
+`data/`、`results/` 以及运行生成的数据、模型、图形、表格和缓存默认不进入新的 Git 提交。
 
-提交前应使用 `git diff --cached --name-only` 检查暂存区，不要使用 `git add .` 或 `git add -A` 添加整个工程。完整提交规则见 `AGENTS.md` 的“Git 提交规则”章节。
-
-涉及自动修改、提交、文件删除和历史操作时，应遵守 `AGENTS.md` 中的 Git 安全规则。
+提交和 Git 安全规则以 `AGENTS.md` 为准；文件排除规则以 `.gitignore` 为主要技术实现。
 
 ---
 
 ## Agent 执行规则
 
-工程中的以下规则统一定义在：
+Codex 或其他 Agent 在本工程中工作时，应先读取：
 
 ```text
 AGENTS.md
 ```
 
-包括：
+其中定义：
 
 - 新任务模式与持续维护模式；
-- 任务目录命名；
-- 脚本、结果和日志保存位置；
+- 任务命名和目录边界；
 - 公共模块复用；
-- 原始数据保护；
-- 持续维护记录；
+- `data/raw/` 保护；
+- 结果与日志管理；
+- Python 环境与依赖管理；
 - Git 安全；
 - 完成前检查。
 
-README 只负责说明工程结构、运行环境和基本使用方法，不重复维护 Agent 的具体执行规则。
+README 负责说明工程如何使用，不重复维护 Agent 的完整执行规则。

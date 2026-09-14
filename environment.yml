@@ -1,6 +1,8 @@
 name: project_20260821
+
 channels:
   - conda-forge
+  - nodefaults
 
 dependencies:
   - python=3.11

@@ -766,347 +766,315 @@ Codex 在本工程中始终遵守以下原则：
 
 ---
 
-## 十二、Conda 环境与扩展包管理
+## 十二、Python 环境与依赖管理
 
-### 1. 固定 Conda 环境
+### 1. 环境配置的唯一事实来源
 
-本工程必须使用以下独立 Conda 环境：
-
-```text
-D:\Project_Files\python_project\conda_envs\project_20260821
-```
-
-本工程固定 Python 解释器为：
-
-```text
-D:\Project_Files\python_project\conda_envs\project_20260821\python.exe
-```
-
-Conda 管理程序固定使用：
-
-```text
-D:\Program_Files\anaconda3\Scripts\conda.exe
-```
-
-执行任何 Python 命令、安装依赖、运行测试、运行 Ruff 或执行任务脚本时，必须确认实际解释器属于上述工程环境。
-
-不得为本工程另行创建：
-
-```text
-.venv/
-venv/
-env/
-```
-
-不得使用：
-
-- Anaconda `base` 环境；
-- 系统 Python；
-- 用户级全局 Python；
-- 其他工程的 Conda 环境；
-- 未确认解释器来源的 `python`、`pip`、`pytest` 或 `ruff` 命令。
-
-### 2. 新扩展包默认通过 Conda 安装
-
-每次任务需要新的 Python 扩展包时，默认必须通过 Conda 安装到本工程固定环境。
-
-安装时必须：
-
-1. 使用完整 `--prefix` 指定本工程环境；
-2. 使用 `conda-forge`；
-3. 使用 `--override-channels`；
-4. 使用 `--strict-channel-priority`；
-5. 保持本工程既有 OpenBLAS 约束；
-6. 不得把扩展包安装到 `base` 或其他工程环境。
-
-标准安装形式为：
-
-```powershell
-$projectConda = "D:\Program_Files\anaconda3\Scripts\conda.exe"
-$projectEnv = "D:\Project_Files\python_project\conda_envs\project_20260821"
-
-& $projectConda install --yes `
-  --prefix $projectEnv `
-  --override-channels `
-  --channel conda-forge `
-  --strict-channel-priority `
-  <package-name> `
-  "libblas=*=*_openblas" `
-  "liblapack=*=*_openblas" `
-  "libcblas=*=*_openblas"
-```
-
-不得仅依赖当前终端的激活状态执行：
-
-```powershell
-conda install <package-name>
-```
-
-因为该命令可能把扩展包安装到错误环境。
-
-### 3. 安装前检查求解计划
-
-正式安装新扩展包前，应先检查 Conda 的求解结果。
-
-对于可能影响 NumPy、SciPy、BLAS、编译运行时或大量传递依赖的扩展包，应先执行 `--dry-run`：
-
-```powershell
-$projectConda = "D:\Program_Files\anaconda3\Scripts\conda.exe"
-$projectEnv = "D:\Project_Files\python_project\conda_envs\project_20260821"
-
-& $projectConda install --dry-run `
-  --prefix $projectEnv `
-  --override-channels `
-  --channel conda-forge `
-  --strict-channel-priority `
-  <package-name> `
-  "libblas=*=*_openblas" `
-  "liblapack=*=*_openblas" `
-  "libcblas=*=*_openblas"
-```
-
-如果求解计划出现以下情况，应停止安装并报告：
-
-- Python 主版本或次版本发生变化；
-- NumPy、SciPy 或其他核心科学计算包发生非必要的大幅升级或降级；
-- OpenBLAS 被替换为 MKL、BLIS 或其他 BLAS 实现；
-- 大量现有包被删除；
-- 出现明显与当前任务无关的依赖变更；
-- 求解器需要混用未经批准的 channel；
-- 现有工程代码可能因此失去兼容性。
-
-不得为了安装一个扩展包而默认执行：
-
-```powershell
-conda update --all
-```
-
-不得顺带升级与当前任务无关的依赖。
-
-### 4. OpenBLAS 不变量
-
-本工程的 `environment.yml` 已固定：
-
-```yaml
-- "libblas=*=*_openblas"
-- "liblapack=*=*_openblas"
-- "libcblas=*=*_openblas"
-```
-
-新增或更新扩展包时，必须保持上述 OpenBLAS 约束。
-
-不得静默将本工程切换到 MKL。
-
-安装完成后，应检查：
-
-```powershell
-$projectConda = "D:\Program_Files\anaconda3\Scripts\conda.exe"
-$projectEnv = "D:\Project_Files\python_project\conda_envs\project_20260821"
-
-& $projectConda list --prefix $projectEnv |
-  Select-String -Pattern "libblas|liblapack|libcblas|openblas|mkl"
-```
-
-如果发现 MKL 被引入、OpenBLAS 被替换，或者 BLAS 依赖状态与 `environment.yml` 不一致，应停止后续科研计算并处理环境问题。
-
-### 5. 同步更新 environment.yml
-
-成功安装任务实际需要的扩展包后，必须同步更新工程根目录中的：
+工程根目录中的：
 
 ```text
 environment.yml
 ```
 
-只将本工程直接依赖的包加入 `dependencies`。
+是本工程 Python 运行环境的**唯一事实来源（Single Source of Truth）**。
 
-不得用完整的自动导出结果覆盖现有 `environment.yml`，避免写入大量平台相关、构建相关或传递依赖。
+环境名称、Python 版本、Conda channel、直接依赖以及 BLAS/LAPACK 等数值计算后端约束，均以 `environment.yml` 当前内容为准。
 
-例如新增 `openpyxl` 时，应在现有依赖中增加：
+`AGENTS.md` 和 `README.md` 可以说明环境管理原则和使用方法，但不得维护一份与 `environment.yml` 平行的依赖清单。
 
-```yaml
-dependencies:
-  - python=3.11
-  - numpy
-  - pandas
-  - scipy
-  - matplotlib
-  - seaborn
-  - openpyxl
-  - ruff
-  - pip
-  - "libblas=*=*_openblas"
-  - "liblapack=*=*_openblas"
-  - "libcblas=*=*_openblas"
+Codex 在创建环境、安装依赖或修改环境前，必须先读取当前 `environment.yml`，不得根据历史记录、旧电脑路径或已有终端状态猜测环境配置。
+
+### 2. 受控工程环境
+
+正式科研计算必须在本工程受控环境中执行。
+
+当前环境名称由 `environment.yml` 声明。除非用户明确要求，不得：
+
+- 使用 Conda `base` 环境执行正式任务；
+- 使用系统 Python 或用户级全局 Python 执行正式任务；
+- 为工程额外创建 `.venv/`、`venv/`、`env/` 等第二套 Python 环境；
+- 使用其他工程的 Conda 环境；
+- 使用来源未确认的 `python`、`pip`、`pytest`、`ruff` 等命令；
+- 通过复制 `site-packages` 或手工移动解释器文件的方式迁移环境。
+
+本工程不在规则文件中硬编码 Windows、macOS 或 Linux 的绝对解释器路径。
+
+不得因为更换电脑或操作系统而直接复制旧机器的 Conda 环境目录。应依据 `environment.yml` 在目标机器重新创建环境。
+
+### 3. 创建与同步环境
+
+首次建立环境时使用：
+
+```bash
+conda env create -f environment.yml
 ```
 
-如果任务要求固定特定版本，应在任务依据充分的情况下明确记录版本约束，不得无依据地随意锁定版本。
+已有环境需要与 `environment.yml` 同步时使用：
+
+```bash
+conda env update -f environment.yml
+```
+
+不得默认使用 `--prune` 删除环境中的现有包。只有在明确需要清理环境、已经检查删除计划且不会破坏工程时，才可以使用 `--prune`。
+
+不得为了方便执行：
+
+```bash
+conda update --all
+```
+
+不得无依据地升级 Python、NumPy、SciPy、pandas、Matplotlib 或其他核心依赖。
+
+### 4. 新增依赖
+
+新增依赖属于环境配置变更，必须遵循以下流程：
+
+1. 确认该依赖确实是当前任务所需；
+2. 优先确认 `conda-forge` 是否提供兼容版本；
+3. 对可能影响 Python、NumPy、SciPy、BLAS/LAPACK 或大量传递依赖的包，先检查 Conda 求解计划；
+4. 只把工程直接依赖写入 `environment.yml`；
+5. 使用 `conda env update -f environment.yml` 同步工程环境；
+6. 完成依赖、代码和工程级验证；
+7. 按本章记录规则更新任务日志或 handoff。
+
+当前环境名称必须从 `environment.yml` 的 `name` 字段读取。
+
+以下命令中的 `<environment-name>` 是文档占位符，执行时必须替换为 `environment.yml` 当前声明的环境名称，不得沿用历史名称或凭经验猜测。
+
+需要检查单个 Conda 包的求解计划时，可执行类似：
+
+```bash
+conda install --dry-run -n <environment-name> -c conda-forge --strict-channel-priority <package-name>
+```
+
+如果环境名称发生修改，所有后续命令必须立即以 `environment.yml` 中的新名称为准。
+
+如果求解计划出现以下情况，应停止安装并报告：
+
+- Python 主版本或次版本发生非预期变化；
+- NumPy、SciPy 或其他核心科学计算包发生与当前任务无关的大幅升级或降级；
+- `environment.yml` 中声明的数值计算后端被替换；
+- 大量现有包被删除；
+- 引入未经批准的 channel；
+- 出现明显的平台或二进制架构冲突；
+- 现有工程代码可能因此失去兼容性。
+
+### 5. 数值计算后端
+
+AGENTS 不单独规定必须使用某一种 BLAS/LAPACK 实现。
+
+如果 `environment.yml` 当前声明了 OpenBLAS、MKL、Accelerate 相关约束或其他数值计算后端，则该约束属于当前工程环境契约。
+
+除非用户明确要求或任务确有必要，Codex 不得擅自更换该后端。
+
+环境变更后应检查：
+
+```bash
+conda list -n <environment-name>
+```
+
+并在需要时检查 NumPy 实际数值后端信息：
+
+```bash
+conda run --no-capture-output -n <environment-name> \
+  python -c "import numpy; numpy.__config__.show()"
+```
+
+这里的目标不是强制某个平台或 CPU 架构，而是确认实际运行环境与当前 `environment.yml` 一致。
 
 ### 6. pip 仅作为受控例外
+
+默认优先通过 Conda/conda-forge 管理依赖。
 
 只有满足以下至少一种情况时，才允许使用 pip：
 
 - conda-forge 不提供该包；
-- conda-forge 没有与本工程 Python 版本兼容的版本；
+- conda-forge 没有与当前 Python 版本兼容的版本；
 - 软件官方明确要求通过 pip 安装；
-- 所需功能只存在于官方 pip wheel；
-- Conda 包经过核验不能满足当前任务需求。
+- 所需功能只存在于官方 pip 发行版；
+- 经核验 Conda 包不能满足当前任务需求。
 
-使用 pip 前必须先说明：
+使用 pip 前必须说明：
 
 1. 为什么 Conda/conda-forge 无法满足需求；
-2. 准备安装的准确包名和版本；
-3. 是否会影响现有核心依赖；
-4. 安装后的验证方法。
+2. 准备安装的准确包名和必要版本约束；
+3. 是否可能影响现有核心依赖；
+4. 安装后的验证方式。
 
-使用 pip 时，必须通过本工程固定解释器调用：
+pip 依赖必须写入 `environment.yml` 的 `pip:` 子项，使环境配置仍然可追溯。
 
-```powershell
-$projectPython = "D:\Project_Files\python_project\conda_envs\project_20260821\python.exe"
+如果需要直接执行 pip，必须通过受控工程环境中的 Python 调用：
 
-& $projectPython -m pip install <package-name>
+```bash
+conda run --no-capture-output -n <environment-name> \
+  python -m pip install <package-name>
 ```
 
-禁止使用：
+禁止直接使用来源未确认的：
 
-```powershell
+```bash
 pip install <package-name>
 ```
 
-禁止使用其他 Python 解释器调用 pip。
+### 7. 环境验证
 
-如果使用 pip，应在 `environment.yml` 的 `pip:` 子项中记录直接依赖，并在任务日志或工程 handoff 中记录使用 pip 的原因。
+创建环境、同步环境或新增依赖后，应按影响范围执行验证。
 
-### 7. 安装后的强制验证
+#### 基本解释器检查
 
-扩展包安装完成后，至少执行以下验证。
-
-#### 解释器路径
-
-```powershell
-$projectPython = "D:\Project_Files\python_project\conda_envs\project_20260821\python.exe"
-
-& $projectPython -c "import sys; print(sys.executable); print(sys.version)"
+```bash
+conda run --no-capture-output -n <environment-name> \
+  python -c "import sys, platform; print(sys.executable); print(sys.version); print(platform.system()); print(platform.machine())"
 ```
 
-必须确认：
+操作系统和 CPU 架构用于诊断，不作为工程规则中的硬性平台断言。
 
-```text
-sys.executable =
-D:\Project_Files\python_project\conda_envs\project_20260821\python.exe
+#### 核心科学计算包
+
+```bash
+conda run --no-capture-output -n <environment-name> \
+  python -c "import numpy, scipy; print(numpy.__version__); print(scipy.__version__); numpy.__config__.show()"
 ```
 
-#### 扩展包导入
+#### Python 依赖一致性
 
-```powershell
-& $projectPython -c "import <package_name>; print(<package_name>.__version__)"
+```bash
+conda run --no-capture-output -n <environment-name> \
+  python -m pip check
 ```
 
-如果该包没有 `__version__`，应采用其官方支持的版本查询方式。
+`pip check` 只用于检查 Python 包依赖元数据，不替代工程测试。
 
-#### 依赖一致性
+#### 代码质量与任务验证
 
-```powershell
-& $projectPython -m pip check
-```
+环境变化影响工程代码时，还必须：
 
-必须得到：
-
-```text
-No broken requirements found.
-```
-
-#### 工程验证
-
-如果新增扩展包影响工程代码，还必须：
-
-- 运行相关 pytest；
 - 运行 Ruff；
-- 运行与该扩展包直接相关的最小功能检查；
+- 运行受影响任务已有的测试入口；
+- 运行必要的最小功能 smoke test；
 - 确认没有修改 `data/raw/`；
 - 确认没有破坏已有任务结果；
-- 检查 Git 状态，区分用户既有修改和本次修改。
+- 检查 Git 状态。
 
-如果验证失败，不得继续生成正式科研结果，不得把失败的环境状态视为任务完成。
+如果验证失败，不得把当前环境视为可用于正式科研结果生成的已验证环境。
 
-### 8. 任务模式与记录归属
+### 8. 最小变更原则
 
-新增依赖本身通常属于工程配置维护，不自动构成新的科研任务。
-
-如果新增依赖服务于某个明确的新任务或已有任务：
-
-- 将安装原因、包名、版本、安装方式和验证结果记录到该任务的 `execution_log.txt`；
-- 在总体 `codex_handoff.txt` 中记录简短摘要；
-- 不为依赖安装单独创建没有研究意义的任务目录。
-
-如果依赖变更无法合理归属于具体任务，则按工程级维护处理：
-
-- 不创建虚构任务目录；
-- 直接在 `work_logs/codex_handoff/codex_handoff.txt` 中记录；
-- 说明修改的 `environment.yml`、安装包、版本、验证结果和未完成事项。
-
-### 9. 最小变更原则
-
-每次扩展包安装必须只服务于当前任务的实际需求。
+环境管理必须服务于当前任务的实际需求。
 
 禁止：
 
-- 提前安装“以后可能会用到”的包；
-- 为了方便一次性安装大型综合环境；
-- 无依据地升级 Python；
-- 无依据地升级 NumPy、SciPy、pandas 或 Matplotlib；
-- 创建第二套工程解释器；
-- 修改 Anaconda `base` 环境；
-- 把其他工程环境中的包作为本工程的隐式依赖；
-- 通过复制 `site-packages` 的方式安装扩展包；
-- 在没有验证的情况下继续运行正式分析。
+- 提前安装“以后可能会用到”的依赖；
+- 为方便一次性安装大型综合环境；
+- 无依据地升级核心科学计算栈；
+- 为同一工程维护多套无明确用途的 Python 环境；
+- 修改 Conda `base` 环境来满足本工程；
+- 把其他工程中的包作为隐式依赖；
+- 在环境未验证的情况下继续生成正式科研结果。
 
-核心原则是：
+### 9. 环境变更记录
 
-> 本工程使用一套固定、可追溯、可复现的 Conda 环境；新增依赖默认通过 conda-forge 安装，pip 仅作为有记录、有验证的受控例外。
+新增依赖或环境变更本身通常属于工程配置维护，不自动构成新的科研任务。
 
-## 十三、Git 提交规则：提交代码、配置、工作日志和交接文档
+如果变更服务于某个明确任务：
 
-本工程的 GitHub 仓库保存可维护的源代码、测试代码、配置型文件、工作日志、交接文档和必要工程规则。代码运行产生的结果、数据和过程产物不进入新的 Git 提交。
+- 在该任务 `work_logs/task_name/execution_log.txt` 中记录原因、变更和验证结果；
+- 在 `work_logs/codex_handoff/codex_handoff.txt` 中追加简短摘要。
 
-### 1. 允许提交的内容
+如果无法合理归属于具体任务：
 
-- `scripts/` 下的 Python、JavaScript、MJS、MATLAB 等源代码和测试代码；
-- 运行代码所必需的配置型文件，例如 `environment.yml`、`pyproject.toml`、`.gitignore`、`*.yaml`、`*.yml`、`*.toml`、`*.ini`、`*.cfg` 和手写的配置型 `*.json`；
-- `work_logs/` 下的工作日志、任务 `execution_log.txt` 和工程 `codex_handoff.txt` 交接文档；
-- 维护工程所必需的规则和说明，例如 `AGENTS.md`、`README.md`；
-- 小型、明确属于源代码契约的固定配置，不包括脚本运行后生成的分析数据。
+- 不创建虚构任务目录；
+- 直接在 `codex_handoff.txt` 中记录工程级维护；
+- 说明修改的环境配置和验证结果。
 
-### 2. 禁止提交的内容
+---
 
-- `results/` 下的分析结果、图形、表格、模型、指纹、缓存和导出文件；
-- `data/raw/`、`data/processed/` 下的数据；
-- `work_logs/` 下的二进制结果、图形、模型、缓存或其他运行产物；工作日志和交接文档不属于此项；
-- 代码运行产生的 `.npz`、`.npy`、`.mat`、`.pkl`、`.joblib`、`.xlsx`、`.xls`、`.parquet`、`.h5`、`.hdf5`、`.ndjson`、`.json`、`.csv`、`.txt`、图片和 PDF；
-- Python 缓存、测试缓存、Ruff 缓存、临时文件、本地环境和密钥。
+## 十三、Git 提交规则
 
-文件是否允许提交按用途判断，而不只按扩展名判断：手写并作为程序输入的配置可以提交；脚本运行生成的 `validation.json`、`retrieval_results.csv`、`final_result_summary.txt` 等文件属于结果，即使扩展名是配置或文本格式，也不得提交。
+### 1. 仓库职责
+
+Git 仓库用于保存：
+
+- 源代码和测试代码；
+- 工程规则和说明；
+- 环境与工具配置；
+- 文本形式的任务执行日志和工程交接记录；
+- 其他明确属于可维护源文件的内容。
+
+运行产生的数据、模型、图形、表格、缓存和分析结果默认不属于源代码仓库。
+
+### 2. 默认提交边界
+
+默认允许提交：
+
+```text
+scripts/
+work_logs/ 中的文本日志和交接文档
+AGENTS.md
+README.md
+environment.yml
+pyproject.toml
+.gitignore
+其他明确的手写配置文件
+```
+
+默认不提交：
+
+```text
+data/
+results/
+运行生成的模型、图形、表格、缓存和分析产物
+本地 Python/Conda 环境
+密钥、凭据和机器相关配置
+```
+
+文件是否属于可提交内容应按用途判断，而不是仅按扩展名判断。
+
+`.gitignore` 是生成物和本地文件排除规则的主要技术实现；`AGENTS.md` 负责规定 Agent 的安全边界。
 
 ### 3. 提交前检查
 
-提交前必须确认暂存区只包含源代码、配置型文件、工作日志、交接文档和必要工程规则：
+提交前必须检查：
 
-```powershell
+```bash
 git status --short
 git diff --cached --name-only
 git diff --cached --stat
 ```
 
-不得直接使用 `git add .` 或 `git add -A` 将整个工程加入暂存区。应按明确的代码或配置路径选择性暂存，例如：
+不得使用：
 
-```powershell
-git add scripts/
-git add environment.yml pyproject.toml .gitignore AGENTS.md README.md
+```bash
+git add .
+git add -A
 ```
 
-暂存区中出现 `results/`、`data/` 或脚本生成的结果文件时，必须先取消暂存，不能通过提交这些文件来保存分析结果。`work_logs/` 下的工作日志和交接文档可以保留在暂存区。
+将整个工程无差别加入暂存区。
 
-如果发现 `results/`、`work_logs/` 或其他生成物已经被 Git 跟踪，`.gitignore` 不会自动取消其跟踪。取消跟踪或重写尚未推送的历史必须先检查文件用途，并获得明确授权；不得静默删除本地结果、修改历史或强制推送。
+应按本次任务明确修改的路径选择性暂存。
 
-### 4. 规则边界
+如果暂存区出现 `data/`、`results/` 或其他运行产物，应先确认其用途并取消不应提交的内容。
 
-本规则只约束新的 Git 提交，不删除已有本地结果，也不自动清理历史。结果仍按任务规则写入本地 `results/` 目录；工作日志和交接文档写入 `work_logs/`，用于复现和交接，并允许作为工程记录发布到 GitHub。
+### 4. 已跟踪生成物
+
+`.gitignore` 不会自动取消已经被 Git 跟踪的文件。
+
+如果发现历史上已经跟踪的数据、结果或生成物：
+
+- 不得静默删除本地文件；
+- 不得擅自执行 `git rm --cached`；
+- 不得擅自改写 Git 历史；
+- 必须先检查文件用途和影响；
+- 涉及取消跟踪、删除或历史整理时，需要用户明确授权。
+
+### 5. 提交原则
+
+Git 提交应：
+
+- 与当前任务或维护内容一致；
+- 尽量保持小而清晰；
+- 不混入无关修改；
+- 不覆盖用户已有未提交工作；
+- 不通过强制推送或历史重写来“整理”仓库。
+
+本章只约束新的 Git 操作，不自动清理已有历史或本地结果。
