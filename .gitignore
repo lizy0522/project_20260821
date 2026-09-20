@@ -10,25 +10,129 @@ __pycache__/
 # Local environments and secrets
 .venv/
 .conda/
+venv/
+env/
 .env
+.env.*
+!.env.example
 *.local
+*.key
+*.pem
 
 # IDE and operating-system files
 .idea/
 .vscode/
 .DS_Store
+.AppleDouble
+.LSOverride
 Thumbs.db
 
-# Raw and processed data are local by default
-data/raw/*
+# ----------------------------------------------------------------------
+# Scientific data
+# ----------------------------------------------------------------------
+
+# Keep actual raw scientific data local, but preserve the canonical
+# scenario-level directory skeleton with explicit .gitkeep exceptions.
+data/raw/**
 !data/raw/.gitkeep
-data/processed/*
+!data/raw/scenario_1/
+!data/raw/scenario_1/.gitkeep
+!data/raw/scenario_2/
+!data/raw/scenario_2/.gitkeep
+
+# Keep reusable processed datasets local, but preserve the canonical
+# scenario-level directory skeleton.
+data/processed/**
 !data/processed/.gitkeep
+!data/processed/scenario_1/
+!data/processed/scenario_1/.gitkeep
+!data/processed/scenario_2/
+!data/processed/scenario_2/.gitkeep
 
-# Code-generated results are local-only
-results/
+# ----------------------------------------------------------------------
+# Scientific results
+# ----------------------------------------------------------------------
 
-# Work logs and handoff documents are reviewable project records and may be committed
+# Actual scientific outputs remain local. Only the fixed module roots and
+# existing formal scenario/route roots are explicitly allowed below.
+results/**
+!results/.gitkeep
+
+!results/core/
+!results/core/.gitkeep
+!results/data_management/
+!results/data_management/.gitkeep
+!results/signal_segmentation/
+!results/signal_segmentation/.gitkeep
+!results/pa_performance_evaluation/
+!results/pa_performance_evaluation/.gitkeep
+!results/behavior_modeling/
+!results/behavior_modeling/.gitkeep
+!results/behavior_fingerprint_retrieval/
+!results/behavior_fingerprint_retrieval/.gitkeep
+!results/retrieval_oriented_model_selection/
+!results/retrieval_oriented_model_selection/.gitkeep
+!results/behavior_fingerprint_ranking_consistency/
+!results/behavior_fingerprint_ranking_consistency/.gitkeep
+!results/low_bandwidth_behavior_analysis/
+!results/low_bandwidth_behavior_analysis/.gitkeep
+!results/lut_clustering_compression/
+!results/lut_clustering_compression/.gitkeep
+
+# Existing formal ordinary-module scenario roots.
+!results/behavior_modeling/scenario_2/
+!results/behavior_modeling/scenario_2/.gitkeep
+!results/behavior_fingerprint_retrieval/scenario_2/
+!results/behavior_fingerprint_retrieval/scenario_2/.gitkeep
+!results/pa_performance_evaluation/cross_scenario/
+!results/pa_performance_evaluation/cross_scenario/.gitkeep
+
+# Existing retrieval route/scenario roots only; no future task roots.
+!results/retrieval_oriented_model_selection/self_hit_oriented/
+!results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/
+!results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/.gitkeep
+!results/retrieval_oriented_model_selection/dpd_shareability_oriented/
+!results/retrieval_oriented_model_selection/dpd_shareability_oriented/scenario_2/
+!results/retrieval_oriented_model_selection/dpd_shareability_oriented/scenario_2/.gitkeep
+
+# Work logs and handoff documents are reviewable project records and may be committed.
+# Large, regenerable scientific/runtime caches remain local and are ignored narrowly.
+work_logs/**/candidate_score_cache/
+work_logs/**/checkpoint/
+work_logs/**/screening/
+work_logs/**/runtime/
+work_logs/**/screening_partitions/
+work_logs/**/screening_score_partitions/
+work_logs/**/_cache/
+work_logs/**/distance_matrices/
+work_logs/**/fingerprints/
+work_logs/**/*.jsonl
+!work_logs/core/**/*.jsonl
+work_logs/**/*.csv
+
+# DPD-shareability scientific pre-search state is local research runtime,
+# not a repository-level engineering audit.
+work_logs/retrieval_oriented_model_selection/dpd_shareability_oriented/**/pre_search_validation/k3_multi_parent_policy_validation/
+work_logs/retrieval_oriented_model_selection/dpd_shareability_oriented/**/pre_search_validation/screening_policy_analysis/
+work_logs/retrieval_oriented_model_selection/dpd_shareability_oriented/**/optimization/
+work_logs/retrieval_oriented_model_selection/dpd_shareability_oriented/**/pre_search_validation/
+work_logs/retrieval_oriented_model_selection/dpd_shareability_oriented/scenario_2/scenario_2_volterra_shareability_basis_search_5b/execution_log.txt
+
+# These machine-generated architecture manifests are too large for the
+# repository boundary; the small core audit records remain reviewable.
+work_logs/core/final_architecture_consolidation_20260921/final_architecture_summary.txt
+work_logs/core/final_architecture_consolidation_20260921/final_architecture_validation.json
+work_logs/core/final_architecture_consolidation_20260921/pre_migration_inventory.json
+work_logs/core/final_architecture_consolidation_20260921/retrieval_manifest_before.json
+work_logs/core/final_architecture_consolidation_20260921/retrieval_manifest_after.json
+
+# Local-only core migration manifests with machine paths, raw-data lists or
+# cache-cleanup provenance. Keep the small migration/source patch plans visible.
+work_logs/core/final_architecture_consolidation_20260921/absolute_path_reference_audit.json
+work_logs/core/final_architecture_consolidation_20260921/data_manifest_before.json
+work_logs/core/final_architecture_consolidation_20260921/data_manifest_after.json
+work_logs/core/final_architecture_consolidation_20260921/post_audit_source_patch_manifest.json
+work_logs/core/final_architecture_consolidation_20260921/runtime_cache_cleanup.json
 
 # Common generated binary and inspection artifacts
 *.npz

@@ -531,6 +531,89 @@ Modules(scripts) = Modules(results) = Modules(work_logs)
 
 ---
 
+# Git Repository Skeleton
+
+Git 本身只跟踪文件，不跟踪空目录。本工程对少量正式结构目录使用空的
+.gitkeep，使 clone 后仍能看到固定模块、数据场景，以及当前已经存在的
+results 或 retrieval route/scenario 结构。
+
+.gitkeep 只表示目录骨架，不表示目录中的实际科研内容会被提交。
+
+## 保留在 Git 中的内容
+
+scripts/                         源码、任务脚本、测试和 shared API
+AGENTS.md                        工程执行规则
+README.md                        工程说明
+environment.yml                  受控 Python/Conda 环境
+pyproject.toml                   Python 工具配置
+.gitignore / .gitattributes      Git 边界和文本属性
+必要的文本型 work_logs/handoff   可审查的工程记录
+.gitkeep                         正式工程目录骨架
+
+## 默认保留在本地的内容
+
+data/raw/                        实际原始实验数据
+data/processed/                  实际处理中间数据
+results/                         实际科研结果
+checkpoint/                      可恢复科研状态
+candidate_score_cache/           候选评分缓存
+screening/                       筛选运行产物
+runtime/                         运行时数组和诊断
+大型 JSON/JSONL 科学缓存          高频生成的候选和分区记录
+.npy/.npz/.mat 等二进制文件       科研数据和数值缓存
+
+不要使用大量 task 级 .gitkeep 复刻历史科研运行现场。clone 后保留的是正式
+工程设计层级，而不是每个历史 task、round、checkpoint 或 cache 子目录。
+
+当前正式路径仍然是：
+
+普通科研任务：Module -> Scenario -> Task
+Retrieval：   Module -> Route -> Scenario -> Task
+数据：        Data -> Scenario -> Experiment
+
+如果一个目录已经有 __init__.py、execution_log.txt 或其他被 Git 跟踪的文件，
+不需要再添加 .gitkeep。如果要调整骨架规则，应先检查当前实际目录，再用
+git check-ignore -v 验证真实数据/结果仍然被忽略；目录骨架维护不会自动执行
+git add、git commit 或 git push。
+
+## Git Repository Boundary
+
+Git 保存工程定义、手写源码、测试、环境和工具配置、必要的文本型工程知识以及
+正式目录骨架；Git 默认不保存科研运行现场。
+
+因此 clone 后可以看到：
+
+scripts/                       源码、测试和 shared API
+固定 10 个 module 根目录
+现有的正式 Scenario/Route/Scenario 骨架
+必要的 work_logs 文本和 core 小型审计
+
+但不保证出现：
+
+data/raw 的实际 Experiment 文件
+data/processed 的生成数据
+results 的实际科研输出
+CandidateScore、checkpoint、screening、runtime 和大型 JSON/JSONL cache
+distance matrices、fingerprints、NPY/NPZ/MAT 等科学运行产物
+
+work_logs 不会整体忽略。execution_log.txt、codex_handoff.txt、Markdown 和必要的
+小型 core 工程审计可以按需跟踪；CandidateScore、checkpoint、screening、runtime、
+分区缓存、scientific JSONL 和科学二进制文件默认留在本地。
+
+当前 DPD-shareability 任务的 optimization、pre_search_validation 和
+execution_log.txt 也属于本地科研运行现场；Core 中的 migration_plan.json 和
+source_patch_manifest.json 是保留的少量工程 provenance，其余包含本机路径、raw
+manifest、文件 hash 或 cache 清理明细的架构 JSON 默认不进入 Git。
+
+.gitkeep 不是 Git 的特殊语法，而是本工程用于保留正式空目录的约定文件。它不
+代表原始数据、Experiment、科研结果或历史 task 已经进入 Git。具体 task、round、
+checkpoint 和 cache 子目录不会通过大量 .gitkeep 复刻到仓库。
+
+如果某类历史文件已经被 Git 跟踪，新增 .gitignore 规则不会自动取消跟踪；这类
+冲突需要单独审计和用户授权，不在普通仓库边界维护中自动处理。
+
+---
+
 # Git
 
 Git 安全规则以 `AGENTS.md` 为准。

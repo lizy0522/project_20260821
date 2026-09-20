@@ -1,0 +1,238 @@
+{
+  "timestamp": "2026-09-21T01:12:09.726843+08:00",
+  "files_changed": 38,
+  "records": [
+    {
+      "file": "scripts/retrieval_oriented_model_selection/dpd_shareability_oriented/scenario_2_volterra_shareability_basis_search_5b/validate_k3_multi_parent_policy.py",
+      "old_sha256": "1cf9da863d93c202caae7c04d5aaafcef0a64371f85a54f3171fb3e2508ed80b",
+      "new_sha256": "f461eaae3d6954002243dfb4f6471f04351cd5bfe48204ef004983080bcff7c6",
+      "category": "RETRIEVAL_ROUTE_SCENARIO_ACTIVE_SOURCE_PATCH"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_C2_to_Aend_retrieval_oriented_model_scan/aggregate_scenario2_retrieval_oriented_model_scan.py",
+      "old_sha256": "63f3e56d5a51e62a8c21681475e735ae1b937963c22fd82bd51e1ed4cfe51c71",
+      "new_sha256": "b6ce676d70088ac4a0cacb32c646e96d81bc444c0adadda2bb3b394d86299168",
+      "category": "RETRIEVAL_ROUTE_SCENARIO_ACTIVE_SOURCE_PATCH"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_C2_to_Aend_retrieval_oriented_model_scan/analyze_scenario2_retrieval_oriented_model_scan.py",
+      "old_sha256": "c394f61bfa3912c9260d398c2ce12e6e6402039600c4c0003331eb3c9c4632f2",
+      "new_sha256": "50cd88a2850a174f3230d0cad2c528f446a521e1410940ceb727f73e90993f5d",
+      "category": "RETRIEVAL_ROUTE_SCENARIO_ACTIVE_SOURCE_PATCH"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_C2_to_Aend_retrieval_oriented_model_scan/export_scenario2_retrieval_oriented_best_excel.py",
+      "old_sha256": "24714c8d42d6b8e6dfc8c2132628c0bfc0b4c1ac84576585c023e11cb673ab36",
+      "new_sha256": "1d0c990e20ff8762e75e6f3d7f275d8c4376dbcab04925f41ba2471760856349",
+      "category": "RETRIEVAL_ROUTE_SCENARIO_ACTIVE_SOURCE_PATCH"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_C2_to_Aend_retrieval_oriented_model_scan/run_scenario2_retrieval_oriented_model_scan.py",
+      "old_sha256": "65b9ec693113942a4949e8518146e073abb7f9726d5a19c7809e0a361a3d9a33",
+      "new_sha256": "6d5c4ed3ce7e81a67ee5906d8b33f619005736bcc2bb9d952a918a5c242f7e07",
+      "category": "RETRIEVAL_ROUTE_SCENARIO_ACTIVE_SOURCE_PATCH"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_C2_to_Aend_retrieval_oriented_model_scan/test_scenario2_retrieval_oriented_model_scan.py",
+      "old_sha256": "73990e6ebe7a9fdd08b47b4faedb3e393f364000563e75f2eae0023fd9a8987b",
+      "new_sha256": "bb6a638a9c1856dfa523ac5c782b536f9e7598176c2c21238143fb033db0db49",
+      "category": "RETRIEVAL_ROUTE_SCENARIO_ACTIVE_SOURCE_PATCH"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_beam3_k13_floating_backward_retrieval_ablation_5b/run_scenario2_beam3_k13_floating_backward_retrieval_ablation_5b.py",
+      "old_sha256": "ea2a1a69f86c8bb714e6413646c5dd00f4505a44ef4e75544a0e67acbad7297f",
+      "new_sha256": "60def51f4600710f83dc3fe3a3c7d4fad90cef5ca73e070e2fc2c36e043fd77b",
+      "category": "RETRIEVAL_ROUTE_SCENARIO_ACTIVE_SOURCE_PATCH"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_beam3_k13_floating_backward_retrieval_ablation_5b/validate_scenario2_beam3_k13_floating_backward_retrieval_ablation_5b.py",
+      "old_sha256": "062f4ae2c6fa41f4ddcace611bf6b6d6ec8817d11a217201e574dc7ac12a47be",
+      "new_sha256": "f72a8d4fdf5ad79df8fef168fefb28b8eab81b4b301b3c22ecf10531e934a7ce",
+      "category": "RETRIEVAL_ROUTE_SCENARIO_ACTIVE_SOURCE_PATCH"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_k11_backward_retrieval_oriented_basis_ablation_5b/validate_scenario2_k11_backward_retrieval_oriented_basis_ablation_5b.py",
+      "old_sha256": "86ce67f6980f0a07f36e85f45822c38ab5bacd971bc66cff1717c4385de14150",
+      "new_sha256": "9759d07959255579896e30c44ac616269e66ca70bc754d9db21a091297dbae00",
+      "category": "RETRIEVAL_ROUTE_SCENARIO_ACTIVE_SOURCE_PATCH"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b/run_scenario2_k12_backward_retrieval_oriented_basis_ablation_5b.py",
+      "old_sha256": "665b802816700837b16626919f8b395cdd78ee4cf814d74714867f24a5610b82",
+      "new_sha256": "909794151f4119ea3214692b777e3170269bc587020128410b48ecc44ad02465",
+      "category": "RETRIEVAL_ROUTE_SCENARIO_ACTIVE_SOURCE_PATCH"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b/validate_scenario2_k12_backward_retrieval_oriented_basis_ablation_5b.py",
+      "old_sha256": "038887e5c84552c9201929762594b2e6b014e18eaa1345634e71ae839e666910",
+      "new_sha256": "7a62e5e077c87081fec53e9fcc7a28f7d8b8156c70375ed7fb84ad94f5ae1093",
+      "category": "RETRIEVAL_ROUTE_SCENARIO_ACTIVE_SOURCE_PATCH"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_k12_retrieval_oriented_forward_scan_5b/run_scenario2_k12_retrieval_oriented_forward_scan_5b.py",
+      "old_sha256": "da8c048c4bd857c10a383ea15e7528f72bb3e8604beb285634831f6d5d0ea08b",
+      "new_sha256": "48cc54d45f39f9050a9a8d4d40f8d2fea783799687f06f547d9a52aad2d6219a",
+      "category": "RETRIEVAL_ROUTE_SCENARIO_ACTIVE_SOURCE_PATCH"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_k12_retrieval_oriented_forward_scan_5b/validate_scenario2_k12_retrieval_oriented_forward_scan_5b.py",
+      "old_sha256": "426625184e63c11fa29eb3546e39fbc2a0a5785e67dfdd5581aa4e312f56662c",
+      "new_sha256": "05c48ef73f395bb2a727191a1024fe9bd2f8bc4598f287f52672aa1dcc26d0ed",
+      "category": "RETRIEVAL_ROUTE_SCENARIO_ACTIVE_SOURCE_PATCH"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_mp10_k11_retrieval_oriented_forward_scan_5b/run_scenario2_mp10_k11_retrieval_oriented_forward_scan_5b.py",
+      "old_sha256": "52bd0ca545ffa9f9eb1c573df9c08817654ebde2b9962ee1b8ddc87b730e4137",
+      "new_sha256": "df2d082ae45d5b867bf7a80b5d4b1de03d6a1542afdd3aabe6d7c60ed2cbb3bc",
+      "category": "RETRIEVAL_ROUTE_SCENARIO_ACTIVE_SOURCE_PATCH"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_mp10_k11_retrieval_oriented_forward_scan_5b/validate_scenario2_mp10_k11_retrieval_oriented_forward_scan_5b.py",
+      "old_sha256": "bac7258003d6a85d75a35961335659f315045f4d7676938b9167b7bfba88f5af",
+      "new_sha256": "498e785acca7598e257534298f4557558de113ef50b16c3dbef20d8c41572b08",
+      "category": "RETRIEVAL_ROUTE_SCENARIO_ACTIVE_SOURCE_PATCH"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_self_first_joint_basis_ridge_lut_retrieval_search_5b/run_scenario2_self_first_joint_basis_ridge_lut_retrieval_search_5b.py",
+      "old_sha256": "9dc927b65e1d4019701b0718d67472163b52f856dd37989afe55dd10e456731b",
+      "new_sha256": "0ea4591fe5e513ee40212ea09b6e1d964fd8824c9de5b622136b9a55066b6475",
+      "category": "RETRIEVAL_ROUTE_SCENARIO_ACTIVE_SOURCE_PATCH"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_self_first_joint_basis_ridge_lut_retrieval_search_5b/validate_scenario2_self_first_joint_basis_ridge_lut_retrieval_search_5b.py",
+      "old_sha256": "f435ad04c248a2723a5e48684f1d4b9d0cfd8808946a181f266bf87020e4da71",
+      "new_sha256": "ce2259db818ffcc1fcff96d970c5b5bad5eedcb6193f4ec465167aeb7d6d6569",
+      "category": "RETRIEVAL_ROUTE_SCENARIO_ACTIVE_SOURCE_PATCH"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_smallbeam3_k13_retrieval_oriented_forward_expansion_5b/validate_scenario2_smallbeam3_k13_retrieval_oriented_forward_expansion_5b.py",
+      "old_sha256": "05a8ebe57c056725237b05dc0b0a4ab17a19858d6f1aa1c93120c6a6bea9f959",
+      "new_sha256": "87cd094fd883a911e36afc7ec53462d566242a2018390c1fb34e4404afe7b0c5",
+      "category": "RETRIEVAL_ROUTE_SCENARIO_ACTIVE_SOURCE_PATCH"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_statewise_best_round0_4_5b_retrieval/run_scenario2_c2_to_aend_statewise_best_round0_4_5b.py",
+      "old_sha256": "50071b4ff147556ec4784109a129f4173752adadcf814fc0b3cab4c8ac3340b5",
+      "new_sha256": "20fcde9d5eafd77613b723838e3c8b81c781150c6cbcfc97b0417460fb54af1c",
+      "category": "RETRIEVAL_ROUTE_SCENARIO_ACTIVE_SOURCE_PATCH"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_updated_beam3_iteration2_retrieval_oriented_forward_expansion_5b/run_scenario2_updated_beam3_iteration2_retrieval_oriented_forward_expansion_5b.py",
+      "old_sha256": "b12a1d8b26acf5f36c57f807c5429b2a8d7bdfd1202577dd5d307b5f0ff25561",
+      "new_sha256": "0569449117e90def5e9b43c9761e6825c5741b72508eae03cfc1682044feacd6",
+      "category": "RETRIEVAL_ROUTE_SCENARIO_ACTIVE_SOURCE_PATCH"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/shared/k11_backward_retrieval_runner.py",
+      "old_sha256": "47e977e160365488abf4fe8bd73361b81f4035a6b53bb7c6780001d5cf039717",
+      "new_sha256": "016a3e02c72aedde52c16ab5dd269cdceda01a27549a03197f7c5ade816fb1a3",
+      "category": "RETRIEVAL_ROUTE_SCENARIO_ACTIVE_SOURCE_PATCH"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/shared/smallbeam_retrieval_runner.py",
+      "old_sha256": "82ab98790a2ca63ea15a5e257b7673f015a7838a83014ea370a994e141eb215a",
+      "new_sha256": "96d851d850a2f8882c3f0722ac247d16a73a19c08f4cc37e78941b9e04f46313",
+      "category": "RETRIEVAL_ROUTE_SCENARIO_ACTIVE_SOURCE_PATCH"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_C2_to_Aend_retrieval_oriented_model_scan/run_scenario2_retrieval_oriented_model_scan.py",
+      "old_sha256": "6d5c4ed3ce7e81a67ee5906d8b33f619005736bcc2bb9d952a918a5c242f7e07",
+      "new_sha256": "be424394bdefa1666b30cc49d5b1e7dc0a1135559dc552cb329f5bba7617a978",
+      "category": "RETRIEVAL_SELF_HIT_ROUTE_CORRECTION"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_beam3_k13_floating_backward_retrieval_ablation_5b/run_scenario2_beam3_k13_floating_backward_retrieval_ablation_5b.py",
+      "old_sha256": "60def51f4600710f83dc3fe3a3c7d4fad90cef5ca73e070e2fc2c36e043fd77b",
+      "new_sha256": "74b097059012754662fcc51e39fe611370106ad80e948f39064f4aeef5a4571a",
+      "category": "RETRIEVAL_SELF_HIT_ROUTE_CORRECTION"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_beam3_k13_floating_backward_retrieval_ablation_5b/validate_scenario2_beam3_k13_floating_backward_retrieval_ablation_5b.py",
+      "old_sha256": "f72a8d4fdf5ad79df8fef168fefb28b8eab81b4b301b3c22ecf10531e934a7ce",
+      "new_sha256": "949fb2ae5cf036dfe678b4f3a70607383dd08c8efffec80243e720a64ba3ae28",
+      "category": "RETRIEVAL_SELF_HIT_ROUTE_CORRECTION"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_k11_backward_retrieval_oriented_basis_ablation_5b/validate_scenario2_k11_backward_retrieval_oriented_basis_ablation_5b.py",
+      "old_sha256": "9759d07959255579896e30c44ac616269e66ca70bc754d9db21a091297dbae00",
+      "new_sha256": "9f1d2b11d0a3760a59c5af345a885cf017ef36dfab5587399d8fcbbb41d253b1",
+      "category": "RETRIEVAL_SELF_HIT_ROUTE_CORRECTION"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b/run_scenario2_k12_backward_retrieval_oriented_basis_ablation_5b.py",
+      "old_sha256": "909794151f4119ea3214692b777e3170269bc587020128410b48ecc44ad02465",
+      "new_sha256": "35b0c74fb51c31bb14522a47688b2f12e59691cf8ae5d9e64b12ff8b6159d8ee",
+      "category": "RETRIEVAL_SELF_HIT_ROUTE_CORRECTION"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b/validate_scenario2_k12_backward_retrieval_oriented_basis_ablation_5b.py",
+      "old_sha256": "7a62e5e077c87081fec53e9fcc7a28f7d8b8156c70375ed7fb84ad94f5ae1093",
+      "new_sha256": "2a3a1f6046640231dcf8ea6f9b2cf155e2c19db3a275fb3225c785d4cdbce507",
+      "category": "RETRIEVAL_SELF_HIT_ROUTE_CORRECTION"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_k12_retrieval_oriented_forward_scan_5b/run_scenario2_k12_retrieval_oriented_forward_scan_5b.py",
+      "old_sha256": "48cc54d45f39f9050a9a8d4d40f8d2fea783799687f06f547d9a52aad2d6219a",
+      "new_sha256": "e0d6a13ae978fd788aa1dc02b9f193bdb9202b6bf9562f28e1045c6bbe35d72c",
+      "category": "RETRIEVAL_SELF_HIT_ROUTE_CORRECTION"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_k12_retrieval_oriented_forward_scan_5b/validate_scenario2_k12_retrieval_oriented_forward_scan_5b.py",
+      "old_sha256": "05c48ef73f395bb2a727191a1024fe9bd2f8bc4598f287f52672aa1dcc26d0ed",
+      "new_sha256": "01d4b3b0f84137be4243c7e014579d29d999794d08c21cfd15ed01312680ee63",
+      "category": "RETRIEVAL_SELF_HIT_ROUTE_CORRECTION"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_mp10_k11_retrieval_oriented_forward_scan_5b/run_scenario2_mp10_k11_retrieval_oriented_forward_scan_5b.py",
+      "old_sha256": "df2d082ae45d5b867bf7a80b5d4b1de03d6a1542afdd3aabe6d7c60ed2cbb3bc",
+      "new_sha256": "22ee23a815bee4b59f956b90cc7ee12962963e32bde061ee41530d081e57a7c7",
+      "category": "RETRIEVAL_SELF_HIT_ROUTE_CORRECTION"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_mp10_k11_retrieval_oriented_forward_scan_5b/validate_scenario2_mp10_k11_retrieval_oriented_forward_scan_5b.py",
+      "old_sha256": "498e785acca7598e257534298f4557558de113ef50b16c3dbef20d8c41572b08",
+      "new_sha256": "dbc6a1d3cf19cc2f24d62c100dd4df46c449b4ea23a57202bce53011f413f8ff",
+      "category": "RETRIEVAL_SELF_HIT_ROUTE_CORRECTION"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_mp10_k9_retrieval_oriented_basis_ablation_5b/validate_scenario2_mp10_k9_retrieval_oriented_basis_ablation_5b.py",
+      "old_sha256": "0e2edcb4c966805b10855c1bd01e806f3487b91f5849e2945bae9a2e97cff1a2",
+      "new_sha256": "dbaf80cb1e320bc4a7863e73b505a7a5a5117cf21b8b931ecc7b1cffb0041de2",
+      "category": "RETRIEVAL_SELF_HIT_ROUTE_CORRECTION"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_smallbeam3_k13_retrieval_oriented_forward_expansion_5b/validate_scenario2_smallbeam3_k13_retrieval_oriented_forward_expansion_5b.py",
+      "old_sha256": "87cd094fd883a911e36afc7ec53462d566242a2018390c1fb34e4404afe7b0c5",
+      "new_sha256": "37d3968e3315723072566174c22c48dff0f11f3ce4eef84f356b797a2f129e02",
+      "category": "RETRIEVAL_SELF_HIT_ROUTE_CORRECTION"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_updated_beam3_iteration2_retrieval_oriented_forward_expansion_5b/run_scenario2_updated_beam3_iteration2_retrieval_oriented_forward_expansion_5b.py",
+      "old_sha256": "0569449117e90def5e9b43c9761e6825c5741b72508eae03cfc1682044feacd6",
+      "new_sha256": "d8411c177e6c20e3d6f4d51515d53cc5ebbd8ad4a8dd281158ab8dcadf11f002",
+      "category": "RETRIEVAL_SELF_HIT_ROUTE_CORRECTION"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/shared/k11_backward_retrieval_runner.py",
+      "old_sha256": "016a3e02c72aedde52c16ab5dd269cdceda01a27549a03197f7c5ade816fb1a3",
+      "new_sha256": "cb873044851bde1b36af206b3f85934f47c563793a86b0c9d6101cacf3581c71",
+      "category": "RETRIEVAL_SELF_HIT_ROUTE_CORRECTION"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/shared/mp10_k9_retrieval_runner.py",
+      "old_sha256": "8686b9e80403dfd936cc321f68583ccdcda6fb6b14b7e94e3a9272510ab50049",
+      "new_sha256": "8947d5beacf7e7b8c14840fb5e969bd2d8d68f6a43d476b24408cff1f55000be",
+      "category": "RETRIEVAL_SELF_HIT_ROUTE_CORRECTION"
+    },
+    {
+      "file": "scripts/retrieval_oriented_model_selection/shared/smallbeam_retrieval_runner.py",
+      "old_sha256": "96d851d850a2f8882c3f0722ac247d16a73a19c08f4cc37e78941b9e04f46313",
+      "new_sha256": "2b04b2fcebc1a78bd6bb556eea213bf166bccdbc64e4ce42f2d91b342af8505d",
+      "category": "RETRIEVAL_SELF_HIT_ROUTE_CORRECTION"
+    }
+  ],
+  "config_files_touched": false,
+  "results_touched": false,
+  "work_logs_touched": false,
+  "data_touched": false
+}

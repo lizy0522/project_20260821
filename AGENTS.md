@@ -1178,3 +1178,202 @@ Codex 在本工程中始终遵守：
 18. 不擅自扩大任务范围；
 19. 正式 CPU-heavy 搜索遵守 10 spawn worker × 1 BLAS thread 的默认执行约束；
 20. 保持工程简单、清晰、可复现、可恢复、可验证。
+
+---
+
+# 十四、Git 目录骨架与 .gitkeep 规则
+
+## 1. 目标与边界
+
+Git 只跟踪文件，不跟踪空目录。本工程使用少量空的 .gitkeep 文件保留
+正式工程目录骨架，但不通过 .gitkeep 复刻科研运行现场。
+
+本规则的目标是：
+
+Git/GitHub 保留正式工程结构；
+本地继续保留原始数据、科研结果、checkpoint、cache 和运行产物。
+
+.gitkeep 属于工程结构文件，不代表所在目录中的实际科研数据或结果会被提交。
+
+## 2. 允许创建 .gitkeep 的目录
+
+只有同时满足以下条件时，才允许创建 .gitkeep：
+
+1. 目录已经存在，并且属于正式工程架构；
+2. 目录不是虚构的 task、experiment 或未来占位目录；
+3. 目录没有其他可跟踪文件能够自然保留它，或需要明确保留该结构层；
+4. clone 后仍希望看到该正式结构；
+5. 目录不是运行缓存、临时目录或候选评分缓存。
+
+当前允许的结构粒度为：
+
+data/raw/<scenario>/
+data/processed/<scenario>/
+results/<module>/
+results/<module>/<existing_scenario_scope>/
+results/retrieval_oriented_model_selection/<existing_route>/<existing_scenario_scope>/
+work_logs/<existing_retrieval_route>/<existing_scenario_scope>/  # 仅当没有其他可跟踪文件
+
+其中 existing 目录必须由当前磁盘实际存在的正式目录证明，不得为了形式对称预建。
+
+## 3. 明确禁止的 .gitkeep
+
+不得为了目录对称或未来规划创建：
+
+不存在的 scenario_1、scenario_2 或 cross_scenario 任务树；
+不存在的 experiment；
+未来 task 的占位目录；
+每个历史 task 的 .gitkeep；
+每个 round、checkpoint 或 cache 子目录的 .gitkeep。
+
+尤其禁止：
+
+scripts/<module>/<future_task>/.gitkeep
+results/<module>/<scenario>/<future_task>/.gitkeep
+work_logs/<module>/<scenario>/<future_task>/.gitkeep
+
+如果 scripts 目录已有 __init__.py 或其他可跟踪源码，也不得机械增加 .gitkeep。
+
+## 4. 三棵目录树的处理
+
+固定 10 个一级模块仍然必须满足：
+
+Modules(scripts) = Modules(results) = Modules(work_logs)
+
+scripts/ 优先由 __init__.py 和实际源码保留目录，不额外使用 .gitkeep。
+
+results/ 的实际科研输出默认继续忽略；只对固定模块根、当前已经存在的正式
+scenario 根，以及 retrieval 已经存在的 route/scenario 根设置最小 .gitkeep 骨架。
+不得进入每个 task 层。
+
+work_logs/ 中的文本型 execution_log.txt、codex_handoff.txt、工程说明和小型
+验证记录可以跟踪。candidate_score_cache/、checkpoint/、screening/、runtime/
+等大型或高频生成目录继续作为本地科研状态管理，不因骨架规则而提交。
+
+## 5. 数据与结果的 ignore 边界
+
+.gitignore 必须同时满足：
+
+data/raw/实际实验文件       = ignored
+data/processed/实际数据     = ignored
+results/实际科研结果        = ignored
+大型 checkpoint/cache       = ignored
+正式 scenario/module 根骨架 = 可由 .gitkeep 保留
+
+.gitignore 的例外规则只能放行明确的 .gitkeep 或必要结构父目录，不能放行
+整个实验目录、task 目录或结果文件集合。
+
+每次调整后必须用：
+
+git check-ignore -v <real-data-or-result-file>
+git check-ignore -v <expected-gitkeep>
+
+验证真实科研文件仍被忽略，而正式 .gitkeep 确实可以进入 Git 候选集合。
+
+## 6. 计划与验收
+
+创建 .gitkeep 前必须在当前工程维护记录中保存计划，至少包含：
+
+directory
+exists_now
+structural_role
+has_trackable_files
+gitkeep_required
+reason
+
+完成后必须检查：
+
+- 没有创建虚构 task 或 experiment；
+- 没有移动科研 task、results、work_logs 或 raw 数据；
+- 真实 raw/result/cache 文件仍被忽略；
+- 新增的可提交内容只有规则文件、必要 .gitkeep 和维护计划；
+- git diff --check 通过；
+- 不自动执行 git add、git commit 或 git push。
+
+---
+
+# 十六、Git 仓库正式边界补充
+
+## 1. Git 仓库的职责
+
+Git 仓库用于保存工程定义、手写源码、测试、环境与工具配置、可维护的工程知识
+以及正式目录骨架，不用于保存科研运行现场。
+
+默认可跟踪：
+
+scripts/ 源码和测试
+AGENTS.md、README.md
+environment.yml、pyproject.toml、.gitignore、.gitattributes
+必要的文本型 work_logs/handoff
+必要的小型 core 工程审计
+批准的 .gitkeep
+
+默认忽略：
+
+data/raw 实验文件
+data/processed 生成数据
+results 实际科研结果
+scientific cache/checkpoint/screening/runtime
+distance matrices、fingerprints
+Python/测试/静态工具缓存
+本地环境、IDE/OS 元数据
+密钥、token、credential
+
+可重新生成、体积大且高频变化的运行产物默认不进入 Git。
+
+## 2. work_logs 的分层边界
+
+不得整体忽略 work_logs。以下内容可以按需跟踪：
+
+execution_log.txt
+codex_handoff.txt
+Markdown 说明
+小型 core 工程审计 JSON/JSONL
+
+以下内容默认忽略：
+
+candidate_score_cache/
+checkpoint/
+screening/
+screening_partitions/
+screening_score_partitions/
+runtime/
+_cache/
+distance_matrices/
+fingerprints/
+scientific .npy/.npz/.mat
+scientific JSONL
+
+不得使用全局放行规则把所有 work_logs JSON 加入 Git。DPD-shareability 等研究目录
+中的候选评分 JSON、穷举 trace 和分区缓存必须按目录或扩展名保持本地；core 下的
+小型工程审计可以用显式例外保留。
+
+当前 DPD-shareability 任务的 optimization/、pre_search_validation/ 和
+execution_log.txt 属于任务运行现场，默认保持本地。当前架构维护记录中，
+migration_plan.json 和 source_patch_manifest.json 作为小型工程 provenance 保留；
+包含本机路径、raw manifest、文件 hash 或 cache 清理明细的其他 Core JSON 默认保持本地。
+
+## 3. 已跟踪文件与 ignore 的区别
+
+.gitignore 只影响未跟踪文件，不会自动取消历史上已经被 Git 跟踪的文件。
+如果发现历史 tracked 文件与当前仓库边界冲突，必须单独报告；未经用户明确授权，
+不得执行 git rm --cached、删除文件或改写历史。
+
+## 4. Git 边界验收
+
+任何 Git 边界维护完成前，都必须用修改前基线与修改后集合进行比较，重点确认：
+
+newly_unignored .mat = 0
+newly_unignored .npy = 0
+newly_unignored .npz = 0
+newly_unignored scientific CSV/figure = 0
+real raw files remain ignored
+real result files remain ignored
+scientific cache/checkpoint remains ignored
+text logs remain trackable
+
+新增可跟踪内容原则上只应是规则文件、批准的 .gitkeep、维护计划和小型工程说明。
+如果 ignore 修改使可提交文件突然达到 GB 级，必须停止并报告，不得继续 Git 操作。
+
+本类维护不得自动执行 git add、git commit、git push 或任何破坏性 Git 命令，也不得
+启动科研任务。
