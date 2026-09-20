@@ -1,0 +1,5 @@
+2026-09-18T22:13:33+0800 | START Scenario 1 load-drift state selection
+2026-09-18T22:14:09+0800 | START Scenario 1 load-drift state selection
+2026-09-18T22:14:14+0800 | NUMERICAL COMPLETE candidates=17 triplets=56 primary_phases=[0, 90, 180] recommended_states=[0, 17, 51, 85, 153, 187, 221] raw_unchanged=True
+2026-09-18T22:17:07+0800 | VALIDATION PASS checks=22
+2026-09-18T22:18:33+0800 | VALIDATION PASS checks=22

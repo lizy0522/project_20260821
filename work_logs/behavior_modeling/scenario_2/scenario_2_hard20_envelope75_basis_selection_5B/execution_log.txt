@@ -1,0 +1,34 @@
+
+[2026-09-15T01:01:33+0800] Start scenario_2_hard20_envelope75_basis_selection_5B
+Mode: new independent Hard-20 forward-behavior basis-selection task.
+Raw snapshot before: {"bytes": 2258448137, "file_count": 429, "mat_count": 427, "sha256": "910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0"}
+Workers: 10 spawn processes, BLAS threads per worker=1, no benchmark, no GPU.
+[2026-09-15T01:01:43+0800] FAILED scenario_2_hard20_envelope75_basis_selection_5B: KeyError: 'rank'
+[2026-09-15T01:02:37+0800] Resume same incomplete scenario_2_hard20_envelope75_basis_selection_5B; preserving prior artifacts.
+
+[2026-09-15T01:02:37+0800] Start scenario_2_hard20_envelope75_basis_selection_5B
+Mode: new independent Hard-20 forward-behavior basis-selection task.
+Raw snapshot before: {"bytes": 2258448137, "file_count": 429, "mat_count": 427, "sha256": "910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0"}
+Workers: 10 spawn processes, BLAS threads per worker=1, no benchmark, no GPU.
+[2026-09-15T01:03:10+0800] Completed scenario_2_hard20_envelope75_basis_selection_5B
+Result: {"capacity_status": "Envelope75 Train capacity solved", "final_test_pass": 20, "raw_data_modified": false, "selected_lambda": 0.0, "selected_support": ["LIN_d0", "LIN_d1", "LIN_d2", "ENV_p02_m0_q0", "ENV_p02_m0_q1", "ENV_p02_m0_q2", "ENV_p02_m1_q0", "ENV_p03_m0_q0", "ENV_p03_m0_q1", "ENV_p03_m1_q0", "ENV_p03_m1_q1", "ENV_p04_m0_q0", "ENV_p04_m1_q0", "ENV_p05_m0_q0", "ENV_p05_m1_q0", "ENV_p07_m0_q0", "ENV_p08_m0_q0", "ENV_p09_m0_q0"]}
+No Aend/C2, LUT retrieval, clustering, DPD, low-bandwidth, or automatic dmax=3 was run.
+
+[2026-09-15] Final verification
+The first run stopped after capacity computation because the capacity plot referenced
+an unmerged ranking column (KeyError: rank); no Test score was accessed. The same
+task was resumed with --resume after the output-only fix, preserving prior artifacts.
+Envelope75 dictionary gate passed: 75 unique IDs/signatures; Frozen10/GateA/GateB/GateC
+=10/18/48/108; Gate-B subset difference=27 terms from p=4/6/8; numerical subset
+comparison maximum absolute rounding difference=1.2347709524675987e-10.
+Raw before/after manifest remained 429 files, 427 MAT files, 2258448137 bytes,
+SHA256=910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0;
+raw_data_modified=false. Full48 and Full75 OLS capacity both passed Train 20/20;
+Full48 median/worst=-41.768533/-40.725232 dB, Full75 median/worst=
+-44.586262/-43.997108 dB. Final frozen support K=18, lambda=0, with selected
+new even-order terms p4=2 and p8=1 (p6=0); Train/CV W/Test all passed 20/20.
+The final direct Envelope75 regression, core=7, data_manager=5, and
+signal_segmentation=12 checks passed; compileall, full Ruff, pip check, and
+git diff --check passed. Results contain only the documented CSV/TXT/JSON/PNG
+artifacts; no design-matrix cache was retained. No Aend/C2, LUT retrieval,
+clustering, DPD, low-bandwidth, or automatic dmax=3 was run.

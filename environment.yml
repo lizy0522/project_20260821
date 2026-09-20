@@ -11,6 +11,8 @@ dependencies:
   - scipy
   - matplotlib
   - seaborn
+  - openpyxl
+  - pytest
   - ruff
   - pip
   - "libblas=*=*_openblas"

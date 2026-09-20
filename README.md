@@ -1,253 +1,564 @@
 # project_20260821
 
-标准四目录 Python 数据分析与科研工程。
+面向 PA 动态工作条件研究的标准 Python 科研工程。
 
-本工程用于组织原始数据、处理中间数据、分析脚本、任务结果和执行记录。
+当前工程长期服务两个场景：
 
-- **环境配置**：以根目录 `environment.yml` 为唯一事实来源。
-- **Agent 执行规则**：以根目录 `AGENTS.md` 为准。
-- **Python 工具配置**：以 `pyproject.toml` 为准。
-- **Git 排除规则**：以 `.gitignore` 为主要技术实现。
+```text
+scenario_1 = PA state drift（PA 状态漂移）
+scenario_2 = dynamic load mismatch（动态负载失配）
+```
+
+同时支持：
+
+```text
+cross_scenario
+```
+
+用于真正同时使用或比较两个场景的科研任务。
+
+工程采用固定的 **10 个一级模块**，并统一使用场景感知目录结构。
+
+普通科研模块：
+
+```text
+Module -> Scenario -> Task
+```
+
+特殊的 `retrieval_oriented_model_selection`：
+
+```text
+Module -> Route -> Scenario -> Task
+```
+
+原始/处理中间数据：
+
+```text
+Data -> Scenario -> Experiment
+```
+
+详细 Agent/Codex 执行规则以根目录 `AGENTS.md` 为准。
 
 ---
 
-## Quick Start
+# 配置文件职责
 
-### 1. 创建工程环境
+```text
+AGENTS.md
+= Agent/Codex 的工程执行规则
 
-首次在一台电脑上使用本工程：
+environment.yml
+= Conda/Python 环境唯一事实来源
+
+pyproject.toml
+= Python 工具配置（Ruff、pytest 等）
+
+README.md
+= 工程结构、使用方式和快速上手说明
+
+.gitignore
+= Git 排除规则
+```
+
+README 不维护独立的完整依赖版本表，避免与 `environment.yml` 漂移。
+
+---
+
+# Quick Start
+
+## 1. 创建环境
 
 ```bash
 conda env create -f environment.yml
 ```
 
-`environment.yml` 当前声明的环境名称为（该名称仅用于当前使用示例，唯一事实来源仍是 `environment.yml`）：
+当前环境名称由 `environment.yml` 的 `name` 字段定义。
 
-```text
-project_20260821
-```
-
-### 2. 激活环境
+## 2. 激活环境
 
 ```bash
 conda activate project_20260821
 ```
 
-除 `conda env create`、`conda env update` 等 Conda 环境管理命令外，本文后续出现的 `python`、`pip`、`ruff` 以及任务测试命令，均默认在 `environment.yml` 声明的工程环境已经正确激活后执行。
-
-如果环境名称以后发生变化，应以 `environment.yml` 的 `name` 字段为准，并同步更新这里用于人工操作的激活示例。
-
-### 3. 已有环境同步配置
-
-当 `environment.yml` 更新后：
+## 3. 同步已有环境
 
 ```bash
 conda env update -f environment.yml
 ```
 
-默认不使用 `--prune`。只有在明确需要清理环境并检查删除影响后，才使用该选项。
+默认不使用：
 
-### 4. 基本验证
+```bash
+--prune
+```
+
+## 4. 基础验证
 
 ```bash
 python -c "import sys, platform; print(sys.executable); print(sys.version); print(platform.system()); print(platform.machine())"
 python -c "import numpy, scipy; print(numpy.__version__); print(scipy.__version__); numpy.__config__.show()"
 python -m pip check
 ruff check --no-cache scripts
+pytest
 ```
 
-正式科研计算前，还应运行与当前任务直接相关的已有测试入口或最小功能 smoke test。
+正式科研任务还应运行其已有 task-specific test（任务专属测试）或最小 smoke test（冒烟测试）。
 
 ---
 
-## 目录结构
+# 工程目录
 
 ```text
 project_20260821/
 ├── data/
 │   ├── raw/
+│   │   ├── scenario_1/
+│   │   │   └── <experiment>/
+│   │   └── scenario_2/
+│   │       └── <experiment>/
 │   └── processed/
+│       ├── scenario_1/
+│       └── scenario_2/
+│
 ├── scripts/
-│   ├── _core/
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── shared/
+│   │   └── <engineering_task>/
+│   ├── data_management/
+│   │   └── shared/
 │   ├── signal_segmentation/
-│   └── task_name/
+│   │   ├── shared/
+│   │   └── scenario_2/
+│   │       └── <task>/
+│   ├── pa_performance_evaluation/
+│   │   ├── shared/
+│   │   ├── scenario_1/
+│   │   ├── scenario_2/
+│   │   └── cross_scenario/
+│   ├── behavior_modeling/
+│   │   ├── shared/
+│   │   ├── scenario_1/
+│   │   ├── scenario_2/
+│   │   └── cross_scenario/
+│   ├── behavior_fingerprint_retrieval/
+│   │   ├── shared/
+│   │   ├── scenario_1/
+│   │   ├── scenario_2/
+│   │   └── cross_scenario/
+│   ├── retrieval_oriented_model_selection/
+│   │   ├── shared/
+│   │   ├── self_hit_oriented/
+│   │   │   └── scenario_2/
+│   │   │       └── <task>/
+│   │   └── dpd_shareability_oriented/
+│   │       └── scenario_2/
+│   │           └── <task>/
+│   ├── behavior_fingerprint_ranking_consistency/
+│   │   ├── shared/
+│   │   ├── scenario_1/
+│   │   ├── scenario_2/
+│   │   └── cross_scenario/
+│   ├── low_bandwidth_behavior_analysis/
+│   │   ├── shared/
+│   │   ├── scenario_1/
+│   │   ├── scenario_2/
+│   │   └── cross_scenario/
+│   └── lut_clustering_compression/
+│       ├── shared/
+│       ├── scenario_1/
+│       ├── scenario_2/
+│       └── cross_scenario/
+│
 ├── results/
-│   └── task_name/
+│   └── 与实际科研 task 对应的 module/scenario/task
+│       或 retrieval module/route/scenario/task
+│
 ├── work_logs/
-│   ├── task_name/
-│   └── codex_handoff/
+│   └── 与实际科研 task 对应的 module/scenario/task
+│       或 retrieval module/route/scenario/task
+│
 ├── AGENTS.md
 ├── README.md
 ├── environment.yml
 └── pyproject.toml
 ```
 
-目录职责：
+说明：场景目录按需存在。没有真实任务时，不为了目录对称创建空 task。
 
-- `data/raw/`：原始输入和实验数据，原则上保持只读。
-- `data/processed/`：可重复生成、可被多个任务复用的中间数据。
-- `scripts/_core/`：跨任务复用的公共模块。
-- `scripts/signal_segmentation/`：固定 A/B/C 样点所有权及相关规范信号处理。
-- `scripts/task_name/`：具体任务脚本。
-- `results/task_name/`：具体任务的分析结果和任务专属输出。
-- `work_logs/task_name/`：任务首次执行及后续维护的连续执行记录。
-- `work_logs/codex_handoff/`：工程总体交接和状态摘要。
+一级模块必须始终满足：
 
-任务目录使用具有实际语义的小写英文 `snake_case` 名称，不使用数字任务编号。
-
-完整任务判定、维护、数据保护和日志规则见 `AGENTS.md`。
+```text
+Modules(scripts) = Modules(results) = Modules(work_logs)
+```
 
 ---
 
-## Python 环境
+# 固定 10 个模块
 
-### 唯一事实来源
+| 模块 | 主要职责 |
+|---|---|
+| `core` | 工程路径、模块注册表、通用底层工具、validator、工程维护和交接 |
+| `data_management` | 场景/实验路径、MAT 加载、状态索引、canonical ordering、manifest |
+| `signal_segmentation` | A/B/C 分段、valid samples、dmax 边界、公共 B 段和预处理 |
+| `pa_performance_evaluation` | NMSE、ACPR、输出功率、DC power、效率和 DPD on/off 实测评价 |
+| `behavior_modeling` | PA 正向行为建模，以及建模精度/泛化精度导向的模型选择 |
+| `behavior_fingerprint_retrieval` | 模型已确定后的行为指纹、LUT、distance、Top-k 和 Real-B 验证 |
+| `retrieval_oriented_model_selection` | LUT 检索效果导向的 basis/Ridge/model structure 选择 |
+| `behavior_fingerprint_ranking_consistency` | ranking consistency 和跨状态/模型/带宽排序分析 |
+| `low_bandwidth_behavior_analysis` | 5B→nB、低带宽行为和跨带宽保持性 |
+| `lut_clustering_compression` | 状态聚类、代表状态选择及 LUT/指纹/DPD 条目压缩 |
 
-工程环境由：
+---
+
+# Scenario Scope（场景作用域）
+
+普通科研任务使用：
+
+```text
+scenario_1
+scenario_2
+cross_scenario
+```
+
+其中：
+
+```text
+scenario_1
+= PA 状态漂移
+
+scenario_2
+= 动态负载失配
+
+cross_scenario
+= 科研问题本身明确同时涉及两个场景
+```
+
+例如：
+
+```text
+scripts/behavior_modeling/scenario_2/<task>/
+```
+
+跨场景任务：
+
+```text
+scripts/pa_performance_evaluation/cross_scenario/<task>/
+```
+
+新任务的 `task_name` 原则上不重复场景前缀，因为场景已经由目录表达；历史任务已有 `scenario_2_` 前缀时保留原名，不做无必要的批量重命名。
+
+---
+
+# Retrieval-Oriented Model Selection
+
+`retrieval_oriented_model_selection` 是唯一 route-aware（研究路线感知）模块。
+
+固定 route：
+
+```text
+self_hit_oriented
+= 以检索到真实状态自身为第一目标
+
+dpd_shareability_oriented
+= 以检索出的 DPD 条目可共享率为第一目标
+```
+
+正式路径：
+
+```text
+scripts/retrieval_oriented_model_selection/<route>/<scenario_scope>/<task>/
+results/retrieval_oriented_model_selection/<route>/<scenario_scope>/<task>/
+work_logs/retrieval_oriented_model_selection/<route>/<scenario_scope>/<task>/
+```
+
+模块公共代码始终位于：
+
+```text
+scripts/retrieval_oriented_model_selection/shared/
+```
+
+route 下不建立 `shared/`。
+
+路径解析优先使用：
+
+```text
+scripts/core/shared/project_paths.py
+scripts/retrieval_oriented_model_selection/shared/route_paths.py
+```
+
+当前统一接口包括：
+
+```text
+get_raw_scenario_root(...)
+get_raw_experiment_root(...)
+get_processed_scenario_root(...)
+get_task_paths(module_name, task_name, scenario_scope=...)
+get_route_task_paths(route, scenario_scope, task_name)
+```
+
+不要通过固定 `.parent` 层数推断 route/module/task，也不要在新活动源码中重新硬编码机器绝对路径。
+
+---
+
+# Behavior Modeling 与 Retrieval-Oriented Selection 的边界
+
+## `behavior_modeling`
+
+主要优化：
+
+```text
+Train NMSE
+Validation NMSE
+Generalization NMSE
+Generalization Gap
+model capacity
+numerical conditioning
+```
+
+回答：
+
+> 什么样的行为模型能够更准确地描述和泛化 PA 行为？
+
+## `retrieval_oriented_model_selection`
+
+主要优化：
+
+```text
+Top-1
+N_self
+N_shareable
+N_valid
+retrieval margin
+MRR
+Top-k
+```
+
+回答：
+
+> 什么样的行为模型最适合 LUT 检索？
+
+不能仅根据任务名中出现 `basis`、`model` 或 `ridge` 判断模块。
+
+---
+
+# Shared Code 与任务隔离
+
+每个源码模块固定使用：
+
+```text
+scripts/<module>/shared/
+```
+
+`shared/` 是模块稳定公共 API。
+
+推荐依赖：
+
+```text
+Task -> Shared
+Module A Task -> Module B Shared
+```
+
+原则上禁止：
+
+```text
+Task -> Task
+Shared -> Task
+Module A -> Module B concrete task
+```
+
+如果某个任务实现需要被多个任务复用，应把真正公共的部分提升到所属模块 `shared/`。
+
+`results/` 和 `work_logs/` 不建立模块公共 `shared/`。
+
+---
+
+# 数据目录
+
+## 原始数据
+
+```text
+data/raw/<scenario>/<experiment>/
+```
+
+当前历史 Scenario 2 实验的正式路径为：
+
+```text
+data/raw/scenario_2/experiment_2026_0816/
+```
+
+`data/raw/` 默认只读。
+
+除非明确执行原始数据目录架构迁移，否则不修改、不覆盖、不删除、不重命名原始实验文件。
+
+工程为历史 checkpoint/cache 保留 `legacy_raw_manifest()` 兼容能力，但它只用于识别架构迁移前的历史科研状态。新任务应使用当前 `scenario + experiment` 数据身份，不应继续以旧 raw 目录结构作为工程逻辑。
+
+## 可复用处理中间数据
+
+```text
+data/processed/scenario_1/
+data/processed/scenario_2/
+```
+
+只服务单个任务的中间产物优先放：
+
+```text
+results/<module>/<scenario_scope>/<task>/
+```
+
+`data/processed/` 不建立 `cross_scenario/`。
+
+---
+
+# Results 与 Work Logs
+
+## Results
+
+保存任务正式科研产物，例如：
+
+- CSV/Excel；
+- JSON summary；
+- MAT/NPZ/model；
+- figures/PDF；
+- final metrics；
+- final model definition。
+
+## Work Logs
+
+保存：
+
+- `execution_log.txt`；
+- checkpoint/resume；
+- pre-search validation；
+- runtime diagnostics；
+- screening partitions；
+- CandidateScore cache；
+- engineering audit。
+
+因此 `work_logs/` 中可能存在非常重要的科研中间状态，不能机械清理。
+
+总体工程交接：
+
+```text
+work_logs/core/codex_handoff/codex_handoff.txt
+```
+
+---
+
+# Python 环境
+
+环境唯一事实来源：
 
 ```text
 environment.yml
 ```
 
-定义。
-
-其中包括：
-
-- 环境名称；
-- Conda channel；
-- Python 版本；
-- 直接 Python 依赖；
-- 当前数值计算后端约束。
-
-README 不重复维护完整依赖列表，以避免环境定义在多个文件之间漂移。
-
-当前 `environment.yml` 如需修改，应优先修改该文件，再同步 Conda 环境。
-
-### 跨平台原则
-
-工程代码和规则不绑定 Windows、macOS 或 Linux 的用户绝对路径。
-
-不同电脑或操作系统之间迁移工程时：
-
-1. 同步源代码和配置；
-2. 同步必要的数据与本地结果；
-3. 根据 `environment.yml` 重新创建 Conda 环境；
-4. 不直接复制旧电脑的 Conda 环境目录；
-5. 重新执行基本环境和任务验证。
-
-操作系统和 CPU 架构可以作为诊断信息，但不是 README 中的硬性运行平台限制。
-
----
-
-## 脚本路径约定
-
-任务脚本应通过脚本自身位置推导工程根目录，不硬编码工程绝对路径。
-
-推荐：
-
-```python
-from pathlib import Path
-
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-TASK_NAME = Path(__file__).resolve().parent.name
-
-DATA_DIR = PROJECT_ROOT / "data"
-RAW_DATA_DIR = DATA_DIR / "raw"
-PROCESSED_DATA_DIR = DATA_DIR / "processed"
-
-RESULTS_DIR = PROJECT_ROOT / "results" / TASK_NAME
-WORK_LOG_DIR = PROJECT_ROOT / "work_logs" / TASK_NAME
-```
-
-任务结果原则上写入：
+当前原则：
 
 ```text
-results/task_name/
+Python 3.11
+conda-forge
+OpenBLAS
 ```
 
-任务执行记录写入：
+在 Apple Silicon Mac 上使用原生 arm64 Conda/Python 环境；除非某个明确依赖只能通过 Rosetta/x86_64 运行且用户确认，否则避免 Rosetta Python。
+
+正式科研计算不要使用 Conda `base`、系统 Python 或另一个工程的环境。
+
+---
+
+# CPU-Heavy 任务默认并行规范
+
+正式 CPU-heavy 搜索默认：
 
 ```text
-work_logs/task_name/execution_log.txt
+10 个 spawn worker processes
+每 worker 1 个 BLAS/OpenBLAS thread
+不设置 CPU affinity
+GPU disabled
+禁止 nested multiprocessing
 ```
+
+调试/reference gate 可以显式使用更少 worker。
+
+正式长任务应具有 checkpoint/resume、进度、吞吐、ETA、worker error 和 fallback 监控。
 
 ---
 
-## 环境与依赖变更
+# 代码检查
 
-新增 Python 依赖时：
-
-1. 优先使用 `conda-forge`；
-2. 只把工程直接依赖写入 `environment.yml`；
-3. 必要时先检查 Conda 求解计划；
-4. 修改 `environment.yml` 后使用：
+基础静态检查：
 
 ```bash
-conda env update -f environment.yml
-```
-
-5. 完成依赖一致性、Ruff 和受影响任务验证。
-
-pip 只作为 Conda 无法满足需求时的受控例外。详细要求见 `AGENTS.md`。
-
-当前数值计算后端的实际约束以 `environment.yml` 为准；不得仅根据 README 或旧机器环境推断。
-
----
-
-## 代码检查与验证
-
-基础代码检查：
-
-```bash
+python -m compileall -q scripts
 ruff check --no-cache scripts
-```
-
-基础依赖检查：
-
-```bash
 python -m pip check
 ```
 
-科学计算环境检查：
+工程级架构/路径维护优先运行直接相关的小型测试，例如：
 
 ```bash
-python -c "import numpy, scipy; print(numpy.__version__); print(scipy.__version__); numpy.__config__.show()"
+pytest scripts/core/shared/tests scripts/data_management/shared/tests
 ```
 
-对于具体科研任务，还应运行该任务已有测试或最小 smoke test。基础环境检查不能替代任务级数值验证。
+完整：
+
+```bash
+pytest
+```
+
+用于需要全量回归时执行。历史任务中部分 regression test 可能依赖此前本来就不存在的科研 artifact；遇到这种情况应报告真实缺失原因，不得为了测试变绿而生成、复制或伪造科研结果。
+
+涉及架构维护时还应运行项目 layout validator，并确认：
+
+```text
+Modules(scripts) = Modules(results) = Modules(work_logs)
+```
+
+以及：
+
+- 普通科研 task 位于 scenario scope；
+- Retrieval task 位于 route/scenario scope；
+- `shared/` 只位于模块根；
+- route/scenario 下不存在 `shared/`；
+- `results/` 和 `work_logs/` 不存在模块公共 `shared/`；
+- 不存在 task-to-task 依赖；
+- 活动源码没有依赖旧目录结构。
+
+如果某些历史回归测试依赖已经不存在的科研 artifact，应报告实际缺失原因，不得伪造结果来让测试通过。
+
+当前最终架构已经完成整合。后续普通科研开发应直接在现有 Scenario/Route 结构内新增任务，不再为历史任务做无必要的大规模目录搬迁或批量去除 `scenario_2_` 前缀。
 
 ---
 
-## Git
+# Git
 
-当前远程仓库：
+Git 安全规则以 `AGENTS.md` 为准。
 
-```text
-https://github.com/lizy0522/project_20260821.git
-```
-
-常用命令：
+常用只读检查：
 
 ```bash
 git status --short --branch
-git pull --ff-only
-git push
+git diff
+git diff --check
+git log
 ```
 
-仓库默认保存：
+除用户明确要求外，不要使用：
 
-- 源代码和测试；
-- 工程配置；
-- `AGENTS.md`、`README.md`；
-- 文本形式的工作日志和交接记录。
+```text
+git reset --hard
+git clean -fd
+git restore 覆盖用户修改
+git add -A
+git add .
+```
 
-`data/`、`results/` 以及运行生成的数据、模型、图形、表格和缓存默认不进入新的 Git 提交。
-
-提交和 Git 安全规则以 `AGENTS.md` 为准；文件排除规则以 `.gitignore` 为主要技术实现。
+工程默认不把 `data/`、`results/` 和大型运行产物加入新的 Git 提交。
 
 ---
 
-## Agent 执行规则
+# Agent 使用
 
 Codex 或其他 Agent 在本工程中工作时，应先读取：
 
@@ -257,13 +568,18 @@ AGENTS.md
 
 其中定义：
 
-- 新任务模式与持续维护模式；
-- 任务命名和目录边界；
-- 公共模块复用；
-- `data/raw/` 保护；
-- 结果与日志管理；
-- Python 环境与依赖管理；
+- 固定 10 模块；
+- Module/Scenario/Task 架构；
+- Retrieval 的 Module/Route/Scenario/Task 架构；
+- Data/Scenario/Experiment 架构；
+- 模块职责；
+- Shared/Task 边界；
+- 新任务与持续维护规则；
+- `data/raw` 保护；
+- checkpoint/cache 保护；
+- CPU-heavy 并行规则；
+- Python 环境；
 - Git 安全；
 - 完成前检查。
 
-README 负责说明工程如何使用，不重复维护 Agent 的完整执行规则。
+README 只负责说明工程如何使用，不重复维护全部 Agent 细则。

@@ -1,0 +1,5 @@
+
+[2026-09-16T02:06:45+0800] Complete scenario_2_mp10_k11_retrieval_oriented_forward_scan_5b
+Result={"baseline_regression_pass": true, "baseline_top1_pass": 411, "cv_winner_counts": [{"model_name": "MP10_plus_ENV_p04_m2_q0", "train_winner_count": 5}], "diagnostic_best_basis": "ENV_p04_m2_q0", "diagnostic_best_model": "MP10_plus_ENV_p04_m2_q0", "diagnostic_best_top1_pass": 416, "k11_positive_delta_count": 27, "max_k11_top1_pass": 416, "raw_data_modified": false, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_mp10_k11_retrieval_oriented_forward_scan_5b", "status": "SUCCESS", "task": "scenario_2_mp10_k11_retrieval_oriented_forward_scan_5b", "transition_counts_across_k11": {"recovered": 113, "regressed": 44, "unchanged_fail": 797, "unchanged_pass": 26671}}
+No K12 or additional optimization was run.
+Post-run validation passed: 66 distance matrices, 330 argmin checks, 20 Real-B pairs, 28,050 model rows, 28,050 query rows, overlap max_abs_delta=0, and five balanced folds with one winner each.

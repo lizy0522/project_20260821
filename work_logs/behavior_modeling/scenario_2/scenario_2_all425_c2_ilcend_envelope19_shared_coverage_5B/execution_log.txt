@@ -1,0 +1,22 @@
+
+[2026-09-15T21:42:17+0800] Start scenario_2_all425_c2_ilcend_envelope19_shared_coverage_5B
+Frozen model=Envelope19-C2EndShared; support_hash=dda04e2fc270c9f5c2eb72b0b030059211ba0295934e3e3a4b2834172b11ac90; states=0...424; workers=10; raw={"bytes": 2258448137, "file_count": 429, "mat_count": 427, "sha256": "910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0"}
+Mode: evaluation_only; no selection/CV/Ridge/ABC/LUT path.
+[2026-09-15T21:42:35+0800] FAILED scenario_2_all425_c2_ilcend_envelope19_shared_coverage_5B: KeyError: 'behavior'
+
+[2026-09-15T21:42:59+0800] Start scenario_2_all425_c2_ilcend_envelope19_shared_coverage_5B
+Frozen model=Envelope19-C2EndShared; support_hash=dda04e2fc270c9f5c2eb72b0b030059211ba0295934e3e3a4b2834172b11ac90; states=0...424; workers=10; raw={"bytes": 2258448137, "file_count": 429, "mat_count": 427, "sha256": "910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0"}
+Mode: evaluation_only; no selection/CV/Ridge/ABC/LUT path.
+[2026-09-15T21:43:18+0800] FAILED scenario_2_all425_c2_ilcend_envelope19_shared_coverage_5B: KeyError: 'behavior'
+
+[2026-09-15T21:43:45+0800] Start scenario_2_all425_c2_ilcend_envelope19_shared_coverage_5B
+Frozen model=Envelope19-C2EndShared; support_hash=dda04e2fc270c9f5c2eb72b0b030059211ba0295934e3e3a4b2834172b11ac90; states=0...424; workers=10; raw={"bytes": 2258448137, "file_count": 429, "mat_count": 427, "sha256": "910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0"}
+Mode: evaluation_only; no selection/CV/Ridge/ABC/LUT path.
+[2026-09-15T21:44:04+0800] Completed scenario_2_all425_c2_ilcend_envelope19_shared_coverage_5B
+Result: {"ILC_COL2_Test_pass": 425, "ILC_COL2_Train_pass": 425, "ILC_END_Test_pass": 425, "ILC_END_Train_pass": 425, "Joint_Final_pass": 425, "failed_state_count": 0, "hard20_regression": {"max_abs_delta_dB": 7.105427357601002e-15, "pass": true, "row_count": 80}, "raw_data_modified": false, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_all425_c2_ilcend_envelope19_shared_coverage_5B", "state_count": 425, "status": "SUCCESS", "task": "scenario_2_all425_c2_ilcend_envelope19_shared_coverage_5B"}
+Evaluation-only boundary preserved; no selection, CV, Ridge, ABC, LUT, or retrieval was run.
+[2026-09-15T21:44:57+0800] Final verification
+Frozen model contract passed: Envelope19-C2EndShared, K=19, dmax=2, lambda=0, OLS, support hash=dda04e2fc270c9f5c2eb72b0b030059211ba0295934e3e3a4b2834172b11ac90. All 425 canonical states were evaluated for ILC_END and literal ILC column 2; valid_ilc_count distribution={2:1,3:416,4:7,5:1}; col2_equals_ilc_end count=1.
+Coverage passed: ILC_END Train/Test=425/425 and 425/425; ILC_COL2 Train/Test=425/425 and 425/425; Joint Final=425/425; failed_states.csv contains header only. Hard20 regression row_count=80, max absolute delta=7.105427357601002e-15 dB, pass=true.
+Engineering checks passed: direct frozen-model contract, core/data_manager/signal_segmentation/Envelope75/Envelope18/Envelope23 regressions, compileall, full Ruff, pip check, git diff --check, raw manifest before/after, and visual inspection of both All425 plots with shared y-axis. No basis selection, CV, Ridge, ABC, common-B, LUT, fingerprint, clustering, DPD replay, low-bandwidth, or downstream retrieval was run.
+The first completed evaluation stopped only while writing derived NPZ/summary metadata because of wide-preflight column access; corrected --resume run completed with identical batch coverage results. Final artifacts and conclusions are from the corrected completed run.

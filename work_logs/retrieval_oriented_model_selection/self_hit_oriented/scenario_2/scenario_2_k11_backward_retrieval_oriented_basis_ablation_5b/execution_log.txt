@@ -1,0 +1,5 @@
+
+[2026-09-16T11:56:44+0800] Complete scenario_2_k11_backward_retrieval_oriented_basis_ablation_5b
+Result={"baseline_regression_pass": true, "cv_winner_counts": [{"model_name": "K11_full", "train_winner_count": 4}, {"model_name": "K11_minus_LIN_d2", "train_winner_count": 1}], "deletion_to_mp10_regression_pass": true, "diagnostic_winner": "K11_full", "diagnostic_winner_class": "baseline", "diagnostic_winner_top1": 416, "max_deletion_top1": 415, "raw_data_modified": false, "recommend_delete_basis_ids": [], "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_k11_backward_retrieval_oriented_basis_ablation_5b", "status": "SUCCESS", "task": "scenario_2_k11_backward_retrieval_oriented_basis_ablation_5b", "transition_counts_across_deletions": {"recovered": 36, "regressed": 500, "unchanged_fail": 63, "unchanged_pass": 4076}}
+No second deletion or K12 was run.
+Independent validation passed: 12 candidate distance matrices, 60 representative argmin checks, K11 baseline and deletion-to-MP10 regressions, 20 Real-B pairs, 5100 model rows, 5100 query rows, 99 failure9 rows, and five reused CV folds.

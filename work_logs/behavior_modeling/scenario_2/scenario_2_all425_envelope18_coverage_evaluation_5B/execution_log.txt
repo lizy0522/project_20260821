@@ -1,0 +1,26 @@
+
+[2026-09-15T09:59:44+0800] Start scenario_2_all425_envelope18_coverage_evaluation_5B
+Mode: frozen Envelope18 All-425 coverage evaluation; no model selection.
+Raw snapshot before: {"bytes": 2258448137, "file_count": 429, "mat_count": 427, "sha256": "910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0"}
+Support hash: e6a8405ba5b9417b169e64acff2d8c2426139ae199ce7b5a45ca92dbc035cdbc; workers=10; BLAS threads/worker=1.
+[2026-09-15T09:59:53+0800] Completed scenario_2_all425_envelope18_coverage_evaluation_5B
+Result: {"both_pass_count": 425, "failed_count": 0, "generalization_pass_count": 425, "modeling_pass_count": 425, "raw_data_modified": false, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_all425_envelope18_coverage_evaluation_5B", "support_hash": "e6a8405ba5b9417b169e64acff2d8c2426139ae199ce7b5a45ca92dbc035cdbc", "task": "scenario_2_all425_envelope18_coverage_evaluation_5B"}
+No re-selection, Ridge scan, dmax/p-order expansion, LUT retrieval, clustering, DPD, or low-bandwidth task was run.
+
+[2026-09-15] Final verification
+Frozen support contract matched the previous Envelope75 result definition exactly:
+K=18, lambda=0, dmax=2, support hash=e6a8405ba5b9417b169e64acff2d8c2426139ae199ce7b5a45ca92dbc035cdbc.
+All 425 canonical State IDs were evaluated and restored in state_id order. Modeling,
+generalization, and Both pass counts were each 425/425; failed_states.csv has the
+header only. Load groups matched 1/24/16/384 for matched/fundamental_only/
+second_harmonic_only/joint_mismatch, all with 100 percent Both coverage.
+All425 modeling median/Q95/worst=-44.625279/-43.361106/-42.736840 dB;
+generalization median/Q95/worst=-44.630165/-43.211541/-42.770731 dB;
+gap median/Q95/max=0.058140/0.450079/0.718344 dB. All ranks=18, condition q99/max=
+58607.657274, all finite, and the numerical gate passed.
+Raw before/after manifest remained 429 files, 427 MAT files, 2258448137 bytes,
+SHA256=910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0;
+raw_data_modified=false. Main NMSE and gap plots were visually checked; no design
+matrix cache or coefficient archive was retained. All-425/Envelope75 direct tests,
+core=7, data_manager=5, signal_segmentation=12, model_solver OLS/Ridge/scaling
+gates, compileall, full Ruff, pip check, and git diff --check passed.

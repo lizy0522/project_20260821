@@ -1,0 +1,372 @@
+
+
+[2026-08-27T11:36:11.156977+00:00] Scenario 2 - Y-C3 to Y-A2 LUT retrieval
+研究问题：固定Y-C3在线行为指纹检索Y-A2 LUT，并用真实OFF-B行为距离验证检索状态。
+输入均来自冻结A123/Scenario 2/all-ILC结果；未重新读取raw、训练模型、扫描lambda、改变MP或canonical。
+Y-C3 Query=(425, 4913)/complex128；Y-A2 LUT=(425, 4913)/complex128；candidate_count=425；self_match_included=True。
+D_QA2 shape=(425, 425)；C3→A2 ranking regression=True。
+完成425个State_R Top-1检索；exact=217/0.510588235；non-exact=208；Top3=0.727058824；Top5=0.844705882；true-rank median/max=1/20。
+D_B shape=(425, 425)；Real-B ranking regression=True；exact diagonal -inf=True。
+Non-exact有限Real-B统计：non_exact_B_CNMSE_mean=-42.7170573; non_exact_B_CNMSE_median=-43.2436993; non_exact_B_CNMSE_q05=-44.5766413; non_exact_B_CNMSE_q25=-44.0445273; non_exact_B_CNMSE_q75=-41.8977433; non_exact_B_CNMSE_q95=-38.8299137; non_exact_B_CNMSE_min=-45.229821; non_exact_B_CNMSE_max=-35.8066548；regret mean/median/max=1.41691164/0.842230603/8.28060271。
+threshold sweep仅为描述性统计，未冻结behavioral success threshold。
+三幅图均由Python/matplotlib生成；Figure2有限y范围=[-45.2298209801081,-35.8066547710375]。
+保护复核all_protected_unchanged=True；未执行破坏性Git操作；结果目录：D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C3_to_A2。
+
+
+[2026-09-06] Scenario 2 C2→Aend 正式验收
+-----------------------------------------
+- 本次直接维护既有behavior_fingerprint_lut_retrieval模块，新增C2→Aend分析、绘图、运行入口和测试；旧C3→A2脚本及结果未覆盖。
+- 读取冻结all_ilc_theta/A123/Scenario 2/C3→A2结果，未重新读取raw、训练模型、扫描lambda、改变MP/ABC/canonical/common-B。
+- 425个状态全部真实存在C2；N_s分布为2/3/4/5次分别1/416/7/1，A_end逐状态为A2/A3/A4/A5分别1/416/7/1。
+- A_end LUT和C2 Query均为(425,4913) complex128 finite；A_end与对应冻结stage最大误差2.074e-15，C2与冻结Q_C2最大误差0。
+- D_C2_Aend和R_C2_Aend均为(425,425)，candidate=425、self-match保留、minimum tie=0；Real-B矩阵复用上一版并与R_RR完全回归，对角线保留-inf。
+- Exact=218/425（51.2941%），Non-exact=207；true-state rank median/max=1/49；Top3/Top5=71.2941%/84.2353%。
+- 正式严格规则Real-B CNMSE<-40 dB：DPD-shareable=411/425（96.7059%），Non-exact shareable=193/207（93.2367%），failure=14。
+- Non-exact Real-B CNMSE（207个有限值）mean/median/std=-42.7708015/-43.1623299/1.55657726 dB，
+  q05/q25/q75/q95=-44.4498967/-43.8542945/-42.1380474/-39.2514874 dB，min/max=-45.2297124/-37.1036724 dB。
+- Regret mean/median/max=1.38119595/0.957607554/7.15029174 dB；Top3/Top5/Top10 shareable oracle coverage=99.5294%/99.7647%/100%。
+- 失败状态ID为187、189、195、196、199、206、323、327、330、335、340、344、346、354；主要集中于funMng=20/30、funAng=90/135，A_end_R为A3(11)/A4(3)。
+- 与旧C3→A2固定指标比较：Exact +1、Exact rate +0.2353百分点、DPD-shareable +4、shareable rate +0.9412百分点、failure -4；Top3 -1.4118百分点、Top5 -0.2353百分点；Non-exact median变化+0.08137 dB、q95改善-0.42157 dB、max改善-1.29702 dB。
+- Figure1/2/3/4均由Python/matplotlib生成并视觉QA通过；Figure2/3使用严格-40 dB参考线，Exact -inf未clamp；未生成可选Figure5。
+- 新模块19项测试PASS；全工程17个test_*.py入口全部PASS；python -m ruff check scripts：PASS；git diff --check：PASS（仅既有handoff CRLF提示）。
+- data/raw保持429文件、2258448137 bytes、manifest SHA=910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0；旧C3→A2、Scenario 2/all-ILC、A1/A2/A3 fusion、weighted、Ridge/OLS结果及核心脚本SHA均before=after。
+- 未执行git clean/reset/checkout/restore/commit/push；当前状态：完成，无执行阻塞。
+
+
+[2026-08-27] 最终验收
+----------------
+- 新增模块测试17项全部PASS；全工程实际发现并运行16个test_*.py入口，全部PASS。
+- python -m ruff check scripts：PASS；git diff --check：PASS（仅保留既有codex_handoff CRLF提示）。
+- Python/matplotlib三幅图完成视觉QA：Figure1为State_R→State_Q映射，Figure2为逐状态Real-B CNMSE，
+  Figure3为Non-exact Real-B CNMSE直方图+箱线图；Figure2有限y范围为[-45.2298209801081,-35.8066547710375]，
+  Exact hit在正式数据中保留为-inf并在图中用底部marker标记。
+- C3→A2 distance matrix与旧A123 D_C3_A2的ranking完全一致；Real-B distance matrix与旧R_RR的ranking完全一致；
+  两项distance/ranking non-finite pattern mismatch均为0，Real-B对角线均为-inf。
+- 最终检索：425个真实Query、每个425个candidate；Exact=217（51.0588%），Non-exact=208；Top-3=72.7059%，
+  Top-5=84.4706%；true-state rank median/max=1/20；minimum tie=0行。
+- Non-exact Real-B CNMSE（208个有限值）mean/median/std=-42.7170573/-43.2436993/1.81126547 dB，
+  q05/q25/q75/q95=-44.5766413/-44.0445273/-41.8977433/-38.8299137 dB，
+  min/max=-45.2298210/-35.8066548 dB；behavioral regret mean/median/max=1.41691164/0.842230603/8.28060271 dB。
+- threshold sweep仅为描述性统计，未冻结正式behavioral success threshold；-20/-25/-30/-35 dB下全部检索满足，
+  -40 dB下全部/Non-exact比例分别为95.7647%/91.3462%。
+- data/raw manifest保持429文件、2258448137 bytes、SHA=910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0；
+  受保护旧结果和脚本目录SHA均before=after；未执行git clean/reset/checkout/restore/commit/push；当前状态：完成，无执行阻塞。
+
+
+[2026-09-06T07:27:38.043173+00:00] Scenario 2 - Y-C2 to Y-Aend retrieval
+研究问题：固定Y-C2 Query检索按每个状态实际最后ILC列构造的Y-Aend LUT，并以Real-B CNMSE执行严格<-40 dB的DPD-shareable判定。
+输入全部来自冻结all-ILC/A123/Scenario 2/C3→A2结果；未重新读取raw、训练模型、扫描lambda、改变MP、ABC、canonical或common-B probe。
+C2_available=425/425；N_ilc distribution={'1': 0, '2': 1, '3': 416, '4': 7, '5': 1}；Aend distribution={'A2': 1, 'A3': 416, 'A4': 7, 'A5': 1}。
+Aend LUT=(425, 4913)/complex128；C2 Query=(425, 4913)/complex128；Aend/C2 regression=True/True。
+D_C2_Aend=(425, 425)；R_C2_Aend=(425, 425)；candidate=425；self_match=True；minimum_tie_rows=0。
+Exact=218/0.512941176；Non-exact=207；true-rank median/max=1/49；Top3/Top5=0.712941176/0.842352941。
+DPD-shareable strict<-40 dB=411/0.967058824；failure=14；non-exact shareable=193/0.93236715。
+Non-exact Real-B CNMSE median/q95/max=-43.1623299/-39.2514874/-37.1036724 dB；regret median/max=0.957607554/7.15029174 dB。
+Oracle shareable coverage Top3/Top5/Top10=0.995294118/0.997647059/1。
+与旧C3→A2只做固定指标对比，不据此修改新方法；四幅图由Python/matplotlib生成。
+保护复核all_protected_unchanged=True；结果目录：D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend。
+
+
+[2026-09-06T07:28:12.849275+00:00] Scenario 2 - Y-C2 to Y-Aend retrieval
+研究问题：固定Y-C2 Query检索按每个状态实际最后ILC列构造的Y-Aend LUT，并以Real-B CNMSE执行严格<-40 dB的DPD-shareable判定。
+输入全部来自冻结all-ILC/A123/Scenario 2/C3→A2结果；未重新读取raw、训练模型、扫描lambda、改变MP、ABC、canonical或common-B probe。
+C2_available=425/425；N_ilc distribution={'1': 0, '2': 1, '3': 416, '4': 7, '5': 1}；Aend distribution={'A2': 1, 'A3': 416, 'A4': 7, 'A5': 1}。
+Aend LUT=(425, 4913)/complex128；C2 Query=(425, 4913)/complex128；Aend/C2 regression=True/True。
+D_C2_Aend=(425, 425)；R_C2_Aend=(425, 425)；candidate=425；self_match=True；minimum_tie_rows=0。
+Exact=218/0.512941176；Non-exact=207；true-rank median/max=1/49；Top3/Top5=0.712941176/0.842352941。
+DPD-shareable strict<-40 dB=411/0.967058824；failure=14；non-exact shareable=193/0.93236715。
+Non-exact Real-B CNMSE median/q95/max=-43.1623299/-39.2514874/-37.1036724 dB；regret median/max=0.957607554/7.15029174 dB。
+Oracle shareable coverage Top3/Top5/Top10=0.995294118/0.997647059/1。
+与旧C3→A2只做固定指标对比，不据此修改新方法；四幅图由Python/matplotlib生成。
+保护复核all_protected_unchanged=True；结果目录：D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend。
+
+
+[2026-09-06T07:29:02.020871+00:00] Scenario 2 - Y-C2 to Y-Aend retrieval
+研究问题：固定Y-C2 Query检索按每个状态实际最后ILC列构造的Y-Aend LUT，并以Real-B CNMSE执行严格<-40 dB的DPD-shareable判定。
+输入全部来自冻结all-ILC/A123/Scenario 2/C3→A2结果；未重新读取raw、训练模型、扫描lambda、改变MP、ABC、canonical或common-B probe。
+C2_available=425/425；N_ilc distribution={'1': 0, '2': 1, '3': 416, '4': 7, '5': 1}；Aend distribution={'A2': 1, 'A3': 416, 'A4': 7, 'A5': 1}。
+Aend LUT=(425, 4913)/complex128；C2 Query=(425, 4913)/complex128；Aend/C2 regression=True/True。
+D_C2_Aend=(425, 425)；R_C2_Aend=(425, 425)；candidate=425；self_match=True；minimum_tie_rows=0。
+Exact=218/0.512941176；Non-exact=207；true-rank median/max=1/49；Top3/Top5=0.712941176/0.842352941。
+DPD-shareable strict<-40 dB=411/0.967058824；failure=14；non-exact shareable=193/0.93236715。
+Non-exact Real-B CNMSE median/q95/max=-43.1623299/-39.2514874/-37.1036724 dB；regret median/max=0.957607554/7.15029174 dB。
+Oracle shareable coverage Top3/Top5/Top10=0.995294118/0.997647059/1。
+与旧C3→A2只做固定指标对比，不据此修改新方法；四幅图由Python/matplotlib生成。
+保护复核all_protected_unchanged=True；结果目录：D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend。
+
+
+[2026-09-06T07:32:23.149415+00:00] Scenario 2 - Y-C2 to Y-Aend retrieval
+研究问题：固定Y-C2 Query检索按每个状态实际最后ILC列构造的Y-Aend LUT，并以Real-B CNMSE执行严格<-40 dB的DPD-shareable判定。
+输入全部来自冻结all-ILC/A123/Scenario 2/C3→A2结果；未重新读取raw、训练模型、扫描lambda、改变MP、ABC、canonical或common-B probe。
+C2_available=425/425；N_ilc distribution={'1': 0, '2': 1, '3': 416, '4': 7, '5': 1}；Aend distribution={'A2': 1, 'A3': 416, 'A4': 7, 'A5': 1}。
+Aend LUT=(425, 4913)/complex128；C2 Query=(425, 4913)/complex128；Aend/C2 regression=True/True。
+D_C2_Aend=(425, 425)；R_C2_Aend=(425, 425)；candidate=425；self_match=True；minimum_tie_rows=0。
+Exact=218/0.512941176；Non-exact=207；true-rank median/max=1/49；Top3/Top5=0.712941176/0.842352941。
+DPD-shareable strict<-40 dB=411/0.967058824；failure=14；non-exact shareable=193/0.93236715。
+Non-exact Real-B CNMSE median/q95/max=-43.1623299/-39.2514874/-37.1036724 dB；regret median/max=0.957607554/7.15029174 dB。
+Oracle shareable coverage Top3/Top5/Top10=0.995294118/0.997647059/1。
+与旧C3→A2只做固定指标对比，不据此修改新方法；四幅图由Python/matplotlib生成。
+保护复核all_protected_unchanged=True；结果目录：D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend。
+
+
+[2026-09-06T08:21:41.026729+00:00] Scenario 2 state summary Excel export
+生成固定10列表格：D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend\scenario_2_C2_to_Aend_state_summary.xlsx；sheet=state_summary；data_rows=425。
+主表按state_id_R严格join a_end_stage_map/retrieval_results/retrieved_real_B_cnmse、all_ilc_model_metrics和data_manager三个原始标量。
+A_end train/B和C2 train/B直接复用冻结all_ilc_model_metrics中的train_NMSE_dB与B_generalization_NMSE_dB；未fit、未重新alignment/gain/normalization。
+ACPR平均=(acpr_low_withoutdpd+acpr_upper_withoutdpd)/2；Excel中Exact Real-B CNMSE用文本-Inf表示，数量=218；failure=14；DPD-shareable=411。
+保护复核：True；raw manifest={'sha256': '910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0', 'file_count': 429, 'bytes': 2258448137}；C2→Aend既有文件逐项未变；旧C3→A2树未变；未执行破坏性Git操作。
+
+
+[2026-09-06] C2→Aend 425 状态 Excel 汇总最终验收
+-----------------------------------------------------
+- 输出文件：results/behavior_fingerprint_lut_retrieval/scenario_2_C2_to_Aend/scenario_2_C2_to_Aend_state_summary.xlsx；
+  单一sheet=state_summary；426行（含表头）、10列；表头及列顺序严格符合冻结契约。
+- state_id_R完整0...424且唯一；load_config来自a_end_stage_map.csv的状态metadata，funMng/secMng转换为物理值0/0.1/0.2/0.3与0/0.15/0.3，角度带°。
+- nmse_withoutdpd_dB、acpr_low/upper_withoutdpd来自data_manager.load_variable_by_id的三个原始MAT标量；
+  acpr_withoutdpd_avg_dBc严格按(low+upper)/2算术平均，未从IQ重算频谱。
+- Y_Aend_train_NMSE_dB/Y_Aend_B_NMSE_dB和Y_C2_train_NMSE_dB/Y_C2_B_NMSE_dB直接复用冻结
+  all_ilc_model_metrics.csv对应的Y-A(N_s)/Y-C2 train_NMSE与B_generalization_NMSE；未fit、未重新alignment、gain、normalization或Ridge。
+- state_id_Q完全复用正式C2→Aend retrieval_results.csv；retrieved_real_B_CNMSE_dB完全复用正式
+  retrieved_real_B_cnmse.csv；Exact以文本-Inf写入，数量218；finite failure=14；shareable=411；state340=340→217且CNMSE=-37.1036724 dB。
+- 随机/关键状态0、187、340、424和全部14个failure状态回归通过；六个模型/性能数值列全部finite，唯一允许的非finite为J列Exact的-Inf。
+- artifact-tool创建后重新导入检查：sheet=state_summary、rows=426、columns=10、header完全一致、formula error scan=0、-Inf=218、failure=14、shareable=411；A1:J25视觉预览可读。
+- 新增Excel导出测试8项PASS；原C2→Aend测试19项PASS；全工程18个test_*.py入口全部PASS；python -m ruff check scripts：PASS；git diff --check：PASS（仅既有handoff CRLF提示）。
+- 导出前后scenario_2_C2_to_Aend既有正式文件逐文件SHA未变；旧scenario_2_C3_to_A2树未变；data/raw manifest仍为429文件、2258448137 bytes、
+  SHA=910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0；artifact-tool sidecar已清理；未执行破坏性Git操作；当前状态：完成，无执行阻塞。
+
+
+[2026-09-06T11:31:33.100038+00:00] Scenario 2 state metrics Figure 5
+纯绘图维护：只读取state_summary Excel，未读取raw、未重算模型/检索/指标；figure=D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend\figure5_state_metrics_and_retrieval_cnmse.png；curves=6；Q annotations=207。
+state_count=425；exact=-Inf=218；finite retrieved=207；failure=14；shareable=411；ylim=[-46.72971237469582, -20.55282730333633]；threshold scope=Real-B CNMSE only。
+保护复核：input Excel SHA unchanged=True；Figure1~4 SHA unchanged=True；Exact -Inf仅用于底部显示strip，未改写正式值；未执行破坏性Git操作。
+
+
+[2026-09-06] Figure 5 最终验收
+---------------------------
+- 输入严格为现有scenario_2_C2_to_Aend_state_summary.xlsx的state_summary sheet；只按列名读取8个字段，未读取data/raw、未重算模型/检索/指标、未修改Excel。
+- 生成单Axes六曲线图figure5_state_metrics_and_retrieval_cnmse.png；横轴State ID 0...424，六条数据曲线均保留原始425状态顺序，未平滑、未重排。
+- 前五条模型/PA曲线使用不同linestyle和marker并按markevery=10显示；retrieved_real_B_CNMSE_dB的207个finite marker全部标注Q=state_id_Q（Q annotation=207）。
+- 218个Exact hit的-Inf未作为有限曲线绘制，仅在底部strip显示；图中另有-40 dB参考线，明确只对retrieved Real-B CNMSE具有阈值意义。
+- 有限六列总体实际范围为[-45.2297124,-20.5528273] dB；为Exact strip显示位置使用下界-46.7297124，未裁剪PA原始NMSE高值区。
+- Figure5绘图测试8项PASS；原C2→Aend/Excel测试及全工程19个test_*.py入口全部PASS；python -m ruff check scripts：PASS；git diff --check：PASS（仅既有handoff CRLF提示）。
+- 输入Excel SHA=4874713881280ec769f2641bc41e6a060523c041a70448bd2167b8de0d8e3409；既有Figure1~4 SHA分别为90f03e7b9499f9a7e83e041c4a6d441c2f35708166333e16dbc87d8e9ab54b4c、
+  1499a44f186600f47b03a60235f3aa9f22402dd9a0e5c56091b46d4fd39029c8、549ab4c6ccfce3d5daf42e1a6ce4a3511996df47efcb4a5b70e83facbae4ed00、b0eb3cf92ebab065f2656c21d66877d7fdce613994d2d98da90d6b7c01e6eea2，
+  绘图前后均未变化；Figure5为新输出，当前SHA=24bf7dafbd7f3f6ef2a841d08e562c6427d5b6de2861b9db76b962e4921b383a。
+- 未执行git clean/reset/checkout/restore/commit/push；当前状态：完成，无执行阻塞。
+
+
+[2026-09-06T12:26:29.657765+00:00] Scenario 2 unified Y-Aend/Y-C2 model capacity
+研究目标：在完全统一的Y-Aend/Y-C2 MP结构、memory和Ridge lambda下，以Development泛化指标选择模型，并检验是否转化为C2→Aend检索提升。
+candidate grid=120；order_profiles=['P11', 'P13', 'P7', 'P9']；memory_profiles=['M0', 'M1', 'M2']；lambda_count=10。
+Y-Aend/Y-C2共享candidate结构和lambda，系数独立拟合；所有candidate max_delay=2，有效长度A/B/C=12286/4913/7371。
+Baseline retrieval regression exact/shareable/failure=218/411/14；Real-B仅作为冻结参考，未进入candidate score。
+固定split source=D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_ranking_consistency\scenario_2_y_lut_weighted_fusion\split_definition.csv；Development=340，Validation=85，seed=20260827。
+
+
+[2026-09-06T12:30:01.599623+00:00] Scenario 2 unified Y-Aend/Y-C2 model capacity
+VALIDATION_LOCKED；Baseline P9/M0/lambda=1e-8 regression={'state_count': 340, 'metric_max_abs_error_dB': {'Y_Aend_train_NMSE_dB': 1.4210854715202004e-14, 'Y_Aend_B_NMSE_dB': 2.842170943040401e-14, 'Y_C2_train_NMSE_dB': 2.1316282072803006e-14, 'Y_C2_B_NMSE_dB': 4.263256414560601e-14}, 'max_abs_error_dB': 4.263256414560601e-14, 'tolerance_dB': 1e-10, 'pass': True}。
+
+
+[2026-09-06T12:41:13.297730+00:00] Scenario 2 unified Y-Aend/Y-C2 model capacity
+UNIFIED_MODEL_HYPERPARAMETERS_FROZEN；selected candidate={'candidate_id': 36, 'order_profile': 'P9', 'orders': [1, 2, 3, 5, 7, 9], 'memory_profile': 'M0', 'memory_definition': {1: 3, 2: 2, 3: 2, 5: 1, 7: 1, 9: 1}, 'lambda': 1e-08, 'selected_lambda': 1e-08, 'n_complex_coefficients': 10, 'max_delay': 2, 'is_baseline': True, 'structure_id': 'P9_M0', 'selection_rank': 1, 'selection_rule': ['worst_side_B_median_dB ascending', 'worst_side_B_q95_dB ascending', 'mean_side_B_median_dB ascending', 'n_complex_coefficients ascending', 'candidate_id ascending'], 'candidate_count': 120, 'all_candidates_max_delay': True, 'validation_locked_during_selection': True, 'real_B_used_during_selection': False, 'failure_labels_used_during_selection': False}；Development scoring未读取Validation/Real-B/retrieval/failure labels。
+
+
+[2026-09-06T12:41:13.297730+00:00] Scenario 2 unified Y-Aend/Y-C2 model capacity
+VALIDATION_UNLOCKED_AFTER_MODEL_FREEZE；selected_model.json已冻结，开始冻结模型验证和Full-425拟合。
+
+
+[2026-09-06T12:46:59.284334+00:00] Scenario 2 unified Y-Aend/Y-C2 model capacity
+研究目标：在完全统一的Y-Aend/Y-C2 MP结构、memory和Ridge lambda下，以Development泛化指标选择模型，并检验是否转化为C2→Aend检索提升。
+candidate grid=120；order_profiles=['P11', 'P13', 'P7', 'P9']；memory_profiles=['M0', 'M1', 'M2']；lambda_count=10。
+Y-Aend/Y-C2共享candidate结构和lambda，系数独立拟合；所有candidate max_delay=2，有效长度A/B/C=12286/4913/7371。
+Baseline retrieval regression exact/shareable/failure=218/411/14；Real-B仅作为冻结参考，未进入candidate score。
+固定split source=D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_ranking_consistency\scenario_2_y_lut_weighted_fusion\split_definition.csv；Development=340，Validation=85，seed=20260827。
+
+
+[2026-09-06T12:50:29.829170+00:00] Scenario 2 unified Y-Aend/Y-C2 model capacity
+VALIDATION_LOCKED；Baseline P9/M0/lambda=1e-8 regression={'state_count': 340, 'metric_max_abs_error_dB': {'Y_Aend_train_NMSE_dB': 1.4210854715202004e-14, 'Y_Aend_B_NMSE_dB': 2.842170943040401e-14, 'Y_C2_train_NMSE_dB': 2.1316282072803006e-14, 'Y_C2_B_NMSE_dB': 4.263256414560601e-14}, 'max_abs_error_dB': 4.263256414560601e-14, 'tolerance_dB': 1e-10, 'pass': True}。
+
+
+[2026-09-06T13:03:07.219026+00:00] Scenario 2 unified Y-Aend/Y-C2 model capacity
+UNIFIED_MODEL_HYPERPARAMETERS_FROZEN；selected candidate={'candidate_id': 36, 'order_profile': 'P9', 'orders': [1, 2, 3, 5, 7, 9], 'memory_profile': 'M0', 'memory_definition': {1: 3, 2: 2, 3: 2, 5: 1, 7: 1, 9: 1}, 'lambda': 1e-08, 'selected_lambda': 1e-08, 'n_complex_coefficients': 10, 'max_delay': 2, 'is_baseline': True, 'structure_id': 'P9_M0', 'selection_rank': 1, 'selection_rule': ['worst_side_B_median_dB ascending', 'worst_side_B_q95_dB ascending', 'mean_side_B_median_dB ascending', 'n_complex_coefficients ascending', 'candidate_id ascending'], 'candidate_count': 120, 'all_candidates_max_delay': True, 'validation_locked_during_selection': True, 'real_B_used_during_selection': False, 'failure_labels_used_during_selection': False}；Development scoring未读取Validation/Real-B/retrieval/failure labels。
+
+
+[2026-09-06T13:03:07.220025+00:00] Scenario 2 unified Y-Aend/Y-C2 model capacity
+VALIDATION_UNLOCKED_AFTER_MODEL_FREEZE；selected_model.json已冻结，开始冻结模型验证和Full-425拟合。
+
+
+[2026-09-06T13:07:51.226963+00:00] Scenario 2 unified Y-Aend/Y-C2 model capacity
+120 candidate Development scan completed；selected=36 P9/M0/lambda=1e-08。
+Baseline regression max_abs_error_dB=4.263256414560601e-14 pass=True。
+Validation retrieval baseline/selected shareable=83/83 (0.976470588/0.976470588); strict improvement=False。
+Full425 baseline/selected shareable=411/411; failure=14/14。
+Transitions={'success_to_success': 411, 'failure_to_failure': 14}；old failure→success=0；new success→failure=0。
+Finite/finite gain correlations={'gain_Y_Aend_B_vs_retrieval_gain': {'count': 207, 'pearson_r': 0.0285896893037762, 'spearman_rho': 0.020564991553430775}, 'gain_Y_C2_B_vs_retrieval_gain': {'count': 207, 'pearson_r': -0.07922535425144032, 'spearman_rho': -0.02958080477507098}, 'gain_worst_side_B_vs_retrieval_gain': {'count': 207, 'pearson_r': -0.04972744254430716, 'spearman_rho': -0.019797435645373205}}。
+All selected fingerprints finite shape=(425, 4913)/(425, 4913) dtype=complex128/complex128；retrieval distance/ranking=(425, 425)/(425, 425)。
+Protection all_protected_unchanged=True；raw_data_modified=False；result_root=D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_unified_model_capacity。
+
+
+[2026-09-06T13:13:55.011291+00:00] Scenario 2 unified Y-Aend/Y-C2 model capacity
+维护：由于selected与Baseline相同，统一将绝对值不超过 1.0e-12 dB 的浮点差异归零；finite/finite retrieval gain为常量0，Pearson/Spearman记为undefined。已重写statewise、quartile、transition、correlation和Figure 2/6；retrieval count保持不变。
+
+
+[2026-09-06T13:15:26.226977+00:00] Scenario 2 unified Y-Aend/Y-C2 model capacity
+维护补充：将worst-side B gain同样按1e-12 dB浮点容差归零；selected=Baseline时三类finite/finite gain相关性均为常量，Pearson/Spearman明确记为undefined。
+
+
+[2026-09-06T13:18:46.176541+00:00] Scenario 2 unified Y-Aend/Y-C2 model capacity
+JSON后处理：将相关性未定义的NaN写为JSON null，validation.json现在为严格JSON格式；不改变任何科学数值或检索结果。
+
+
+[2026-09-06T13:21:12.341941+00:00] Scenario 2 unified Y-Aend/Y-C2 model capacity
+最终验证：统一模型容量新增测试9/9 PASS；全工程test_*.py入口20/20 PASS；python -m ruff check scripts PASS；git diff --check PASS（仅handoff既有CRLF提示）；raw manifest及受保护旧结果/脚本SHA未变化。
+
+
+[2026-09-06T14:26:12.092233+00:00] Scenario 2 equal-length ABC ablation
+研究目标：只改变ABC ownership为等长8192/8192/8192，重新评价统一P9-M0-lambda=1e-8行为模型、指纹、C2→Aend检索和Real-B。
+旧不等长ABC=12288/4915/7373；本轮不修改signal_segmentation默认配置，不复用旧processed cache或旧Real-B矩阵。
+equal partition={'total_length': 24576, 'a_start': 0, 'a_stop': 8192, 'n_a': 8192, 'b_start': 8192, 'b_stop': 16384, 'n_b': 8192, 'c_start': 16384, 'c_stop': 24576, 'n_c': 8192}；segment-local valid lengths={'A': 8190, 'B': 8190, 'C': 8190}；orders=[1, 2, 3, 5, 7, 9]；memory={1: 3, 2: 2, 3: 2, 5: 1, 7: 1, 9: 1}；lambda=1e-08。
+Y-Aend=state-specific actual last ILC column；Y-C2=actual ILC2；Aend/C2结构完全统一。
+
+
+[2026-09-06T14:31:53.130507+00:00] Scenario 2 equal-length ABC ablation
+equal ABC canonical/model completed for 425 states；A/B/C ownership=8192/8192/8192；valid=8190/8190/8190。
+Aend stage map unchanged=True；C2 available=425/425。
+theta shapes=(425, 10)/(425, 10)；fingerprints=(425, 8190)/(425, 8190)/complex128；retrieval=(425, 425)；new Real-B matrix=(425, 425) diagonal=-Inf。
+Equal ABC retrieval exact/shareable/failure=181/391/34；
+nonexact Real-B median/q95/worst=-43.14658591090884/-38.60146168756783/-36.446126768150705 dB。
+Old unequal ABC exact/shareable/failure=218/411/14；
+State_Q changed=117；transitions={'success_to_success': 391, 'success_to_failure': 20, 'failure_to_failure': 14}。
+Old/new Real-B uses different B windows; comparison is end-to-end segmentation comparison, not fixed-window fingerprint gain.
+Protection all_protected_unchanged=True；raw_data_modified=False；result_root=D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_equal_ABC。
+
+
+[2026-09-06T14:35:16.605276+00:00] Scenario 2 equal-length ABC ablation
+维护补充：在comparison_vs_original_ABC.csv和validation.json中追加旧/新Gap_A与Gap_C的median/q95对比；旧/新Real-B窗口差异说明保持。
+
+
+[2026-09-06T14:42:06.746141+00:00] Scenario 2 equal-length ABC ablation
+Excel导出完成：artifact-tool创建并重载验证scenario_2_C2_to_Aend_equal_ABC_state_summary.xlsx，sheet=state_summary，426行×10列，Exact文本-Inf=181，Failure=34，Shareable=391；预览渲染通过，inspect sidecar已清理。
+
+
+[2026-09-06T14:44:10.690708+00:00] Scenario 2 equal-length ABC ablation
+最终验收：equal-ABC新增测试11/11 PASS；全工程test_*.py入口21/21 PASS；Ruff PASS；git diff --check PASS（仅既有handoff CRLF提示）；Excel artifact-tool创建/重载/预览PASS；raw manifest和所有旧结果/脚本SHA均未改变。
+
+
+[2026-09-06T14:45:21.411804+00:00] Scenario 2 equal-length ABC ablation
+Scientific summary: equal ABC improves C2-to-B median from -39.1833 to -40.1949 dB and q95 from -32.9913 to -35.5898 dB. Gap_A median falls 0.6841 -> 0.0627 dB; Gap_C median falls 1.5118 -> 0.1786 dB; Delta_AC_B median=-0.2662 dB and fraction positive=0.0918. End-to-end retrieval declines because the Real-B window changes: exact 218 -> 181, shareable 411 -> 391 (92.0%), failure 14 -> 34, State_Q changed=117, old failure_to_success=0, new success_to_failure=20.
+
+
+[2026-09-06T14:48:37.883545+00:00] Scenario 2 equal-length ABC ablation
+Final verification: equal-ABC tests=11/11 PASS; all test_*.py entrypoints=21/21 PASS; Ruff=PASS; git diff --check=PASS with only the existing handoff CRLF warning; artifact-tool Excel create/reload/render verify=PASS; analysis wrapper added; raw manifest and all protected old result/script hashes unchanged.
+
+
+[2026-09-06T16:22:43.492427+00:00] Scenario 2 retrieval-oriented unified MP model scan
+研究类型：retrieval-oriented oracle/post-hoc scan；按最终Real-B检索结果排名，模型NMSE不参与pruning或排名。
+原正式ABC=12288/4915/7373；候选=200；有效=200；每候选Query/LUT=425/425；距离矩阵=425x425。
+Baseline regression={"candidate_id":46,"orders":[1,2,3,5,7,9],"memory":{"1":3,"2":2,"3":2,"5":1,"7":1,"9":1},"lambda":1e-08,"retrieval_distance":{"shape_equal":true,"max_abs_error":0.0,"nonfinite_pattern_mismatch":0,"pass":true},"retrieval_ranking":{"equal":true,"max_abs_error":0.0},"selected_state_Q_equal":true,"metric_max_abs_error_dB":{"Y_Aend_train_NMSE_dB":1.4210854715202004e-14,"Y_Aend_B_NMSE_dB":2.842170943040401e-14,"Y_C2_train_NMSE_dB":2.1316282072803006e-14,"Y_C2_B_NMSE_dB":4.973799150320701e-14},"metric_tolerance_dB":1e-10,"expected_exact":218,"expected_shareable":411,"expected_failure":14,"observed_exact":218,"observed_shareable":411,"observed_failure":14,"failure_ids":[187,189,195,196,199,206,323,327,330,335,340,344,346,354],"expected_failure_ids":[187,189,195,196,199,206,323,327,330,335,340,344,346,354],"pass":true}
+Best={"candidate_id":130,"orders":[1,2,3,5,7,9,11,13],"order_profile":"P13","memory_profile":"M0","memory":{"1":3,"2":2,"3":2,"5":1,"7":1,"9":1,"11":1,"13":1},"max_delay":2,"lambda":0.0001,"n_complex_coefficients":12,"failure_count":5,"shareable_count":420,"shareable_rate":0.9882352941176471,"exact_hit_count":197,"worst_real_B":-37.10367236988057,"q95":-41.12037740965885,"median":-43.348757819807524,"old_failure_rescued_count":12,"new_failure_created_count":3,"rank":1,"candidate_ranking_uses_real_B":true,"study_type":"retrieval-oriented oracle/post-hoc scan"}
+Best failure IDs=[125, 190, 196, 340, 364]；transition={'success_to_success': 408, 'failure_to_success': 12, 'success_to_failure': 3, 'failure_to_failure': 2}；State_Q changed=245。
+Support-control failure counts=[14, 14, 14, 14]；raw/受保护结果验证=True。
+
+[2026-09-07] Scenario 2 retrieval-oriented unified MP scan finalisation
+Best Excel由artifact-tool创建、重新导入、检查并渲染预览通过：state_summary为426行含表头、10列；Exact文本-Inf=197、failure=5、shareable=420；公式错误扫描为0。Excel源表按固定10列输出，未将-Inf替换为伪造有限值。
+最终复核：22个test_*.py入口全部通过；python -m ruff check scripts通过；行为扫描脚本compileall和Node builder语法检查通过；固定Conda解释器pip check为No broken requirements found；Support-Control d=2/3/4/5均failure=14。
+图形维护：Figure 2使用实际shareable-rate范围，Figure 4横轴标签旋转以避免重叠；六幅图均为Python/matplotlib、300 dpi并完成视觉检查。raw manifest仍为429文件/2258448137 bytes/SHA=910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0；受保护旧结果和脚本SHA未变化；未执行破坏性Git操作；当前状态：完成，无执行阻塞。
+
+[2026-09-07] Scenario 2 retrieval-oriented unified MP scan 结果维护补充
+补充写出a_end_stage_map.csv并同步validation.json的excel_verified、output_files和candidate_progress.fit_cache_ready字段；未改变任何模型、检索、图或Excel数值。
+
+
+[2026-09-06T16:35:40.564709+00:00] Scenario 2 retrieval-oriented unified MP model scan
+研究类型：retrieval-oriented oracle/post-hoc scan；按最终Real-B检索结果排名，模型NMSE不参与pruning或排名。
+原正式ABC=12288/4915/7373；候选=200；有效=200；每候选Query/LUT=425/425；距离矩阵=425x425。
+Baseline regression={"candidate_id":46,"orders":[1,2,3,5,7,9],"memory":{"1":3,"2":2,"3":2,"5":1,"7":1,"9":1},"lambda":1e-08,"retrieval_distance":{"shape_equal":true,"max_abs_error":0.0,"nonfinite_pattern_mismatch":0,"pass":true},"retrieval_ranking":{"equal":true,"max_abs_error":0.0},"selected_state_Q_equal":true,"metric_max_abs_error_dB":{"Y_Aend_train_NMSE_dB":1.4210854715202004e-14,"Y_Aend_B_NMSE_dB":2.842170943040401e-14,"Y_C2_train_NMSE_dB":2.1316282072803006e-14,"Y_C2_B_NMSE_dB":4.973799150320701e-14},"metric_tolerance_dB":1e-10,"expected_exact":218,"expected_shareable":411,"expected_failure":14,"observed_exact":218,"observed_shareable":411,"observed_failure":14,"failure_ids":[187,189,195,196,199,206,323,327,330,335,340,344,346,354],"expected_failure_ids":[187,189,195,196,199,206,323,327,330,335,340,344,346,354],"pass":true}
+Best={"candidate_id":130,"orders":[1,2,3,5,7,9,11,13],"order_profile":"P13","memory_profile":"M0","memory":{"1":3,"2":2,"3":2,"5":1,"7":1,"9":1,"11":1,"13":1},"max_delay":2,"lambda":0.0001,"n_complex_coefficients":12,"failure_count":5,"shareable_count":420,"shareable_rate":0.9882352941176471,"exact_hit_count":197,"worst_real_B":-37.10367236988057,"q95":-41.12037740965885,"median":-43.348757819807524,"old_failure_rescued_count":12,"new_failure_created_count":3,"rank":1,"candidate_ranking_uses_real_B":true,"study_type":"retrieval-oriented oracle/post-hoc scan"}
+Best failure IDs=[125, 190, 196, 340, 364]；transition={'success_to_success': 408, 'failure_to_success': 12, 'success_to_failure': 3, 'failure_to_failure': 2}；State_Q changed=245。
+Support-control failure counts=[14, 14, 14, 14]；raw/受保护结果验证=True。
+
+
+[2026-09-07T06:52:11.836229+00:00] Scenario 2 fixed 1B behavior-fingerprint LUT retrieval
+研究目标：固定n=1.0（Fs_obs=20MHz，k=10，up=1，down=5）完成Y-C2→Y-Aend行为指纹LUT检索。
+5B identity regression guard在同一原始数据/预处理/ABC/MP/Ridge/B probe/候选集路径上通过；theta、模型指标、fingerprint、距离/排名、State_Q和Real-B lookup均回归通过（True）。
+1B严格在5B basis和model-valid support之后通过同一Observation Operator处理basis/output；
+1B只负责建模和检索，5B canonical Real-B只用于最终DPD-shareable评价。
+fingerprints LUT/Query=(425, 983)/(425, 983)；distance=(425, 425)；
+exact=74/0.174117647；
+shareable(strict<-40dB)=398/0.936470588；
+non-exact shareable=324/0.923076923；
+failure=27；failure_ids=[48, 61, 77, 92, 101, 107, 109, 187, 189, 192, 194, 195, 198, 199, 201, 202, 203, 205, 206, 209, 218, 220, 329, 330, 337, 342, 353]。
+Excel由artifact-tool创建/重载检查通过：D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_1B\scenario_2_C2_to_Aend_1B_retrieval.xlsx；main=425x10，diagnostics=425x10，summary=metric/value。
+1B未用于Real-B评价；Real-B未参与State_Q选择、重排、调参或模型选择；未执行0.1B~5B扫描。
+data/raw与既有5B/低带宽结果保护复核由validation记录；未执行破坏性Git操作。
+
+[2026-09-07T06:59:47.4140660Z] Scenario 2 fixed 1B retrieval final visual/export maintenance
+主图说明文字移至右上空白区，summary中failure_state_ids行增高以避免预览裁切；未改变任何实验数值、CSV、矩阵、指纹或模型系数。Excel使用artifact-tool重新创建并重载检查，三sheet、425行主表、10列表头和formula error scan保持通过；临时inspect sidecar和preview文件已清理。
+
+
+[2026-09-07T12:53:36.470477+00:00] Scenario 2 fixed 1B behavior-fingerprint LUT retrieval
+研究目标：固定0.5B（n=0.5，Fs_obs=10MHz，k=5，up=1，down=10）完成Y-C2→Y-Aend行为指纹LUT检索。
+参数化后的1B numerical regression在临时目录通过，正式1B结果SHA保持不变；5B identity regression guard=True。
+0.5B LUT/Query fingerprint=(425, 492)/(425, 492)；distance=(425, 425)；
+exact=34/0.08；shareable(strict<-40dB)=346/0.814117647；
+non-exact shareable=312/0.797953964；failure=79；failure_ids=[2, 9, 10, 11, 15, 18, 28, 39, 47, 48, 50, 51, 55, 56, 61, 62, 63, 64, 65, 67, 77, 81, 84, 85, 90, 92, 101, 107, 109, 124, 135, 139, 141, 146, 150, 152, 187, 188, 189, 190, 191, 192, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 205, 206, 209, 217, 218, 220, 241, 264, 265, 283, 299, 311, 322, 324, 325, 326, 329, 330, 331, 333, 338, 342, 349, 350, 353, 355, 359]。
+Excel由artifact-tool创建/重载检查通过：D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_0p5B\scenario_2_C2_to_Aend_0p5B_retrieval.xlsx；main=425x10，diagnostics=425x10，summary=metric/value。
+0.5B仅用于行为建模和检索；5B Real-B仅用于最终评价；Real-B未参与Q选择；未执行跨带宽分析或0.1B~5B扫描。
+data/raw、1B正式结果、5B正式结果和low-bandwidth v1.0.1保护复核通过；未执行破坏性Git操作。
+
+[2026-09-07T13:05:10.3828474Z] Scenario 2 fixed 0.5B retrieval maintenance
+修正0.5B入口复用的日志标题，使执行记录明确标记为fixed 0.5B；仅更新日志写入参数，不改变任何模型、指纹、检索矩阵、Excel或图形数值。静态检查继续通过。
+
+[2026-09-07T13:07:32.7773148Z] Scenario 2 fixed 0.5B final verification
+日志标题修正后的最终验收：全工程25个test_*.py入口通过；Ruff、compileall、pip check、git diff check通过；raw manifest及5B、1B、low-bandwidth v1.0.1保护哈希再次确认未变化；0.5B结果保持完成，无执行阻塞。
+
+[2026-09-07T13:08:37.3230023Z] Scenario 2 fixed 0.5B final artifact verification
+0.5B validation、23项正式结果文件、三sheet artifact-tool Excel、PNG/SVG/PDF图形和数值稳定检查最终复核通过；临时preview/inspect/Excel锁文件均已清理，0.5B结果目录仅保留正式产物。
+
+
+[2026-09-08T16:43:28+08:00] Scenario 2 statewise-adaptive 当前最优精度 Excel 快照
+完成当前已落盘 statewise Aend/C2 候选日志的 425 状态、8 列 Excel 快照；四个行为精度列均按状态独立取当前已发现的最优 native train/B-generalization NMSE，不要求四个值来自同一 candidate。
+artifact-tool 创建、重载、A1:H6 检查、425 行/8 列契约和公式错误扫描通过；输出位于 results/behavior_model/scenario_2_statewise_adaptive_Aend_C2_5B/statewise_adaptive_best_metrics.xlsx；当前第4轮搜索仍在运行，Excel 未包含未落盘的第4轮结果。
+
+
+[2026-09-08T17:36:45+08:00] Scenario 2 statewise-adaptive 搜索停止与当前 Excel 刷新
+用户要求不进入第五轮；已停止第5轮进程，Round 0--4 候选日志完整保留，第5轮未完成结果未写入正式日志。用当前已落盘 Round 0--4 的四个独立最优精度刷新 425状态、8列 Excel；artifact-tool 创建/重载/预览验证通过，输出位于 results/behavior_model/scenario_2_statewise_adaptive_Aend_C2_5B/statewise_adaptive_best_metrics.xlsx。
+
+
+[2026-09-08T17:36:45+08:00] Scenario 2 statewise-adaptive partial validation
+Round 0--4 已落盘候选网格=1064，Aend 联合 native 可行=344/425，C2=196/425；按用户要求停止第五轮，partial_validation.json 明确 formal_model_bank_complete=false，common-support 和 retrieval 未执行。
+
+
+[2026-09-08T10:01:17.921694+00:00] Scenario 2 statewise-best Round 0--4 model selection dependency
+本次仅冻结并派生选择 Round 0--4 已落盘候选，不继续模型搜索。
+selected Aend/C2=425/425；
+native feasible=344/196；
+850个selected模型重新拟合并与候选日志核对，最大误差=3.218758592993254e-12/2.467004378559068e-11 dB。
+保护复核=True；结果目录=D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_statewise_best_round0_4_5B。
+
+
+[2026-09-08T18:23:13+08:00] Scenario 2 statewise-best Round 0--4 5B retrieval 完成
+冻结 Round 0--4 / 1064 候选，选择并重拟合850个state-side模型后，M_common=9、fingerprint length=4906；完成公共B probe、425x425 fingerprint CNMSE/Top1和原canonical 5B OFF Real-B lookup。Exact=161，Shareable(strict<-40 dB)=389，Failure=36；相对baseline 218/411/14，delta=-57/-22/+22。Real-B未参与模型选择或State_Q，保护复核通过。
+artifact-tool Excel五个sheet创建/重载/预览检查通过，主表425x10；Python/matplotlib主图和Aend/C2复杂度图均输出PNG/SVG/PDF，20状态Top1/Real-B spot checks通过。
+
+
+[2026-09-08T18:23:13+08:00] Scenario 2 statewise-best 验证补充
+全工程28个直接测试中25项PASS；3项旧任务保护测试仅在完整脚本目录SHA断言处失败，原因是硬编码摘要早于本次新增 statewise 脚本，不涉及本次保护的raw/旧结果目录；本任务定向4项测试、Ruff、compileall、pip check、Excel重载/公式错误扫描全部通过。
+
+
+[2026-09-09T12:20:56.0373992+08:00] Scenario 2 C2→Aend G4 Sparse-GMP retrieval
+G4 从冻结结构文件加载：K=14、lambda=1e-8、dmax=2；425 Aend 与 425 C2 模型拟合完成，生成 425×425 行为 CNMSE 距离和复用的 canonical Real-B 矩阵。G4 Exact=235/425、Shareable=419/425、Failure=6；原 failure14 救回8个，success411 新失败0个。Frozen/G4 对照、state-level 16 worker、Real-B helper、self/tie、保护门禁全部通过；新结果目录未覆盖历史 retrieval。
+
+
+[2026-09-09T20:46:49+08:00] Scenario 2 C2→Aend Type-III cluster-compressed 5B retrieval
+独立结果目录：results/behavior_fingerprint_lut_retrieval/scenario_2_C2_to_Aend_type3_cluster_compressed_5B/threshold_m40p0dB/。复用 yout_withoutdpd_ori 5B-A Complete-Link -40 dB pairwise matrix，77 个 cluster 与 77 个 minimax-medoid representative 通过 member-set/representative reproduction；LUT 行为指纹和 DPD 条目均压缩为 77 个代表状态，压缩率=81.8823529%。
+固定 Frozen MP orders=[1,2,3,5,7,9]、memory=[3,2,2,1,1,1]、K=10、dmax=2、lambda=1e-8；425 个 Y-C2 查询仅在 77 个 Y-Aend 代表指纹中 Top-1 检索，tie-break 为较小 representative state_id。State_Q 在 Real-B 前冻结。Exact=63/425，same-cluster=295/425，retrieval fingerprint CNMSE median=-46.394812461 dB；canonical Real-B strict<-40 dB=402/425，non-exact finite median=-43.101315844 dB，finite worst=-35.479619692 dB。
+行为模型 median：Y-Aend train=-40.034301550 dB，Y-Aend→B=-39.370426566 dB，Y-C2 train=-40.574533818 dB，Y-C2→B=-39.183299903 dB。Frozen reproduction（states 0/100/187/340/424）PASS，最大 metric error=1.42e-13 dB，最大 fingerprint error=6.35e-15；Real-B helper/ranking reproduction PASS，最大距离差=1.03e-10 dB（历史浮点存储容差1e-9 dB），ranking error=0；raw/protected unchanged=True。
+artifact-tool 导出并重载检查通过：唯一 per_state 工作表，425 条数据行、21 列、筛选表和冻结首行/首列，formula error scan=0；单轴六曲线 PNG 完成并视觉检查通过。结果目录仅保留 type3_cluster_compressed_retrieval.xlsx、type3_cluster_compressed_retrieval.png、final_result_summary.txt。未执行 DPD replay、LUT-I/LUT-II、Real-B ranking selection、低带宽处理或旧结果覆盖；pytest 未安装，改用现有直接测试入口，clustering=6、signal_segmentation=12、core=7 全部 PASS，Ruff、py_compile、pip check PASS。
+
+[2026-09-14T19:00:31+08:00] Mac Python portability maintenance
+将本任务相关 Python runner、历史回归测试和 raw protection manifest 中的 Windows 工程路径及 Windows-only `\\?\` raw 前缀改为既有 `PROJECT_ROOT / "data" / "raw"` 相对路径；未修改 retrieval、模型、聚类、阈值或历史结果断言逻辑。retrieval 相关 10 个 Python 文件仅发生路径差异；C3-to-A2 runner import/path smoke、5 个受影响 raw manifest digest、retrieval functional subset 和 retrieval-oriented 8 项测试通过。C2-to-Aend/C3-to-A2 完整测试在历史结果文件缺失处停止，归类为 historical artifact unavailable；未生成或伪造 CSV/NPZ/MAT/PNG/XLSX。
+
+[2026-09-09T20:51:28+08:00] Type-III representative mapping gate follow-up
+补强入口脚本：逐列验证 cluster_representatives.csv 与 cluster_assignments.csv 中 state/fingerprint/DPD representative 三个字段一致，并验证 is_representative 标志；使用相同冻结输入复跑，77 clusters/representatives、Exact=63、same-cluster=295、Real-B below threshold=402 均保持不变。临时 Excel source 已清理，结果目录继续仅保留三件正式产物。

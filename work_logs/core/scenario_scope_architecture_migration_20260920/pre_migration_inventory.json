@@ -1,0 +1,862 @@
+{
+  "timestamp": "2026-09-21T00:07:52+0800",
+  "modules": [
+    "core",
+    "data_management",
+    "signal_segmentation",
+    "pa_performance_evaluation",
+    "behavior_modeling",
+    "behavior_fingerprint_retrieval",
+    "retrieval_oriented_model_selection",
+    "behavior_fingerprint_ranking_consistency",
+    "low_bandwidth_behavior_analysis",
+    "lut_clustering_compression"
+  ],
+  "root_modules": {
+    "scripts": [
+      "behavior_fingerprint_ranking_consistency",
+      "behavior_fingerprint_retrieval",
+      "behavior_modeling",
+      "core",
+      "data_management",
+      "low_bandwidth_behavior_analysis",
+      "lut_clustering_compression",
+      "pa_performance_evaluation",
+      "retrieval_oriented_model_selection",
+      "signal_segmentation"
+    ],
+    "results": [
+      "behavior_fingerprint_ranking_consistency",
+      "behavior_fingerprint_retrieval",
+      "behavior_modeling",
+      "core",
+      "data_management",
+      "low_bandwidth_behavior_analysis",
+      "lut_clustering_compression",
+      "pa_performance_evaluation",
+      "retrieval_oriented_model_selection",
+      "signal_segmentation"
+    ],
+    "work_logs": [
+      "behavior_fingerprint_ranking_consistency",
+      "behavior_fingerprint_retrieval",
+      "behavior_modeling",
+      "core",
+      "data_management",
+      "low_bandwidth_behavior_analysis",
+      "lut_clustering_compression",
+      "pa_performance_evaluation",
+      "retrieval_oriented_model_selection",
+      "signal_segmentation"
+    ]
+  },
+  "protected": {
+    "scripts/retrieval_oriented_model_selection": {
+      "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/retrieval_oriented_model_selection",
+      "exists": true,
+      "file_count": 174,
+      "directory_count": 33,
+      "logical_bytes": 4296311
+    },
+    "results/retrieval_oriented_model_selection": {
+      "path": "/Users/lizy/Project Files/Python Files/project_20260821/results/retrieval_oriented_model_selection",
+      "exists": true,
+      "file_count": 24326,
+      "directory_count": 93,
+      "logical_bytes": 34670014326
+    },
+    "work_logs/retrieval_oriented_model_selection": {
+      "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/retrieval_oriented_model_selection",
+      "exists": true,
+      "file_count": 274159,
+      "directory_count": 22,
+      "logical_bytes": 525608129
+    }
+  },
+  "data": {
+    "path": "/Users/lizy/Project Files/Python Files/project_20260821/data",
+    "exists": true,
+    "file_count": 431,
+    "directory_count": 38,
+    "logical_bytes": 2258458406
+  },
+  "raw_manifest": {
+    "sha256": "910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0",
+    "file_count": 429,
+    "mat_count": 427,
+    "bytes": 2258448137
+  },
+  "tasks": {
+    "core": {
+      "scripts": [
+        {
+          "module": "core",
+          "task_name": "module_internal_layout_reorganization_20260917",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/core/module_internal_layout_reorganization_20260917",
+          "file_count": 6
+        },
+        {
+          "module": "core",
+          "task_name": "module_layout_reorganization_20260917",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/core/module_layout_reorganization_20260917",
+          "file_count": 4
+        },
+        {
+          "module": "core",
+          "task_name": "retrieval_model_selection_route_split",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/core/retrieval_model_selection_route_split",
+          "file_count": 12
+        },
+        {
+          "module": "core",
+          "task_name": "scenario_scope_architecture_migration_20260920",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/core/scenario_scope_architecture_migration_20260920",
+          "file_count": 2
+        }
+      ],
+      "results": [
+        {
+          "module": "core",
+          "task_name": "module_internal_layout_reorganization_20260917",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/results/core/module_internal_layout_reorganization_20260917",
+          "file_count": 14
+        },
+        {
+          "module": "core",
+          "task_name": "module_layout_reorganization_20260917",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/results/core/module_layout_reorganization_20260917",
+          "file_count": 12
+        },
+        {
+          "module": "core",
+          "task_name": "retrieval_model_selection_route_split",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/results/core/retrieval_model_selection_route_split",
+          "file_count": 27
+        }
+      ],
+      "work_logs": [
+        {
+          "module": "core",
+          "task_name": "codex_handoff",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/core/codex_handoff",
+          "file_count": 3
+        },
+        {
+          "module": "core",
+          "task_name": "codex_session_export_project_20260821",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/core/codex_session_export_project_20260821",
+          "file_count": 1
+        },
+        {
+          "module": "core",
+          "task_name": "core_module_build",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/core/core_module_build",
+          "file_count": 1
+        },
+        {
+          "module": "core",
+          "task_name": "module_internal_layout_reorganization_20260917",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/core/module_internal_layout_reorganization_20260917",
+          "file_count": 1
+        },
+        {
+          "module": "core",
+          "task_name": "module_layout_reorganization_20260917",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/core/module_layout_reorganization_20260917",
+          "file_count": 1
+        },
+        {
+          "module": "core",
+          "task_name": "retrieval_model_selection_route_split",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/core/retrieval_model_selection_route_split",
+          "file_count": 1
+        },
+        {
+          "module": "core",
+          "task_name": "scenario_scope_architecture_migration_20260920",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/core/scenario_scope_architecture_migration_20260920",
+          "file_count": 5
+        }
+      ]
+    },
+    "data_management": {
+      "scripts": [],
+      "results": [],
+      "work_logs": [
+        {
+          "module": "data_management",
+          "task_name": "data_manager_build",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/data_management/data_manager_build",
+          "file_count": 1
+        }
+      ]
+    },
+    "signal_segmentation": {
+      "scripts": [
+        {
+          "module": "signal_segmentation",
+          "task_name": "state0_validation",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/signal_segmentation/state0_validation",
+          "file_count": 4
+        }
+      ],
+      "results": [],
+      "work_logs": [
+        {
+          "module": "signal_segmentation",
+          "task_name": "signal_segmentation_build",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/signal_segmentation/signal_segmentation_build",
+          "file_count": 1
+        }
+      ]
+    },
+    "pa_performance_evaluation": {
+      "scripts": [
+        {
+          "module": "pa_performance_evaluation",
+          "task_name": "scenario_1_load_drift_state_selection_from_scenario_2",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/pa_performance_evaluation/scenario_1_load_drift_state_selection_from_scenario_2",
+          "file_count": 9
+        },
+        {
+          "module": "pa_performance_evaluation",
+          "task_name": "scenario_2_ilc_acpr_observation",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/pa_performance_evaluation/scenario_2_ilc_acpr_observation",
+          "file_count": 4
+        }
+      ],
+      "results": [
+        {
+          "module": "pa_performance_evaluation",
+          "task_name": "scenario_1_load_drift_state_selection_from_scenario_2",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/results/pa_performance_evaluation/scenario_1_load_drift_state_selection_from_scenario_2",
+          "file_count": 20
+        }
+      ],
+      "work_logs": [
+        {
+          "module": "pa_performance_evaluation",
+          "task_name": "pa_performance_observation",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/pa_performance_evaluation/pa_performance_observation",
+          "file_count": 1
+        },
+        {
+          "module": "pa_performance_evaluation",
+          "task_name": "scenario_1_load_drift_state_selection_from_scenario_2",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/pa_performance_evaluation/scenario_1_load_drift_state_selection_from_scenario_2",
+          "file_count": 1
+        }
+      ]
+    },
+    "behavior_modeling": {
+      "scripts": [
+        {
+          "module": "behavior_modeling",
+          "task_name": "basis_function_selection",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/basis_function_selection",
+          "file_count": 52
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "behavior_model_state0",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/behavior_model_state0",
+          "file_count": 4
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_all425_c2_envelope23_ridge_generalization_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_all425_c2_envelope23_ridge_generalization_5B",
+          "file_count": 8
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_all425_c2_ilcend_envelope19_shared_coverage_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_all425_c2_ilcend_envelope19_shared_coverage_5B",
+          "file_count": 6
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_all425_envelope18_coverage_evaluation_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_all425_envelope18_coverage_evaluation_5B",
+          "file_count": 6
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_all425_ilcend_envelope23_coverage_evaluation_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_all425_ilcend_envelope23_coverage_evaluation_5B",
+          "file_count": 6
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_failed14_P5_with_order2_variable_memory_OLS_scan_5b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_failed14_P5_with_order2_variable_memory_OLS_scan_5b",
+          "file_count": 9
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_failed14_frozen_mp_normalized_basis_dependent_ridge_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_failed14_frozen_mp_normalized_basis_dependent_ridge_5B",
+          "file_count": 4
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_failed14_frozen_mp_normalized_uniform_ridge_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_failed14_frozen_mp_normalized_uniform_ridge_5B",
+          "file_count": 4
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_failed14_frozen_mp_residual_sparse_gmp_5b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_failed14_frozen_mp_residual_sparse_gmp_5b",
+          "file_count": 7
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5b",
+          "file_count": 7
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_failed14_multibranch_independent_basis_ols_scan_5b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_failed14_multibranch_independent_basis_ols_scan_5b",
+          "file_count": 11
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_failed14_odd_order_mp_order_dependent_memory_scan_5b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_failed14_odd_order_mp_order_dependent_memory_scan_5b",
+          "file_count": 9
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_failed14_p5_variable_memory_ridge_scan_5b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_failed14_p5_variable_memory_ridge_scan_5b",
+          "file_count": 9
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_frozen_mp_global_sparse_gmp_residual_5b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_frozen_mp_global_sparse_gmp_residual_5b",
+          "file_count": 4
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_gateb48_unified_basis_refinement_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_gateb48_unified_basis_refinement_5B",
+          "file_count": 6
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_global_sparse_gmp_C2_gap_diagnosis_5b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_global_sparse_gmp_C2_gap_diagnosis_5b",
+          "file_count": 4
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_hard20_c2_ilcend_shared_envelope75_basis_selection_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_hard20_c2_ilcend_shared_envelope75_basis_selection_5B",
+          "file_count": 8
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_hard20_envelope75_basis_selection_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_hard20_envelope75_basis_selection_5B",
+          "file_count": 4
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_hard20_frozen10_reference_gate_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_hard20_frozen10_reference_gate_5B",
+          "file_count": 4
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_hard20_frozen_centered_basis_selection_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_hard20_frozen_centered_basis_selection_5B",
+          "file_count": 4
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_hard20_ilcend_envelope75_basis_selection_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_hard20_ilcend_envelope75_basis_selection_5B",
+          "file_count": 4
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_hard20_volterra_basis_selection_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_hard20_volterra_basis_selection_5B",
+          "file_count": 4
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_ridge_analysis",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_ridge_analysis",
+          "file_count": 6
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_select_statewise_best_round0_4_models",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_select_statewise_best_round0_4_models",
+          "file_count": 6
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_statewise_adaptive_aend_c2_5b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_statewise_adaptive_aend_c2_5b",
+          "file_count": 11
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_unified_model_capacity_scan",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_unified_model_capacity_scan",
+          "file_count": 10
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_unified_odd_order_mp_capacity_scan_5b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_unified_odd_order_mp_capacity_scan_5b",
+          "file_count": 7
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_xy_analysis",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/scenario_2_xy_analysis",
+          "file_count": 6
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "state0_ridge_scan",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/state0_ridge_scan",
+          "file_count": 8
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "state0_xy_equivalence",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_modeling/state0_xy_equivalence",
+          "file_count": 6
+        }
+      ],
+      "results": [
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_all425_c2_envelope23_ridge_generalization_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/results/behavior_modeling/scenario_2_all425_c2_envelope23_ridge_generalization_5B",
+          "file_count": 13
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_all425_c2_ilcend_envelope19_shared_coverage_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/results/behavior_modeling/scenario_2_all425_c2_ilcend_envelope19_shared_coverage_5B",
+          "file_count": 12
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_all425_envelope18_coverage_evaluation_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/results/behavior_modeling/scenario_2_all425_envelope18_coverage_evaluation_5B",
+          "file_count": 8
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_all425_ilcend_envelope23_coverage_evaluation_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/results/behavior_modeling/scenario_2_all425_ilcend_envelope23_coverage_evaluation_5B",
+          "file_count": 10
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_gateb48_unified_basis_refinement_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/results/behavior_modeling/scenario_2_gateb48_unified_basis_refinement_5B",
+          "file_count": 15
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_hard20_c2_ilcend_shared_envelope75_basis_selection_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/results/behavior_modeling/scenario_2_hard20_c2_ilcend_shared_envelope75_basis_selection_5B",
+          "file_count": 15
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_hard20_envelope75_basis_selection_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/results/behavior_modeling/scenario_2_hard20_envelope75_basis_selection_5B",
+          "file_count": 17
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_hard20_ilcend_envelope75_basis_selection_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/results/behavior_modeling/scenario_2_hard20_ilcend_envelope75_basis_selection_5B",
+          "file_count": 14
+        }
+      ],
+      "work_logs": [
+        {
+          "module": "behavior_modeling",
+          "task_name": "behavior_model",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/behavior_modeling/behavior_model",
+          "file_count": 1
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_all425_c2_envelope23_ridge_generalization_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/behavior_modeling/scenario_2_all425_c2_envelope23_ridge_generalization_5B",
+          "file_count": 1
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_all425_c2_ilcend_envelope19_shared_coverage_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/behavior_modeling/scenario_2_all425_c2_ilcend_envelope19_shared_coverage_5B",
+          "file_count": 1
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_all425_envelope18_coverage_evaluation_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/behavior_modeling/scenario_2_all425_envelope18_coverage_evaluation_5B",
+          "file_count": 1
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_all425_ilcend_envelope23_coverage_evaluation_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/behavior_modeling/scenario_2_all425_ilcend_envelope23_coverage_evaluation_5B",
+          "file_count": 1
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_gateb48_unified_basis_refinement_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/behavior_modeling/scenario_2_gateb48_unified_basis_refinement_5B",
+          "file_count": 1
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_hard20_c2_ilcend_shared_envelope75_basis_selection_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/behavior_modeling/scenario_2_hard20_c2_ilcend_shared_envelope75_basis_selection_5B",
+          "file_count": 1
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_hard20_envelope75_basis_selection_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/behavior_modeling/scenario_2_hard20_envelope75_basis_selection_5B",
+          "file_count": 1
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_hard20_frozen10_reference_gate_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/behavior_modeling/scenario_2_hard20_frozen10_reference_gate_5B",
+          "file_count": 1
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_hard20_frozen_centered_basis_selection_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/behavior_modeling/scenario_2_hard20_frozen_centered_basis_selection_5B",
+          "file_count": 1
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_hard20_ilcend_envelope75_basis_selection_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/behavior_modeling/scenario_2_hard20_ilcend_envelope75_basis_selection_5B",
+          "file_count": 1
+        },
+        {
+          "module": "behavior_modeling",
+          "task_name": "scenario_2_hard20_volterra_basis_selection_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/behavior_modeling/scenario_2_hard20_volterra_basis_selection_5B",
+          "file_count": 1
+        }
+      ]
+    },
+    "behavior_fingerprint_retrieval": {
+      "scripts": [
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_C2_to_Aend_0p5b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_fingerprint_retrieval/scenario_2_C2_to_Aend_0p5b",
+          "file_count": 6
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_C2_to_Aend_1b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_fingerprint_retrieval/scenario_2_C2_to_Aend_1b",
+          "file_count": 7
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_C2_to_Aend_equal_ABC",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_fingerprint_retrieval/scenario_2_C2_to_Aend_equal_ABC",
+          "file_count": 15
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_fingerprint_retrieval/scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B",
+          "file_count": 5
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_C2_to_Aend_g4_sparse_gmp_5b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_fingerprint_retrieval/scenario_2_C2_to_Aend_g4_sparse_gmp_5b",
+          "file_count": 9
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_C2_to_Aend_retrieval",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_fingerprint_retrieval/scenario_2_C2_to_Aend_retrieval",
+          "file_count": 17
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_C3_to_A2_retrieval",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_fingerprint_retrieval/scenario_2_C3_to_A2_retrieval",
+          "file_count": 8
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_envelope18_commonB_full_lut_retrieval_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_fingerprint_retrieval/scenario_2_envelope18_commonB_full_lut_retrieval_5B",
+          "file_count": 6
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_fingerprint_retrieval/scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B",
+          "file_count": 6
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_envelope23_ilcend_commonB_full_lut_retrieval_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_fingerprint_retrieval/scenario_2_envelope23_ilcend_commonB_full_lut_retrieval_5B",
+          "file_count": 4
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_k18_aend_c2_full_lut_retrieval_0p1b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_fingerprint_retrieval/scenario_2_k18_aend_c2_full_lut_retrieval_0p1b",
+          "file_count": 9
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_k18_aend_c2_full_lut_retrieval_0p5b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_fingerprint_retrieval/scenario_2_k18_aend_c2_full_lut_retrieval_0p5b",
+          "file_count": 9
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_k18_aend_c2_full_lut_retrieval_5b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_fingerprint_retrieval/scenario_2_k18_aend_c2_full_lut_retrieval_5b",
+          "file_count": 8
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_mp10_full_lut_retrieval_5b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_fingerprint_retrieval/scenario_2_mp10_full_lut_retrieval_5b",
+          "file_count": 8
+        }
+      ],
+      "results": [
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_envelope18_commonB_full_lut_retrieval_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/results/behavior_fingerprint_retrieval/scenario_2_envelope18_commonB_full_lut_retrieval_5B",
+          "file_count": 12
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/results/behavior_fingerprint_retrieval/scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B",
+          "file_count": 17
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_envelope23_ilcend_commonB_full_lut_retrieval_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/results/behavior_fingerprint_retrieval/scenario_2_envelope23_ilcend_commonB_full_lut_retrieval_5B",
+          "file_count": 17
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_k18_aend_c2_full_lut_retrieval_0p1b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/results/behavior_fingerprint_retrieval/scenario_2_k18_aend_c2_full_lut_retrieval_0p1b",
+          "file_count": 21
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_k18_aend_c2_full_lut_retrieval_0p5b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/results/behavior_fingerprint_retrieval/scenario_2_k18_aend_c2_full_lut_retrieval_0p5b",
+          "file_count": 21
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_k18_aend_c2_full_lut_retrieval_5b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/results/behavior_fingerprint_retrieval/scenario_2_k18_aend_c2_full_lut_retrieval_5b",
+          "file_count": 17
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_mp10_full_lut_retrieval_5b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/results/behavior_fingerprint_retrieval/scenario_2_mp10_full_lut_retrieval_5b",
+          "file_count": 19
+        }
+      ],
+      "work_logs": [
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "behavior_fingerprint_lut_retrieval",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/behavior_fingerprint_retrieval/behavior_fingerprint_lut_retrieval",
+          "file_count": 1
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/behavior_fingerprint_retrieval/scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B",
+          "file_count": 1
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_envelope18_commonB_full_lut_retrieval_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/behavior_fingerprint_retrieval/scenario_2_envelope18_commonB_full_lut_retrieval_5B",
+          "file_count": 1
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/behavior_fingerprint_retrieval/scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B",
+          "file_count": 1
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_envelope23_ilcend_commonB_full_lut_retrieval_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/behavior_fingerprint_retrieval/scenario_2_envelope23_ilcend_commonB_full_lut_retrieval_5B",
+          "file_count": 1
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_k18_aend_c2_full_lut_retrieval_0p1b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/behavior_fingerprint_retrieval/scenario_2_k18_aend_c2_full_lut_retrieval_0p1b",
+          "file_count": 1
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_k18_aend_c2_full_lut_retrieval_0p5b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/behavior_fingerprint_retrieval/scenario_2_k18_aend_c2_full_lut_retrieval_0p5b",
+          "file_count": 1
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_k18_aend_c2_full_lut_retrieval_5b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/behavior_fingerprint_retrieval/scenario_2_k18_aend_c2_full_lut_retrieval_5b",
+          "file_count": 1
+        },
+        {
+          "module": "behavior_fingerprint_retrieval",
+          "task_name": "scenario_2_mp10_full_lut_retrieval_5b",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/behavior_fingerprint_retrieval/scenario_2_mp10_full_lut_retrieval_5b",
+          "file_count": 1
+        }
+      ]
+    },
+    "retrieval_oriented_model_selection": {
+      "status": "DEFERRED_PROTECTED_MODULE"
+    },
+    "behavior_fingerprint_ranking_consistency": {
+      "scripts": [
+        {
+          "module": "behavior_fingerprint_ranking_consistency",
+          "task_name": "fixed_lut_ilc_stage_comparison",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_fingerprint_ranking_consistency/fixed_lut_ilc_stage_comparison",
+          "file_count": 8
+        },
+        {
+          "module": "behavior_fingerprint_ranking_consistency",
+          "task_name": "scenario2_all_ilc_analysis",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_fingerprint_ranking_consistency/scenario2_all_ilc_analysis",
+          "file_count": 6
+        },
+        {
+          "module": "behavior_fingerprint_ranking_consistency",
+          "task_name": "scenario2_ranking_consistency",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_fingerprint_ranking_consistency/scenario2_ranking_consistency",
+          "file_count": 6
+        },
+        {
+          "module": "behavior_fingerprint_ranking_consistency",
+          "task_name": "scenario2_y_lut_fusion_a123_analysis",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_fingerprint_ranking_consistency/scenario2_y_lut_fusion_a123_analysis",
+          "file_count": 8
+        },
+        {
+          "module": "behavior_fingerprint_ranking_consistency",
+          "task_name": "scenario2_y_lut_fusion_analysis",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_fingerprint_ranking_consistency/scenario2_y_lut_fusion_analysis",
+          "file_count": 8
+        },
+        {
+          "module": "behavior_fingerprint_ranking_consistency",
+          "task_name": "scenario2_y_lut_weighted_fusion_analysis",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/behavior_fingerprint_ranking_consistency/scenario2_y_lut_weighted_fusion_analysis",
+          "file_count": 8
+        }
+      ],
+      "results": [],
+      "work_logs": [
+        {
+          "module": "behavior_fingerprint_ranking_consistency",
+          "task_name": "behavior_fingerprint_ranking_consistency",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/behavior_fingerprint_ranking_consistency/behavior_fingerprint_ranking_consistency",
+          "file_count": 1
+        }
+      ]
+    },
+    "low_bandwidth_behavior_analysis": {
+      "scripts": [
+        {
+          "module": "low_bandwidth_behavior_analysis",
+          "task_name": "low_bandwidth_observation",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/low_bandwidth_behavior_analysis/low_bandwidth_observation",
+          "file_count": 4
+        }
+      ],
+      "results": [],
+      "work_logs": [
+        {
+          "module": "low_bandwidth_behavior_analysis",
+          "task_name": "low_bandwidth_observation",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/low_bandwidth_behavior_analysis/low_bandwidth_observation",
+          "file_count": 1
+        }
+      ]
+    },
+    "lut_clustering_compression": {
+      "scripts": [
+        {
+          "module": "lut_clustering_compression",
+          "task_name": "scenario_2_5b_A_behavior_clustering",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/lut_clustering_compression/scenario_2_5b_A_behavior_clustering",
+          "file_count": 4
+        },
+        {
+          "module": "lut_clustering_compression",
+          "task_name": "scenario_2_5b_A_yout_withoutdpd_ori_complete_link",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/lut_clustering_compression/scenario_2_5b_A_yout_withoutdpd_ori_complete_link",
+          "file_count": 4
+        },
+        {
+          "module": "lut_clustering_compression",
+          "task_name": "scenario_2_C2_to_Aend_frozen_centered17_type3_compressed_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/scripts/lut_clustering_compression/scenario_2_C2_to_Aend_frozen_centered17_type3_compressed_5B",
+          "file_count": 8
+        }
+      ],
+      "results": [],
+      "work_logs": [
+        {
+          "module": "lut_clustering_compression",
+          "task_name": "clustering",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/lut_clustering_compression/clustering",
+          "file_count": 1
+        },
+        {
+          "module": "lut_clustering_compression",
+          "task_name": "scenario_2_C2_to_Aend_frozen_centered17_type3_compressed_5B",
+          "path": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/lut_clustering_compression/scenario_2_C2_to_Aend_frozen_centered17_type3_compressed_5B",
+          "file_count": 1
+        }
+      ]
+    }
+  }
+}

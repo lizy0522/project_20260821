@@ -1,0 +1,11 @@
+[2026-09-17T01:37:42+08:00] Phase 0/1 preflight, inventory, module registry, classification, and move manifest passed.
+[2026-09-17T01:40:46+08:00] Continued interrupted migration forward-only; rewrote active code paths/imports in 195 files (35452 changed lines).
+[2026-09-17T01:40:47+08:00] Post-migration structural validation FAILED.
+[2026-09-17T01:41:22+08:00] Continued interrupted migration forward-only; rewrote active code paths/imports in 0 files (0 changed lines).
+[2026-09-17T01:41:23+08:00] Post-migration structural validation FAILED.
+[2026-09-17T01:41:56+08:00] Continued interrupted migration forward-only; rewrote active code paths/imports in 0 files (0 changed lines).
+[2026-09-17T01:41:57+08:00] Post-migration structural validation FAILED.
+[2026-09-17T01:43:17+08:00] Continued interrupted migration forward-only; rewrote active code paths/imports in 9 files (11 changed lines).
+[2026-09-17T01:43:18+08:00] Post-migration structural validation FAILED.
+[2026-09-17T01:43:50+08:00] Validation-only pass PASSED.
+[2026-09-17T01:44:00+08:00] Final verification: module-layout validator PASS; Self-First validator PASS; compileall PASS; full Ruff PASS; pip check PASS; 10-module import smoke PASS; core/data_management/signal_segmentation regression tests PASS. Raw manifest unchanged. Self-First file count, bytes, distance-matrix count, 10 critical hashes, and 100 sampled cache/distance hashes unchanged. No research task was rerun; no data/result/cache was deleted or copied.

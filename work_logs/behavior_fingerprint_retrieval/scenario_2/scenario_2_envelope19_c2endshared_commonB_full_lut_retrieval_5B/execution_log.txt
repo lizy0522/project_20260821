@@ -1,0 +1,29 @@
+[2026-09-15T22:11:27+0800] FAILED scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B: TypeError: Object of type ndarray is not JSON serializable
+[2026-09-15T22:12:03+0800] FAILED scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B: RuntimeError: --resume requires an existing checkpoint
+
+[2026-09-15T22:12:25+0800] Start scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B
+Frozen support hash=dda04e2fc270c9f5c2eb72b0b030059211ba0295934e3e3a4b2834172b11ac90; common-B sha=b3a794e22b6beb7171f696d41685714da122f948ca8284553abaaa9a68c4abac; raw={"bytes": 2258448137, "file_count": 429, "mat_count": 427, "sha256": "910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0"}
+Protocol frozen from E23 Full-LUT retrieval; only support changed to Envelope19-C2EndShared.
+[2026-09-15T22:12:51+0800] Completed scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B
+Result: {"e23_real_B_pass_count": 401, "envelope19_exact_state_hit_count": 132, "envelope19_failure_count": 22, "envelope19_real_B_pass_count": 403, "raw_data_modified": false, "recovered": 2, "regressed": 0, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B", "status": "SUCCESS", "task": "scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B"}
+No re-selection, Ridge scan, Top-k fallback, clustering, Type-III, DPD, or low-bandwidth task was run.
+[2026-09-15T22:16:46+0800] Final verification
+Frozen protocol contract passed: Envelope19-C2EndShared K=19, dmax=2, lambda=0, OLS, support hash=dda04e2fc270c9f5c2eb72b0b030059211ba0295934e3e3a4b2834172b11ac90; ABC bounds and common-B hash=b3a794e22b6beb7171f696d41685714da122f948ca8284553abaaa9a68c4abac match the E23 Full-LUT protocol.
+All425 model/fingerprint/retrieval contract passed: coefficients=(425,19) complex128, fingerprints=(425,4913) complex128, CNMSE matrix=(425,425), Exact=132/425, Real-B pass=403/425, failures=22, recovered versus E23=2, regressions=0, unchanged pass/fail=401/22.
+Model quality: E19 Aend Train/Aend->B/C2 Train/C2->B pass counts=425/404/425/64; historical E23 counts=425/412/425/57. Excel is 426x10 with exact requested headers and -Inf preservation; main six-metric plot contains 425 hit-State labels.
+Engineering checks passed: direct retrieval contract, compileall, full Ruff, pip check, git diff --check, raw manifest before/after, saved Excel reload/error scan, and visual QA. No support selection, Ridge, dmax scan, Top-k fallback, clustering, Type-III, DPD replay, or low-bandwidth task was run.
+The first setup-only run stopped before checkpoint because an internal ndarray was included in JSON metadata; the corrected --resume run produced the final artifacts. Final conclusions are based on the corrected completed run.
+
+[2026-09-15T22:13:46+0800] Start scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B
+Frozen support hash=dda04e2fc270c9f5c2eb72b0b030059211ba0295934e3e3a4b2834172b11ac90; common-B sha=b3a794e22b6beb7171f696d41685714da122f948ca8284553abaaa9a68c4abac; raw={"bytes": 2258448137, "file_count": 429, "mat_count": 427, "sha256": "910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0"}
+Protocol frozen from E23 Full-LUT retrieval; only support changed to Envelope19-C2EndShared.
+[2026-09-15T22:14:12+0800] Completed scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B
+Result: {"e23_real_B_pass_count": 401, "envelope19_exact_state_hit_count": 132, "envelope19_failure_count": 22, "envelope19_real_B_pass_count": 403, "raw_data_modified": false, "recovered": 2, "regressed": 0, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B", "status": "SUCCESS", "task": "scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B"}
+No re-selection, Ridge scan, Top-k fallback, clustering, Type-III, DPD, or low-bandwidth task was run.
+
+[2026-09-15T22:15:09+0800] Start scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B
+Frozen support hash=dda04e2fc270c9f5c2eb72b0b030059211ba0295934e3e3a4b2834172b11ac90; common-B sha=b3a794e22b6beb7171f696d41685714da122f948ca8284553abaaa9a68c4abac; raw={"bytes": 2258448137, "file_count": 429, "mat_count": 427, "sha256": "910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0"}
+Protocol frozen from E23 Full-LUT retrieval; only support changed to Envelope19-C2EndShared.
+[2026-09-15T22:15:36+0800] Completed scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B
+Result: {"e23_real_B_pass_count": 401, "envelope19_exact_state_hit_count": 132, "envelope19_failure_count": 22, "envelope19_real_B_pass_count": 403, "raw_data_modified": false, "recovered": 2, "regressed": 0, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B", "status": "SUCCESS", "task": "scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B"}
+No re-selection, Ridge scan, Top-k fallback, clustering, Type-III, DPD, or low-bandwidth task was run.

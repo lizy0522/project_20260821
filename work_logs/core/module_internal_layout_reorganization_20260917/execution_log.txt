@@ -1,0 +1,21 @@
+[2026-09-17T11:58:43+08:00] Begin module_internal_layout_reorganization_20260917; engineering-only source layout migration.
+[2026-09-17T11:58:45+08:00] Moved 213 entries and rewrote 188 source files.
+[2026-09-17T11:58:46+08:00] Completed layout=True, dependency_violations=11, raw_unchanged=True, self_first_unchanged=True.
+
+[2026-09-17T12:28:01+08:00] Final validation: pass=False; tasks=67; dependency_violations=0; cycles=0; raw_unchanged=True; self_first_unchanged=True; no research computation executed.
+
+[2026-09-17T12:28:26+08:00] Final validation: pass=False; tasks=67; dependency_violations=0; cycles=0; raw_unchanged=True; self_first_unchanged=True; no research computation executed.
+
+[2026-09-17T12:28:43+08:00] Final validation: pass=True; tasks=67; dependency_violations=0; cycles=0; raw_unchanged=True; self_first_unchanged=True; no research computation executed.
+
+[2026-09-17] Post-migration regression verification: core shared tests 7/7 PASS; data-management shared tests 5/5 PASS; signal-segmentation shared tests 17/17 PASS; behavior-modeling shared tests 5/5 PASS; retrieval-oriented model-scan tests 8/8 PASS; Envelope18 direct regression PASS; Envelope19 direct regression PASS. The Envelope18/19 checks also confirmed the migrated behavior-modeling result paths. No runner, fit, search, result regeneration, cache deletion, or data/raw mutation was performed.
+
+[2026-09-17T12:44:00+08:00] Final validation: pass=False; tasks=67; dependency_violations=0; cycles=0; raw_unchanged=True; self_first_unchanged=True; no research computation executed.
+
+[2026-09-17T12:44:28+08:00] Final validation: pass=True; tasks=67; dependency_violations=0; cycles=0; raw_unchanged=True; self_first_unchanged=True; no research computation executed.
+
+[2026-09-17T12:45:08+08:00] Final validation: pass=True; tasks=67; dependency_violations=0; cycles=0; raw_unchanged=True; self_first_unchanged=True; no research computation executed.
+
+[2026-09-17T12:46:06+08:00] Final validation: pass=False; tasks=67; dependency_violations=0; cycles=0; raw_unchanged=True; self_first_unchanged=True; no research computation executed.
+
+[2026-09-17T12:46:38+08:00] Final validation: pass=True; tasks=67; dependency_violations=0; cycles=0; raw_unchanged=True; self_first_unchanged=True; no research computation executed.

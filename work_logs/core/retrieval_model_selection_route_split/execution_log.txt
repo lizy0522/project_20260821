@@ -1,0 +1,43 @@
+[2026-09-19T18:59:24+08:00] Start/complete retrieval_model_selection_route_split
+Work type: engineering route split only; no scientific search or model recomputation.
+Routes: self_hit_oriented, dpd_shareability_oriented
+Moved directories: 29; by route={"dpd_shareability_oriented": 26, "self_hit_oriented": 3}
+All moves used same-filesystem Path.rename; no large result tree was copied.
+Active source files scanned=60; mechanically changed=19
+Historical result and work-log file contents were not edited.
+Raw manifest after split={"bytes": 2258448137, "file_count": 429, "mat_count": 427, "sha256": "910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0"}
+Root config files unchanged relative to the pre-split baseline.
+Legacy route-unaware internal-layout validator remains a deferred EXPECTED_SCHEMA_MISMATCH.
+Configuration synchronization for AGENTS.md/README.md and route-aware global validator is deferred.
+
+[2026-09-19] Post-migration active-path audit correction: six source files were rechecked for multiline C2/statewise result paths; one overlapped the initial rewrite set, producing 24 unique active retrieval source files changed in total. No result or historical log content changed.
+Final route validator PASS: result/work-log manifests, critical SHA256, active stale-path scan, task-to-task dependency scan, raw manifest, root configuration hashes, and 10-module mirror all passed.
+Final checks PASS: compileall, Ruff, pip check, route/task package import smoke, and git diff --check. No scientific computation, model search, result regeneration, or large-result copy was performed.
+
+[2026-09-19T19:27:40+08:00] Corrective route ownership maintenance
+Previous automatic classification corrected by explicit user research definition.
+Corrected assignment: all 11 historical retrieval-oriented tasks -> self_hit_oriented; dpd_shareability_oriented reserved and empty.
+Moved directories=26; active source files scanned=60; active source files modified=20; scientific_computation=false.
+Historical results, summaries, checkpoints, validation JSON and execution-log bodies were not edited.
+Root configuration synchronization deferred.
+
+[2026-09-19] Corrected validator final PASS: self_hit scripts=11, dpd scripts=0, self_hit existing results=9, dpd results=0, self_hit existing logs=9, dpd logs=0; flat tasks=0; old historical DPD active refs=0; task-to-task dependencies=0.
+Results/work_logs file sets, byte counts and critical SHA256 remained unchanged; scripts changed only by intended active route-path rewrites. Raw manifest and root configuration hashes remained unchanged.
+Final checks PASS: compileall, Ruff, pip check, 15-package corrected import smoke, module mirror, and git diff --check. Scientific computation, model search and historical result regeneration were not performed.
+
+[2026-09-19T21:34:21+0800] DPD-shareability shared infrastructure completion (continuous engineering maintenance)
+Scope: reuse fixed ten modules and route-aware self_hit/dpd_shareability layout; keep dpd_shareability_oriented empty and all 11 historical self_hit tasks untouched. No 425-state fit/search/oracle construction, champion, or scientific result generated.
+Added behavior_modeling.shared.volterra_terms: canonical strict complex-baseband odd-order Volterra descriptors through order 11 and delay 4, independent per-order memory, diagonal/cross terms and lazy selected-column construction; old frozen Volterra dictionary unmodified and zero-error numerical regression verified.
+Added retrieval_oriented_model_selection.shared shareability_types, shareability_pipeline, shareability_objective, shareability_schema, shareability_search, shareability_parallel and shareability_persistence. K_selected<=20 enforced on candidate construction; no pool-size cap. Existing low-bandwidth operator is applied after 5B basis creation to E/y. Existing complex Ridge and fingerprint CNMSE are reused. Ranking is independent of Real-B oracle; strict Real-B CNMSE<-40 dB scores Top-1 shareability. True-ID Top1/3/5/10 are report-only; primary ties retained.
+Search framework exposes explicit stage sequence, bandwidth-specific immutable candidate IDs, caller-supplied Ridge grid/budget/evaluator, JSON checkpoint/resume, validated metadata cache and explicit spawn evaluator (one synthetic worker exercised; 10 workers not launched). No train/validation/test state partition exists.
+Updated README and current global route-aware layout validator; historical internal-layout validator structural check delegates to current contract. No route-level shared or new scientific task was created.
+Validation: synthetic unittest 11/11 PASS; old Envelope75 direct regression PASS; low-bandwidth observation tests 12/12 PASS; global layout PASS (10 modules; dependency violations=0); route-aware internal layout check PASS; imports 18 PASS; compileall, Ruff, pip check, git diff --check PASS. Historical results/log manifests PASS; raw 429 files/427 MAT/2258448137 bytes/SHA256 910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0 unchanged. Validation artifact: results/core/retrieval_model_selection_route_split/15_shareability_infrastructure_validation.json.
+Deferred: formal 425-state Aend/C2 evaluator integration, actual oracle, task-specific Ridge grid, search budget/stopping policy and all bandwidth searches. Status: Infrastructure Ready; Scientific Search Not Started.
+
+[2026-09-20T09:56:40+0800] DPD-shareability candidate-level parallel execution maintenance
+Pre-change audit: former SpawnEvaluator used spawn/default 10 but also spawned at 1 worker, set only three BLAS variables and lacked effective-worker reporting, nested-pool guard, candidate-specific failure metadata, interrupt cleanup and safe concurrent cache publication. Search state had scientific config only; seed evaluation was serial even with parallel evaluator. No large arrays were passed in candidate job payloads, but a captured large scorer was not guarded.
+Changes: ParallelExecutionSpec is the sole runtime policy source (default 10 spawn workers, one BLAS thread, no affinity/GPU/nesting; 1-worker serial fallback). Parent sets five thread environment variables before workers start and restores them on exit; worker initializer verifies environment and marks worker context. Only lightweight CandidateModelSpec is sent per job, fixed oracle and cache paths are supplied once per worker and oracle loads lazily once per worker. ID-tagged result and exception details return to controller in deterministic candidate order; evaluation failures are fail-fast. Controller retains beam/tie/checkpoint decisions; runtime metadata is separate from candidate identity and scientific config hash. Interrupt path saves a safe controller checkpoint and terminates pending child processes. Cache is write-once with an exclusive lock and atomic metadata commit; checkpoint publication is atomic.
+Files: scripts/retrieval_oriented_model_selection/shared/shareability_types.py, shareability_parallel.py, shareability_search.py, shareability_persistence.py, tests/test_shareability_parallel.py and the existing infrastructure test. AGENTS.md and README.md received short long-term policy notes; environment.yml and pyproject.toml were not modified by this maintenance.
+Synthetic validation: combined unit tests 20/20 PASS, including 20 tiny jobs with requested 10 worker processes, five worker thread variables=1, candidate order restoration, serial/parallel distance/ranking/Q1/metrics equality, nested-pool rejection, 2-worker checkpoint resumed under 10 workers matching serial scientific state, worker exception attribution/fail-fast, simulated interrupt cleanup, cache single writer and lazy oracle reuse, import without workers. Tiny benchmark only: 20 synthetic jobs, serial 1.130461 s/1 PID, parallel 0.977362 s/10 PIDs. Not an estimate of real 425-state runtime.
+Existing Envelope75 regression PASS and low-bandwidth observation 12/12 PASS; compileall/Ruff/pip check/global route-aware validator/git diff --check PASS; 10 top-level modules, 0 dependency violations, DPD route has 0 tasks; historical results/logs intact. Raw manifest unchanged: 429 files/427 MAT/2258448137 bytes/SHA256 910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0. Report: results/core/retrieval_model_selection_route_split/16_parallel_execution_validation.json.
+Formal 425-state search, 425x425 Real-B oracle, basis selection, Ridge selection and all bandwidth champion searches NOT RUN. Status remains Infrastructure Ready / Scientific Search Not Started.

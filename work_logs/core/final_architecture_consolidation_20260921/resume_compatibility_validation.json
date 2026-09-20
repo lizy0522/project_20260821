@@ -1,0 +1,159 @@
+{
+  "timestamp": "2026-09-21T01:19:07.077559+08:00",
+  "self_first": {
+    "checkpoint_path": "results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_self_first_joint_basis_ridge_lut_retrieval_search_5b/23_checkpoint.json",
+    "exists": true,
+    "phase": "completed",
+    "rounds_completed": 6,
+    "state_count": 425,
+    "K": 18,
+    "lambda": 3.16227766e-12,
+    "N_self": 270,
+    "N_fallback": 149,
+    "N_valid": 419,
+    "N_fail": 6,
+    "nested_cv_status": "deferred",
+    "raw_manifest": {
+      "sha256": "910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0",
+      "file_count": 429,
+      "mat_count": 427,
+      "bytes": 2258448137
+    },
+    "relocated_result_root_exists": true
+  },
+  "dpd_shareability": {
+    "readiness_path": "work_logs/retrieval_oriented_model_selection/dpd_shareability_oriented/scenario_2/scenario_2_volterra_shareability_basis_search_5b/pre_search_validation/08_final_search_readiness.json",
+    "formal_search_ready": false,
+    "decision": "NOT READY",
+    "formal_k2_to_k20_search_started": false,
+    "k2_exhaustive_validation": {
+      "status": "PASS",
+      "candidates": 38334,
+      "cache_hits": 0,
+      "cache_misses": 38334,
+      "fallbacks": 0,
+      "throughput_candidates_per_second": 18.834657300639634,
+      "checkpoint": "valid",
+      "exact_trace": "pre_search_validation/k2_exhaustive_results.jsonl"
+    },
+    "k2_screening": {
+      "status": "PASS",
+      "candidates": 38334,
+      "partitions": 40,
+      "screening_checkpoint": "valid",
+      "resume_from_20_partitions": true,
+      "screening_artifacts": 40
+    },
+    "k2_shortlist_recall": {
+      "status": "FAIL",
+      "mixed_400_plus_100": {
+        "top1": "1/1",
+        "top3": "2/3",
+        "top10": "4/10",
+        "top50": "10/50",
+        "top100": "19/100"
+      },
+      "pure_top500": {
+        "top1": "0/1",
+        "top3": "0/3",
+        "top10": "1/10",
+        "top50": "2/50",
+        "top100": "5/100"
+      }
+    },
+    "relocated_work_log_exists": true
+  },
+  "critical_artifacts": [
+    {
+      "path": "results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_self_first_joint_basis_ridge_lut_retrieval_search_5b/23_checkpoint.json",
+      "bytes": 10541,
+      "sha256": "c8f2372bf784daf55275ab0ae0289a1abd53bc55ebaaf9d6de964051745df62d"
+    },
+    {
+      "path": "results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b/23_checkpoint.json",
+      "bytes": 1298,
+      "sha256": "409ddf82ef8a9ce23f0ba00202b8db79a0592ab7575fc52aaac9e79cdae227aa"
+    },
+    {
+      "path": "work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_updated_beam3_iteration2_retrieval_oriented_forward_expansion_5b/execution_log.txt",
+      "bytes": 2735,
+      "sha256": "95486907243447e344bb4e4c2fa6753897ff05286b35840dd8886d5b9c463f17"
+    },
+    {
+      "path": "work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_beam3_k13_floating_backward_retrieval_ablation_5b/execution_log.txt",
+      "bytes": 6515,
+      "sha256": "cd7f36a3dbb727d36363c635c7df877e7c5547a9207d4bfcd3a570c4ac619df8"
+    },
+    {
+      "path": "work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_smallbeam3_k13_retrieval_oriented_forward_expansion_5b/execution_log.txt",
+      "bytes": 1967,
+      "sha256": "241259201f29ecdbfeb13b76ebe1255ea64175b1a252e0f576be5724dd87e12e"
+    },
+    {
+      "path": "work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_self_first_joint_basis_ridge_lut_retrieval_search_5b/execution_log.txt",
+      "bytes": 26409,
+      "sha256": "ea81e2b9596d482d421e068490ac143a402b03080df22f20fe879f999e63216a"
+    },
+    {
+      "path": "work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_k12_retrieval_oriented_forward_scan_5b/execution_log.txt",
+      "bytes": 1214,
+      "sha256": "97081167a6d4202bd8babb1a08848c950738922ccbc43be6b47b461abc9f33a6"
+    },
+    {
+      "path": "work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_mp10_k11_retrieval_oriented_forward_scan_5b/execution_log.txt",
+      "bytes": 1044,
+      "sha256": "8e1b5ee75f35f2de6a42f6e1a1713ecc79233f972f85232f4363c928cbad6aea"
+    },
+    {
+      "path": "work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_k11_backward_retrieval_oriented_basis_ablation_5b/execution_log.txt",
+      "bytes": 1139,
+      "sha256": "0a7f96f9d88f58b7834cb8d9536dab2f62259e19485adbfc5c7e05ae4a2c8f3c"
+    },
+    {
+      "path": "work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_mp10_k9_retrieval_oriented_basis_ablation_5b/execution_log.txt",
+      "bytes": 2228,
+      "sha256": "bc7be6a18c21b522629e126a10716ea677ea9a2acfe945a17c19e311e96587ae"
+    },
+    {
+      "path": "work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b/execution_log.txt",
+      "bytes": 2425,
+      "sha256": "89ab82960f20b36fae2913f99b8b496e30c8a7b999a875f8e1356c5f28b565c2"
+    },
+    {
+      "path": "work_logs/retrieval_oriented_model_selection/dpd_shareability_oriented/scenario_2/scenario_2_volterra_shareability_basis_search_5b/execution_log.txt",
+      "bytes": 1538499,
+      "sha256": "9b24761d69003823912dbd335d60a00881f5c7bf7288640a728e8d4f1c4e38d9"
+    },
+    {
+      "path": "work_logs/retrieval_oriented_model_selection/dpd_shareability_oriented/scenario_2/scenario_2_volterra_shareability_basis_search_5b/pre_search_validation/08_final_search_readiness.json",
+      "bytes": 3179,
+      "sha256": "4900f456301f582baeac0c9b98e50db72c79f4b872dc63b131912295c9289cde"
+    },
+    {
+      "path": "work_logs/retrieval_oriented_model_selection/dpd_shareability_oriented/scenario_2/scenario_2_volterra_shareability_basis_search_5b/pre_search_validation/01_full_k2_exhaustive_validation.json",
+      "bytes": 982,
+      "sha256": "f0867470e59ebdb2d256b4a44d4be614e005b3b42dc3336aec333f984a03399a"
+    },
+    {
+      "path": "work_logs/retrieval_oriented_model_selection/dpd_shareability_oriented/scenario_2/scenario_2_volterra_shareability_basis_search_5b/pre_search_validation/02_k2_screening_recall.json",
+      "bytes": 16516,
+      "sha256": "732a58f79878296be08dda6d23dab633b3732ee64c0927822a179938a321ec33"
+    },
+    {
+      "path": "work_logs/retrieval_oriented_model_selection/dpd_shareability_oriented/scenario_2/scenario_2_volterra_shareability_basis_search_5b/pre_search_validation/k3_multi_parent_policy_validation/08_k3_screening_policy_validation.json",
+      "bytes": 7562680,
+      "sha256": "331dfeaa230f770e4cb834c897f08da8b79ff48b45aa008dfc1522a84f9bc34e"
+    },
+    {
+      "path": "work_logs/retrieval_oriented_model_selection/dpd_shareability_oriented/scenario_2/scenario_2_volterra_shareability_basis_search_5b/pre_search_validation/k2_exhaustive_checkpoint.json",
+      "bytes": 704,
+      "sha256": "23c2ac05ca1b8fae4e94258ffe397fa452a11c2121b3eb4e012ce3f93f1c6491"
+    },
+    {
+      "path": "work_logs/retrieval_oriented_model_selection/dpd_shareability_oriented/scenario_2/scenario_2_volterra_shareability_basis_search_5b/pre_search_validation/k2_screening_checkpoint.json",
+      "bytes": 929,
+      "sha256": "b947cb9ed1d02c45bb06f19d75617db08314343e28f95c0f49325b7f5761ff3e"
+    }
+  ],
+  "pass": true
+}

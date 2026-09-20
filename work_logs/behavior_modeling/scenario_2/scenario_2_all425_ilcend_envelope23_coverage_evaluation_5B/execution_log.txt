@@ -1,0 +1,28 @@
+[2026-09-15T16:15:09+0800] FAILED scenario_2_all425_ilcend_envelope23_coverage_evaluation_5B: KeyError: 'global_index'
+
+[2026-09-15T16:16:30+0800] Start scenario_2_all425_ilcend_envelope23_coverage_evaluation_5B
+Mode: evaluation_only=true; model_selection=false.
+Raw snapshot before: {"bytes": 2258448137, "file_count": 429, "mat_count": 427, "sha256": "910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0"}
+Support hash: 7c8348beaaa9db183c26bb8adfd29f226c11f36bf54ad587e9ac0baa6f14ea14; workers=10; BLAS threads/worker=1.
+[2026-09-15T16:16:39+0800] Completed scenario_2_all425_ilcend_envelope23_coverage_evaluation_5B
+Result: {"Both_pass_count": 425, "Test_pass_count": 425, "Train_pass_count": 425, "failed_count": 0, "hard20_regression": {"max_abs_test_error_dB": 7.105427357601002e-15, "max_abs_train_error_dB": 7.105427357601002e-15, "pass": true, "previous_result": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_hard20_ilcend_envelope75_basis_selection_5B/09_final_hard20_train_cv_test.csv"}, "raw_data_modified": false, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_all425_ilcend_envelope23_coverage_evaluation_5B", "support_hash": "7c8348beaaa9db183c26bb8adfd29f226c11f36bf54ad587e9ac0baa6f14ea14", "task": "scenario_2_all425_ilcend_envelope23_coverage_evaluation_5B"}
+No search, Ridge scan, support modification, Test retuning, LUT retrieval, Aend/C2, common-B, Type-III, DPD, low-bandwidth, or dmax3 was run.
+
+[2026-09-15] Final verification
+The first launch stopped before State evaluation because the previous model definition
+uses the column name term_index rather than global_index; the loader was corrected and
+the same evaluation task was rerun. Frozen Envelope23 support K=23, lambda=0, dmax=2,
+support hash=7c8348beaaa9db183c26bb8adfd29f226c11f36bf54ad587e9ac0baa6f14ea14.
+All 425 states returned canonical State_ID order, rank=23, finite=True, and no failure.
+Train/Test/Both pass counts=425/425/425. All425 Train median/Q95/worst=-43.826151/
+-41.359301/-40.878603 dB; Test=-43.724310/-41.473358/-40.781225 dB.
+Gap median/mean/Q95/max=0.035930/0.044403/0.401024/0.822072 dB; Pearson
+Train/Test correlation=0.976896871. Hard20 regression against the previous final
+ilc_end result passed with max absolute Train/Test error=7.105427601e-15 dB.
+Remaining405 also passed Train/Test/Both=405/405/405. Coefficients were saved as
+425x23 complex128 with source='Train only'; no design matrix cache was retained.
+Raw manifest remained 429 files / 427 MAT / 2258448137 bytes / SHA256=
+910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0;
+raw_data_modified=false. Direct evaluation regression, compileall, full Ruff,
+pip check, and git diff --check passed. No search, Ridge, support change, LUT,
+Type-III, DPD, low-bandwidth, or dmax3 was run.

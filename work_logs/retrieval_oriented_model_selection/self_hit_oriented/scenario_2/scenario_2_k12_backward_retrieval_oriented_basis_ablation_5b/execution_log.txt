@@ -1,0 +1,12 @@
+
+[2026-09-16T12:57:53+0800] Complete scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b
+Result={"baseline_regression_pass": true, "cv_winner_counts": [{"model_name": "K12_full", "train_winner_count": 4}, {"model_name": "K12_minus_LIN_d2", "train_winner_count": 1}], "deletion_to_k11_regression_pass": true, "diagnostic_winner": "K12_full", "diagnostic_winner_top1": 419, "max_deletion_top1": 417, "raw_data_modified": false, "recommend_delete_basis_ids": [], "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b", "status": "SUCCESS", "task": "scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b", "transition_counts_across_deletions": {"recovered": 26, "regressed": 412, "unchanged_fail": 46, "unchanged_pass": 4616}}
+No second deletion or K13 was run.
+
+[2026-09-16T13:05:00+0800] Independent validation PASS.
+Validation covered 13 candidates, 5525 model-quality rows, 5525 query rows, 13 distance matrices, 65 independent argmin checks, 5525 shareability-margin checks, 22100 Top-k checks, 572 representative candidate-Phi slicing checks, 72 failure6 rows, 5100 recovered/regressed rows, 65 CV rows and 13 CV stability rows.
+Baseline regression and deletion ENV_p04_m0_q1 -> formal K11 regression both passed. Real-B 20-pair maximum absolute error=2.8059332635166356e-11 dB. common-B SHA and raw manifest passed; data/raw unchanged. Final validation artifact=results/scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b/24_validation_checks.json.
+
+[2026-09-16T12:59:56+0800] Complete scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b
+Result={"baseline_regression_pass": true, "cv_winner_counts": [{"model_name": "K12_full", "train_winner_count": 4}, {"model_name": "K12_minus_LIN_d2", "train_winner_count": 1}], "deletion_to_k11_regression_pass": true, "diagnostic_winner": "K12_full", "diagnostic_winner_top1": 419, "max_deletion_top1": 417, "raw_data_modified": false, "recommend_delete_basis_ids": [], "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b", "status": "SUCCESS", "task": "scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b", "transition_counts_across_deletions": {"recovered": 26, "regressed": 412, "unchanged_fail": 46, "unchanged_pass": 4616}}
+No second deletion or K13 was run.

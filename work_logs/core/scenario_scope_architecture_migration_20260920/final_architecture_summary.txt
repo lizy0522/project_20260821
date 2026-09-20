@@ -1,0 +1,23 @@
+{
+  "task": "scenario_scope_architecture_migration_20260920",
+  "pass": true,
+  "checks": {
+    "protected_journal_clean": true,
+    "data_journal_clean": true,
+    "config_journal_clean": true,
+    "module_mirror": true,
+    "raw_manifest": true,
+    "no_results_shared": true,
+    "no_work_logs_shared": true,
+    "all_ready_script_targets": true,
+    "old_paths_absent": true,
+    "result_log_content_preserved": true,
+    "no_flat_residuals": true
+  },
+  "failures": [],
+  "migrated_task_count": 58,
+  "journal_events": 250,
+  "protected_module_touched": false,
+  "data_touched": false,
+  "config_touched": false
+}

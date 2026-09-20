@@ -1,0 +1,13 @@
+2026-09-21T01:11:49.395863+08:00 | active retrieval route/scenario source patch files=22; config_files_touched=False; results_touched=False; data_touched=False
+2026-09-21T01:12:09.727039+08:00 | self-hit route correction/source path patch files=38 total_manifest_records
+2026-09-21T01:13:46.413129+08:00 | Phase 0-3 audit complete; research_processes=0; raw_manifest_files=428; retrieval_tasks=12
+2026-09-21T01:14:32.687723+08:00 | Phase 0-3 audit complete; research_processes=0; raw_manifest_files=428; retrieval_tasks=12
+2026-09-21T01:14:47.638055+08:00 | Phase 5-8 atomic rename complete; retrieval_moves=20; config_touched=False; formal_research_started=False
+2026-09-21T01:16:18.953672+08:00 | final validation pass=False raw_content_equal=True retrieval_layout=True legacy_active_refs=False
+2026-09-21T01:16:50.173008+08:00 | final validation pass=False raw_content_equal=True retrieval_layout=False legacy_active_refs=True
+2026-09-21T01:17:27.841076+08:00 | final validation pass=True raw_content_equal=True retrieval_layout=True legacy_active_refs=True
+2026-09-21T01:19:17.940491+08:00 | final validation pass=False raw_content_equal=True retrieval_layout=False legacy_active_refs=True
+2026-09-21T01:19:40.274888+08:00 | final validation pass=True raw_content_equal=True retrieval_layout=True legacy_active_refs=True
+2026-09-21T01:20:49.120157+08:00 | final validation pass=True raw_content_equal=True retrieval_layout=True legacy_active_refs=True
+2026-09-21T01:20:59.113378+08:00 | FINAL architecture consolidation PASS; raw_content_equal=True; retrieval_metadata_layout=True; layout=True; active_legacy_refs=True; resume_compatibility=True; runtime_cache_removed=558; formal_research_started=False; config_files_changed=False; git_write_operations=False
+2026-09-21T01:21:26.435176+08:00 | final validation pass=True raw_content_equal=True retrieval_layout=True legacy_active_refs=True

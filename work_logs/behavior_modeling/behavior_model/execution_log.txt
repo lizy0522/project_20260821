@@ -1,0 +1,945 @@
+时间：2026-08-25（Asia/Shanghai）
+工作目标：在state_id=0下建立并验证冻结10基函数正向Memory Polynomial行为系数提取流程。
+任务名称：behavior_model
+任务类型：新任务模式（产生独立模型系数、评价结果和汇总表）
+
+一、执行边界
+------------
+- 仅处理state_id=0。
+- 提取1个X类模型和全部5次ILC迭代Y类模型。
+- 不实现Behavior Index、LUT、CNMSE排序、聚类、跨带宽、多状态循环或A/B/C划分。
+- data/raw保持只读。
+
+二、冻结模型
+------------
+模型：包含偶数二阶项的阶数相关记忆深度复基带Memory Polynomial。
+orders=[1,2,3,5,7,9]
+memory_depth={1:3,2:2,3:2,5:1,7:1,9:1}
+基函数列顺序：
+(1,0),(1,1),(1,2),(2,0),(2,1),(3,0),(3,1),(5,0),(7,0),(9,0)
+总系数数：10
+最大延迟：2
+有效样本数：24576-2=24574
+求解器：numpy.linalg.lstsq(rcond=None)，无Ridge、无矩阵求逆、无正规方程。
+
+三、数据语义
+------------
+X类：
+- 输入xin。
+- 输出yout_withoutdpd；该变量已经由采集流程完成Rough/Fine/adjust，因此不重复预处理。
+
+Y类：
+- 原始输入列xin_pd_ori_ilc[:,n]保存在发送前峰值归一化之前。
+- 每次先除以该列max(abs(x))，恢复实际发送波形。
+- 原始输出yout_withdpd_ori_ilc[:,n]是仪器原始输出。
+- 使用实际发送输入作为参考，对原始输出执行rough_align、fine_align(subtime=256)、
+  adjust_complex_gain，然后拟合正向模型。
+- 5次输入峰值归一化因子：
+  1.0528736211957446, 1.0204908352489028, 1.0002506166091778,
+  1.000262698335184, 1.0002179423030293。
+
+四、新增代码
+------------
+- scripts/behavior_model/__init__.py
+- scripts/behavior_model/config.py
+- scripts/behavior_model/basis.py
+- scripts/behavior_model/coefficient.py
+- scripts/behavior_model/mp_model.py
+- scripts/behavior_model/prediction.py
+- scripts/behavior_model/evaluation.py
+- scripts/behavior_model/run_behavior_model_state0.py
+- scripts/behavior_model/test_behavior_model.py
+
+五、结果
+--------
+模型类型,迭代,NMSE_dB,rank,有效样本,条件数
+X,-,-42.422200059822366,10,24574,3182.664993213229
+Y,1,-41.7103392901733,10,24574,3124.742053800589
+Y,2,-41.235138860084774,10,24574,3108.5709525143775
+Y,3,-41.25685788433767,10,24574,3108.7521783188213
+Y,4,-41.25951334122153,10,24574,3109.1790793313403
+Y,5,-41.35305547293079,10,24574,3109.328805341895
+
+全部6个theta文件均为shape=(10,)、dtype=complex128、全有限；全部设计矩阵rank=10。
+
+关键输出：
+- results/behavior_model/state_000/summary.csv
+- results/behavior_model/state_000/X/theta_X.npy
+- results/behavior_model/state_000/X/evaluation.json
+- results/behavior_model/state_000/Y/iter_001...iter_005/theta_Y.npy
+- results/behavior_model/state_000/Y/iter_001...iter_005/evaluation.json
+
+六、测试与验证
+--------------
+执行：
+D:\Project_Files\python_project\conda_envs\project_20260821\python.exe -B \
+scripts\behavior_model\test_behavior_model.py
+
+结果：
+- frozen config and basis test: PASS
+- complex lstsq recovery test: PASS
+- model predict and metrics test: PASS
+- state0 X full-rank test: PASS
+- state0 Y normalization test: PASS
+
+补充验证：
+- state0 N_ILC=5，与nth_inter=5一致。
+- 6个NPY与6个evaluation.json全部存在。
+- summary.csv为1行X和5行Y。
+- Ruff check --fix、Ruff format、最终Ruff check通过。
+- git diff --check通过。
+- scripts/behavior_model下无__pycache__残留。
+
+七、当前状态
+------------
+任务完成。未修改data/raw，未commit/push，执行前已有未提交工作保持不变。
+
+===============================================================================
+持续维护：State0 canonical X/Y正向行为等效验证
+时间：2026-08-26（Asia/Shanghai）
+维护目的：复用signal_segmentation canonical A/B/C，在不覆盖整记录旧基线的前提下，提取
+1个X-A、5个Y-A、5个Y-C模型，并严格区分Train、各链路真实B泛化和公共xin_B等效指标。
+
+一、冻结边界
+------------
+- 仅state_id=0；不扩展到425状态。
+- 不使用STALE。
+- 未修改signal_segmentation的ABC比例、ILC峰值归一化、FULL Rough/Fine或段内adjust。
+- 现有MP结构保持orders=[1,2,3,5,7,9]、memory_depth={1:3,2:2,3:2,5:1,7:1,9:1}、
+  10个复系数、max_delay=2和numpy.linalg.lstsq(rcond=None)。
+- 每个A/B/C段独立构造基函数，B/C不借前段历史。
+- A/B/C ownership=12288/4915/7373，valid=12286/4913/7371。
+- 旧run_behavior_model_state0.py和旧13个结果文件未修改；前后SHA256逐项一致。
+
+二、新增/修改代码
+----------------
+- 新增scripts/behavior_model/xy_equivalence.py
+- 新增scripts/behavior_model/run_state0_xy_equivalence.py
+- 新增scripts/behavior_model/test_state0_xy_equivalence.py
+- 更新scripts/behavior_model/__init__.py，仅导出新分析接口
+
+三、11个模型定义
+----------------
+- X-A：OFF.A.input -> OFF.A.output，共1个。
+- Y-A-n：ILC[n].A.input -> ILC[n].A.output，n=1...5。
+- Y-C-n：ILC[n].C.input -> ILC[n].C.output，n=1...5。
+
+所有theta shape=(10,)、dtype=complex128、全有限、rank=10。
+X-A/Y-A训练有效样本12286，Y-C训练有效样本7371。
+
+四、B泛化与公共probe口径
+----------------------
+- X-A B泛化：OFF.B.input -> model，参考OFF.B.output[2:]。
+- 每个Y-A/Y-C B泛化：对应ILC[n].B.input -> model，参考对应ILC[n].B.output[2:]。
+- 公共probe严格固定为OFF.B.input，即xin_B，ownership长度4915。
+- 所有11个模型用同一个xin_B生成长度4913的公共B响应。
+- real_B固定为OFF.B.output[2:]，长度4913。
+- CNMSE不进行额外Rough/Fine/complex gain adjust。
+- 参考方向：XvsReal=cnmse(real_B,X)；YvsX=cnmse(X,Y)；YvsReal=cnmse(real_B,Y)。
+
+五、核心数值
+------------
+model,Train_NMSE_dB,B_generalization_NMSE_dB,YvsX_CNMSE_dB,vsRealB_CNMSE_dB
+X-A,-42.5208354161,-41.4771246171,NaN,-41.4771246171
+Y-A-1,-41.8999952278,-40.7672140813,-42.7351270855,-38.8347444557
+Y-A-2,-41.3238602853,-40.2163318465,-39.8957892083,-37.3636538952
+Y-A-3,-41.3250613573,-40.3140012662,-39.7956337441,-37.3041027216
+Y-A-4,-41.4198939851,-40.2750139192,-39.8215650107,-37.3168507461
+Y-A-5,-41.3770230620,-40.3538262877,-39.8153509550,-37.3109887412
+Y-C-1,-42.1102792023,-37.0435462687,-38.5149438228,-36.1830769654
+Y-C-2,-41.9599459651,-35.9401676248,-36.3569696829,-34.6975114248
+Y-C-3,-41.9743623585,-35.9009693351,-36.3526574579,-34.6984466379
+Y-C-4,-41.8597110403,-35.9428913476,-36.3486446834,-34.6934621975
+Y-C-5,-42.1896193883,-35.9513606274,-36.2697557260,-34.6376092635
+
+数量验收：
+- 模型11；Train NMSE 11；B泛化NMSE 11。
+- X vs Real CNMSE 1；Y vs X CNMSE 10；Y vs Real CNMSE 10。
+- 非NaN CNMSE总数21。
+- 11条公共B模型响应和real_B均为4913点。
+
+六、结果文件
+------------
+结果根目录：results/behavior_model/state_000/xy_equivalence/
+- state0_xy_equivalence_summary.csv（11行核心表）
+- validation.json（自动数量、维度、rank、finite和口径验收）
+- common_B_responses.npz（xin_B_valid、real_B和11条模型响应，全部4913点）
+- models/theta_X_A.npy
+- models/theta_Y_A_iter_001.npy ... theta_Y_A_iter_005.npy
+- models/theta_Y_C_iter_001.npy ... theta_Y_C_iter_005.npy
+- train_nmse_state0.png
+- B_generalization_nmse_state0.png
+- Y_vs_X_cnmse_state0.png
+- Y_vs_realB_cnmse_state0.png
+
+七、测试与保护验证
+----------------
+- 执行前_core 7项、data_manager 5项、signal_segmentation 12项、behavior_model 5项均PASS。
+- 新增State0等效逻辑7项测试PASS：模型/指标数量、theta/rank/finite、local valid长度、
+  统一公共probe、Y使用各自ILC B泛化、CNMSE方向/数量、公共probe来源。
+- 结果验收：11个theta、11行CSV、21个非NaN CNMSE、13个NPZ数组均通过。
+- 四张PNG均可读取，尺寸约1780x843。
+- 旧13个基线结果SHA256逐项未变。
+- signal_segmentation 9个Python文件SHA256逐项未变。
+- data/raw未修改；未生成临时MAT、缓存或无必要大文件；未commit/push。
+
+当前状态：维护完成，无阻塞问题。全状态扩展、AM-AM、AM-PM和PSD不属于本次任务。
+
+===============================================================================
+持续维护：State0统一lambda Ridge诊断扫描
+时间：2026-08-26（Asia/Shanghai）
+维护目的：在保持State0 canonical数据、ABC、MP结构、评价口径和OLS基线不变的前提下，只改变
+Ridge lambda，诊断能否改善Y-C跨段泛化与公共B-Probe等效性。
+
+一、Ridge定义和求解
+------------------
+目标：||y-Phi*theta||²/N + lambda||theta||²。
+lambda=0直接调用现有OLS内部函数和np.linalg.lstsq(...,rcond=None)，未构造全零增广行。
+lambda>0使用[Phi;sqrt(N*lambda)I]和[y;0]的增广复数lstsq。
+生产代码没有显式矩阵求逆、正规方程、feature normalization、column scaling、bias或其它正则项。
+
+二、扫描范围与冻结边界
+--------------------
+lambdas=[0,1e-12,1e-11,1e-10,1e-9,1e-8,1e-7,1e-6,1e-5,1e-4,1e-3,
+1e-2,1e-1,1,10,100]，共16点。
+每点统一lambda拟合X-A 1个、Y-A 5个、Y-C 5个，共11模型；总拟合176次。
+canonical OFF/ILC A/B/C及设计矩阵只准备一次；未使用STALE，未扩展到425状态。
+A/B/C ownership=12288/4915/7373，valid=12286/4913/7371。
+
+三、评价口径
+------------
+每lambda：11 Train NMSE、11真实B泛化NMSE、1 XvsReal、10 YvsX、10 YvsReal，
+共21个非NaN CNMSE。
+Y的B泛化继续使用各自ILC[n].B input/output；所有模型公共probe固定为OFF.B.input=xin_B。
+CNMSE方向保持realB->X、X->Y、realB->Y，未再次对齐或调整增益。
+
+四、OLS回归保护
+--------------
+lambda=0与results/behavior_model/state_000/xy_equivalence比较：
+- 11组theta最大绝对误差=0；
+- 11 Train、11 B泛化和21 CNMSE最大绝对误差=0；
+- ols_baseline_reproduced=true，容差1e-10。
+执行前后xy_equivalence全部18个文件SHA-256逐项不变；signal_segmentation 9个Python文件
+SHA-256逐项不变；data/raw无修改。
+
+五、主要结果
+------------
+OLS(lambda=0)聚合基线：
+- X B-gen=-41.477124617 dB
+- Y-A B-gen median=-40.314001266 dB
+- Y-C B-gen median=-35.942891348 dB
+- Y-A vs X median=-39.821565011 dB
+- Y-C vs X median=-36.352657458 dB
+- Y-A vs Real median=-37.316850746 dB
+- Y-C vs Real median=-34.697511425 dB
+- Y-C theta norm median=25.4636985
+
+诊断最强内部点lambda=1e-8：
+- X B-gen=-41.459667292 dB，相对OLS恶化0.017457325 dB；
+- Y-A B-gen median=-40.435012069 dB，相对OLS改善0.121010803 dB；
+- Y-C B-gen median=-40.289386911 dB，相对OLS改善4.346495564 dB；
+- Y-C vs X median=-40.024811956 dB，相对OLS改善3.672154498 dB；
+- Y-C vs Real median=-37.560415273 dB，相对OLS改善2.862903848 dB；
+- Y-C theta norm median=16.9435569，较OLS 25.4636985明显下降。
+
+lambda=1e-8下5个Y-C B-gen均改善：
+- iter1: -37.043546269 -> -40.685182422 dB
+- iter2: -35.940167625 -> -40.186356941 dB
+- iter3: -35.900969335 -> -40.289710250 dB
+- iter4: -35.942891348 -> -40.226171004 dB
+- iter5: -35.951360627 -> -40.289386911 dB
+
+六、诊断候选区域和科研边界
+------------------------
+透明约束：X B-gen、Y-A B-gen median、Y-C Train median相对OLS恶化均不超过1 dB。
+满足约束且Y-C B-gen/vsX/vsReal三项同时改善的扫描点：1e-12至1e-8。
+候选区域=[1e-12,1e-8]，其下端接触扫描边界；但三个目标指标的各自最佳诊断点均为
+内部点1e-8，并非扫描边界。
+分类：RIDGE_SIMULTANEOUS_Y_C_IMPROVEMENT_OBSERVED。
+该结论只表示State0 B段诊断中Ridge对Y-C跨段泛化有正作用；B段参与诊断，不能称为无偏最终
+最优lambda，也未修改config或冻结lambda。本轮未自动追加细扫描。
+
+七、新增/修改代码与结果
+----------------------
+新增：
+- scripts/behavior_model/ridge.py
+- scripts/behavior_model/ridge_scan.py
+- scripts/behavior_model/run_state0_ridge_scan.py
+- scripts/behavior_model/test_state0_ridge_scan.py
+修改：
+- scripts/behavior_model/coefficient.py：仅抽取现有OLS内部lstsq函数供lambda=0复用
+- scripts/behavior_model/__init__.py：导出Ridge接口
+
+结果目录results/behavior_model/state_000/ridge_scan/：
+- state0_ridge_scan_models.csv（176行）
+- state0_ridge_scan_summary.csv（16行）
+- ridge_scan_validation.json
+- theta_ridge_scan.npz，lambdas(16)、model_ids(11)、theta(16,11,10) complex128
+- 5张lambda扫描PNG
+未保存16×11条公共B响应，没有176个碎片NPY。
+
+八、测试与质量
+--------------
+新增8项Ridge测试PASS：非法lambda、lambda0 OLS路径、增广解oracle、theta norm收缩、
+State0数量/统一lambda、lambda0基线复现、probe/Y-B来源、theta finite/rank/norm。
+首次正式保存时出现绘图颜色数量与曲线数量不一致错误；数值扫描成功但第3图前保存中断。
+修正为按曲线数截取颜色后完整重跑，所有9个结果文件通过验收。
+Ruff、git diff --check通过；无__pycache__、pyc、临时MAT或超过10MB的新文件。
+
+当前状态：维护完成。未commit/push。后续若需正式lambda冻结，必须另设开发/独立验证规则；
+AM-AM、AM-PM、PSD、时域、第二轮细扫描和425状态扩展均未执行。
+
+最终复核补充：首次批量SHA-256复核命令手工抄写train_nmse_state0.png期望哈希时漏写字符，
+产生一次假阳性MISMATCH；随后使用执行前记录的完整哈希重新核对，actual与expected均为
+211E7E8EE07722827447DBC5906169D26CA0CC83612E6169866A101B16239369，确认文件未变化。
+
+===============================================================================
+持续维护：Scenario 2全425状态正式ILC1三模型OLS基线
+执行时间：2026-08-26至2026-08-27（Asia/Shanghai）
+论文冻结变化：自本次全状态分析起，正式Y类行为只定义为第一次ILC数据对
+xin_pd_ori_ilc(:,1) -> yout_withdpd_ori_ilc(:,1)。A段是LUT侧Y行为，C段用于模拟在线提取Y行为；
+ILC第2次及以后不再作为正式Y类模型。旧State0五迭代和Ridge结果作为历史诊断保留。
+
+一、任务边界和模型定义
+--------------------
+- scenario_2全部state_id=0...424，共425状态。
+- 每状态固定3个OLS模型：X-A、Y-A-1、Y-C-1，总模型1275。
+- X使用canonical OFF，Y严格只调用get_ilc_pair(state,0)并单独preprocess_full_pair；未调用会遍历
+  全部ILC的build_ilc_segments。
+- 未使用ILC2以后、STALE、Ridge、ACPR观测或其它模型结构。
+- MP结构保持10基函数、max_delay=2和np.linalg.lstsq(rcond=None)。
+- A/B/C ownership=12288/4915/7373，valid=12286/4913/7371；每段独立构造basis。
+
+二、指标口径
+------------
+每状态11个有效科研指标：3 Train NMSE、3 B泛化NMSE、2 Y-vs-X CNMSE、3 vs-Real CNMSE。
+X B泛化使用OFF.B；Y-A/Y-C B泛化使用ILC1.B。公共probe固定为OFF.B.input=xin_B；
+real_B=OFF.B.output[2:]。CNMSE方向保持X->Y和real_B->response，未再次对齐或adjust。
+
+三、State0硬回归
+----------------
+新通用analyze_state_xy(0)在正式批量前与旧xy_equivalence比较：
+- 四类指标最大绝对误差=7.105427357601002e-15；
+- 三组theta最大绝对误差=0；
+- 容差1e-10，PASS。
+若该门槛失败，runner不会进入425状态循环。
+
+四、全场景结果数量与数值完整性
+------------------------------
+- state_count=425；model_count=1275。
+- X-A/Y-A-1/Y-C-1各425。
+- Train NMSE=1275；B泛化NMSE=1275。
+- commonB_vs_X finite=850，X-A预期NaN=425。
+- commonB_vs_realB finite=1275。
+- theta shape=(425,3,10)、dtype=complex128、全部finite。
+- rank=10模型1275，rank deficient=0。
+- 所有425状态均存在ILC第1列；only_ilc_iteration_1_used=true。
+
+五、全场景聚合结果
+------------------
+Train NMSE：
+- X-A mean/median=-41.7991/-41.9670 dB，q25/q75=-42.8782/-41.0231，
+  best/worst=-44.0396(state379)/-38.5669(state308)。
+- Y-A-1 mean/median=-40.8252/-41.2247 dB，q25/q75=-42.2240/-39.9649，
+  best/worst=-43.6521(state380)/-35.9071(state325)。
+- Y-C-1 mean/median=-41.3621/-41.7869 dB，q25/q75=-42.5342/-40.6549，
+  best/worst=-43.8927(state388)/-36.8859(state325)。
+三类模型所有425状态Train NMSE均<=-35 dB；X/Y-A/Y-C分别有368/315/345状态<=-40 dB。
+
+B generalization NMSE：
+- X-A mean/median=-40.8315/-40.9675 dB，best/worst=-43.4163(state406)/-37.2804(state309)。
+- Y-A-1 mean/median=-39.7620/-40.1517 dB，best/worst=-42.9649(state406)/-34.6734(state325)。
+- Y-C-1 mean/median=-36.0693/-36.3205 dB，best/worst=-41.6251(state390)/-28.5545(state325)。
+
+Train到B的NMSE损失（B-gen - Train，正值表示变差）：
+- X-A mean/median=0.9676/0.9675 dB，范围0.3020...1.4932。
+- Y-A-1 mean/median=1.0632/1.0891 dB，范围0.3532...1.4364。
+- Y-C-1 mean/median=5.2928/5.4708 dB，范围1.8514...8.3313。
+因此Y-C-1存在广泛且明显高于X/Y-A的C->B跨段泛化损失。
+
+公共xin_B下Y vs X CNMSE：
+- Y-A-1 mean/median=-40.6282/-40.6923 dB，std=5.7154，范围-54.9098...-29.3164；
+  418/425<=-30，340/425<=-35，239/425<=-40 dB。
+- Y-C-1 mean/median=-36.6449/-37.0496 dB，std=4.0829，范围-46.1644...-28.1525；
+  390/425<=-30，299/425<=-35，90/425<=-40 dB。
+
+公共xin_B下vs Real-B CNMSE：
+- X-A mean/median=-40.8315/-40.9675 dB。
+- Y-A-1 mean/median=-36.7381/-37.7214 dB，范围-42.7898...-28.4378。
+- Y-C-1 mean/median=-34.4689/-34.9235 dB，范围-41.1555...-27.4020；
+  369/425<=-30，210/425<=-35，15/425<=-40 dB。
+
+六、三个正式科研问题的当前回答
+--------------------------------
+1. 三模型自身能否稳定建模：可以。全部1275模型rank=10且theta finite，三类Train median约
+   -41.2至-42.0 dB，所有状态均优于-35 dB；但Y-A/Y-C存在少量较弱状态尾部。
+2. Y-C是否普遍存在C->B损失：是。425状态的Y-C Train->B损失最小仍为1.85 dB，median
+   5.47 dB、最大8.33 dB，明显高于X/Y-A约1 dB。
+3. Y-C与X公共B行为是否足够稳定：整体具有一定相似性，但不能称为全状态均匀稳定。
+   median=-37.05 dB，390状态优于-30 dB，但仅90状态优于-40 dB，最差状态为-28.15 dB，
+   跨状态范围和尾部仍明显。该证据可以支持后续行为指纹设计，但需要针对弱状态和检索几何继续验证。
+
+七、结果文件
+------------
+results/behavior_model/scenario_2_xy_analysis/：
+- scenario2_xy_model_metrics.csv，1275行、23列；
+- scenario2_xy_state_summary.csv，425行、18列；
+- scenario2_xy_aggregate_summary.csv，3行、33列；
+- scenario2_xy_theta.npz，state_ids(425)、model_ids(3)、theta(425,3,10)；
+- scenario2_xy_validation.json，数量/rank/finite/极值/回归/科研诊断。
+本轮未生成科研图。
+
+八、测试与保护
+--------------
+- 新增8项正式定义保护测试PASS：State0指标/theta回归、仅三模型/ILC1、425状态ILC1存在、
+  canonical/B来源、公共probe/CNMSE方向、长度/theta/rank/finite、显式ILC1预处理、小批量shape。
+- 旧53项测试和新增8项最终全部PASS，共61项。
+- 旧xy_equivalence和ridge_scan结果目录、signal_segmentation源码聚合SHA-256前后不变。
+- data/raw无修改，仍为428文件/425状态MAT；无临时MAT、缓存或无关大文件。
+- Ruff和git diff --check通过；未commit/push/reset/clean/checkout/restore。
+
+当前状态：任务完成，无rank不足或执行阻塞。旧五迭代和Ridge结果完整保留，但不再属于正式Y类定义。
+
+
+[2026-08-27T05:13:39.227475+00:00] Scenario 2 unified Ridge analysis
+统一Ridge独立Validation PASS；selected lambda已冻结并提取425状态1275模型正式Ridge结果。
+selected_lambda=1e-08
+validation_result={'selected_lambda': 1e-08, 'validation_state_count': 85, 'validation_model_pair_count': 255, 'pass': True, 'criteria': {'Y_C_B_gen_gain_positive': True, 'Y_C_vs_X_gain_positive': True, 'Y_C_vs_real_gain_positive': True, 'X_B_gen_degradation_at_most_0_5_dB': True, 'Y_A_B_gen_degradation_at_most_0_5_dB': True, 'Y_C_train_degradation_at_most_1_dB': True}, 'observed_medians_dB': {'Y_C_B_gen': 3.803172138462884, 'Y_C_vs_X': 3.7371243424409784, 'Y_C_vs_real': 2.414921943988574, 'X_B_gen': -0.01990425629375636, 'Y_A_B_gen': -0.09473412308107498, 'Y_C_train': 0.6871760658549491}, 'improved_state_counts': {'Y_C_B_gen': 83, 'Y_C_vs_X': 76, 'Y_C_vs_real': 78}, 'degraded_state_counts': {'Y_C_B_gen': 2, 'Y_C_vs_X': 9, 'Y_C_vs_real': 7}, 'improved_state_fractions': {'Y_C_B_gen': 0.9764705882352941, 'Y_C_vs_X': 0.8941176470588236, 'Y_C_vs_real': 0.9176470588235294}, 'max_improvement': {'Y_C_B_gen': {'state_id': 342, 'value_dB': 4.837143469740436, 'condition': {'funMng': 30, 'funAng': 135, 'secMng': 15, 'secAng': 45, 'Vm': 2.3, 'Pin': -21}}, 'Y_C_vs_X': {'state_id': 422, 'value_dB': 10.240622060213774, 'condition': {'funMng': 30, 'funAng': 315, 'secMng': 30, 'secAng': 225, 'Vm': 2.3, 'Pin': -21}}, 'Y_C_vs_real': {'state_id': 304, 'value_dB': 3.802529656505797, 'condition': {'funMng': 30, 'funAng': 0, 'secMng': 30, 'secAng': 270, 'Vm': 2.3, 'Pin': -21}}}, 'max_degradation': {'Y_C_B_gen': {'state_id': 381, 'value_dB': -0.16095335425533364, 'condition': {'funMng': 30, 'funAng': 225, 'secMng': 15, 'secAng': 270, 'Vm': 2.3, 'Pin': -21}}, 'Y_C_vs_X': {'state_id': 381, 'value_dB': -0.6788806080902958, 'condition': {'funMng': 30, 'funAng': 225, 'secMng': 15, 'secAng': 270, 'Vm': 2.3, 'Pin': -21}}, 'Y_C_vs_real': {'state_id': 381, 'value_dB': -0.27414847291343847, 'condition': {'funMng': 30, 'funAng': 225, 'secMng': 15, 'secAng': 270, 'Vm': 2.3, 'Pin': -21}}}, 'worst_protection_degradation': {'X_B_gen': {'state_id': 347, 'value_dB': 0.07254342292915794, 'condition': {'funMng': 30, 'funAng': 135, 'secMng': 15, 'secAng': 270, 'Vm': 2.3, 'Pin': -21}}, 'Y_A_B_gen': {'state_id': 232, 'value_dB': 0.056943951068625154, 'condition': {'funMng': 20, 'funAng': 180, 'secMng': 30, 'secAng': 90, 'Vm': 2.3, 'Pin': -21}}, 'Y_C_train': {'state_id': 37, 'value_dB': 0.8585166922863365, 'condition': {'funMng': 10, 'funAng': 45, 'secMng': 15, 'secAng': 90, 'Vm': 2.3, 'Pin': -21}}}, 'lambda_selection_path': 'D:\\Project_Files\\python_project\\project_20260821\\results\\behavior_model\\scenario_2_ridge_analysis\\development\\lambda_selection.json'}
+final_validation={'selected_lambda': 1e-08, 'state_count': 425, 'model_count': 1275, 'theta_shape': [425, 3, 10], 'theta_dtype': 'complex128', 'all_theta_finite': True, 'model_ids': ['X-A', 'Y-A-1', 'Y-C-1'], 'used_ilc_iteration_1_only': True, 'used_stale': False, 'used_ridge': True, 'threshold_counts': {'Y_C_vs_X': {'OLS': {'le_minus30_dB': 390, 'le_minus35_dB': 299, 'le_minus40_dB': 90}, 'Ridge': {'le_minus30_dB': 418, 'le_minus35_dB': 335, 'le_minus40_dB': 235}}, 'Y_C_vs_realB': {'OLS': {'le_minus30_dB': 369, 'le_minus35_dB': 210, 'le_minus40_dB': 15}, 'Ridge': {'le_minus30_dB': 404, 'le_minus35_dB': 301, 'le_minus40_dB': 62}}}}
+development=D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_ridge_analysis\development
+validation=D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_ridge_analysis\validation
+final=D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_ridge_analysis\final
+Ridge只改变系数求解；正式Y仍只使用ILC1；data/raw与旧结果应保持不变。
+
+[2026-08-27] 统一Ridge任务结构化审计补充
+------------------------------------------------
+1. 实际实现
+- 新增 scripts/behavior_model/scenario2_ridge_analysis.py：canonical数据准备、确定性split、
+  Development扫描、paired gain/degradation、lambda选择、Validation和最终提取。
+- 新增 scripts/behavior_model/run_scenario2_ridge_analysis.py：固定执行顺序和条件式final输出。
+- 新增 scripts/behavior_model/test_scenario2_ridge_analysis.py：12项契约/结果保护测试。
+- ridge.py 增加可选已缓存OLS诊断输入；非零lambda仍使用增广复数lstsq，默认既有调用路径不变。
+
+2. OLS门槛和split
+- 新pipeline的lambda=0全425状态回归通过：theta最大误差=0.0，指标最大误差=
+  7.105427357601002e-15，容差=1e-10。
+- 固定随机种子=20260827；state0固定Development。
+- state_split.csv：Development=340，Validation=85，11个失配strata，交集=0，
+  并集覆盖state_id 0...424。
+
+3. Development粗扫描（16点，340状态，16320行）
+lambda | YC-Bgen gain median | YC-vsX gain median | YC-vsReal gain median |
+X-Bgen degradation median | YA-Bgen degradation median | YC-Train degradation median | feasible
+0 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | false
+1e-12 | 0.000674 | 0.000599 | 0.000508 | -0.000040 | -0.000060 | 0.000000 | true
+1e-11 | 0.006735 | 0.005987 | 0.005081 | -0.000403 | -0.000595 | 0.000002 | true
+1e-10 | 0.067150 | 0.059550 | 0.050603 | -0.003975 | -0.005879 | 0.000173 | true
+1e-9 | 0.646721 | 0.574668 | 0.481583 | -0.034724 | -0.052241 | 0.015741 | true
+1e-8 | 3.773618 | 3.514788 | 2.305509 | -0.020346 | -0.073997 | 0.679918 | true
+1e-7 | -0.680935 | 0.406111 | -0.429864 | 2.024432 | 2.110972 | 3.012560 | false
+1e-6 | -1.051680 | 2.023359 | -0.270856 | 3.818576 | 3.929474 | 4.899421 | false
+1e-5 | -3.078705 | 3.269569 | -1.678394 | 6.350572 | 6.470845 | 7.664712 | false
+1e-4 | -5.775712 | 2.773284 | -4.254690 | 9.219635 | 9.173341 | 10.598960 | false
+1e-3 | -8.708822 | 6.535986 | -7.496060 | 13.217815 | 12.858900 | 14.299760 | false
+1e-2 | -17.745363 | 1.831880 | -16.744079 | 21.976006 | 21.519709 | 23.313120 | false
+1e-1 | -26.340778 | -4.748481 | -25.093128 | 30.532244 | 30.184534 | 31.820900 | false
+1 | -33.828603 | -16.451985 | -32.631333 | 38.154753 | 37.714286 | 39.292930 | false
+10 | -36.059654 | -18.940703 | -34.762991 | 40.597919 | 39.911116 | 41.501170 | false
+100 | -36.316869 | -19.241241 | -35.028241 | 40.899596 | 40.157682 | 41.771390 | false
+- coarse winner=1e-8；满足约束的非零候选为1e-12...1e-8。
+
+4. Development细扫描（18点，340状态，18360行）
+- fine grid=0以及1e-9、1.333521432163324e-9、1.7782794100389228e-9、
+  2.3713737056616553e-9、3.1622776601683795e-9、4.216965034285823e-9、
+  5.623413251903491e-9、7.498942093324558e-9、1e-8、1.333521432163324e-8、
+  1.7782794100389228e-8、2.3713737056616553e-8、3.1622776601683795e-8、
+  4.2169650342858225e-8、5.6234132519034905e-8、7.498942093324559e-8、1e-7。
+- 细扫描可行到1.333521432163324e-8；最高YC-Bgen paired median仍为1e-8，
+  因此lambda_selection.json在Validation前冻结selected_lambda=1e-8。
+
+5. 独立Validation（85状态，只比较OLS与冻结lambda=1e-8）
+- PASS；YC B-gen gain median=3.803172 dB，改善83/85；
+  YC vs X gain median=3.737124 dB，改善76/85；
+  YC vs Real-B gain median=2.414922 dB，改善78/85。
+- 保护中位退化：X B-gen=-0.019904 dB，Y-A B-gen=-0.094734 dB，
+  Y-C Train=0.687176 dB，均满足预声明阈值。
+- 最大改善状态：YC B-gen state342 (+4.837143 dB)、YC vs X state422 (+10.240622 dB)、
+  YC vs Real-B state304 (+3.802530 dB)。
+- 最差改善/退化状态：三项均为state381，分别为-0.160953、-0.678881、-0.274148 dB。
+- 最大保护退化状态：X B-gen state347 (+0.072543 dB)、Y-A B-gen state232 (+0.056944 dB)、
+  Y-C Train state37 (+0.858517 dB)。
+
+6. 最终425状态Ridge模型
+- 生成1275行模型表、425行状态表、3行聚合表和theta.shape=(425,3,10)，dtype=complex128，
+  全部finite；正式模型仍为X-A、Y-A-1、Y-C-1且只使用ILC1。
+- 全425 paired median：Y-C B-gen gain=3.782993 dB、Y-C vs X gain=3.576788 dB、
+  Y-C vs Real-B gain=2.316093 dB；X B-gen degradation=-0.019904 dB、
+  Y-A B-gen degradation=-0.080624 dB、Y-C Train degradation=0.682376 dB。
+- Y-C theta norm median由OLS 24.779097降至Ridge 16.929563，ratio=0.679860。
+- Y-C vs X阈值计数 OLS→Ridge：<=-30 dB 390→418（+28），<=-35 dB 299→335（+36），
+  <=-40 dB 90→235（+145）。
+- Y-C vs Real-B阈值计数 OLS→Ridge：<=-30 dB 369→404（+35），<=-35 dB 210→301（+91），
+  <=-40 dB 15→62（+47）。
+
+7. 验证与保护
+- 9个测试入口全部通过，共73项断言：既有61项保持PASS，本次新增统一Ridge测试12项PASS。
+- python -m ruff check scripts：PASS；git diff --check：PASS（仅有既存codex_handoff.txt的CRLF提示）。
+- 受保护目录源文件/结果SHA前后一致：
+  state_000/xy_equivalence=b319b05051394bcb7f05c998e4ae22fa338ad130483ecb43af30c4d17d7e4e20；
+  state_000/ridge_scan=f9ce27eeba0ff2da0b05501826c78e20b53f520991b421e461e6df4b32995aca；
+  scenario_2_xy_analysis=715e1436707e13d23c0e6634dec5ab58b348f8d6485dcd81b60c26f83f2cd48e；
+  signal_segmentation源码=bf804cb139a68fdb336865fff514831b14b0f56b178f5840e5dedef92e1311ef。
+- data/raw扩展路径manifest：429文件（含.gitkeep）、2258448137 bytes、
+  SHA=910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0，未修改。
+- 未执行git clean/reset/checkout/restore/commit/push；无执行阻塞。
+
+
+[2026-09-08T16:43:28+08:00] Scenario 2 statewise-adaptive 5B 当前最优精度 Excel 快照
+基于已落盘的 candidate_search_Aend.csv.gz 与 candidate_search_C2.csv.gz（Round 0--3）按 state_id 分别取四个独立最优 native 指标：A train、A→B、C train、C→B；NMSE_WITHOUTDPD 和上下边带 ACPR 平均值按现有 data_manager/raw scalar 只读加载。
+使用 bundled @oai/artifact-tool 创建并重新导入验证 statewise_best_metrics 工作表：425 条数据行、严格 8 列表头、state_id 0...424、所有数值列 finite，formula error scan=0；输出为 results/behavior_model/scenario_2_statewise_adaptive_Aend_C2_5B/statewise_adaptive_best_metrics.xlsx。
+本 Excel 是当前已落盘日志的快照；第4轮 statewise 搜索仍在后台运行，未将其尚未落盘的内存结果写入表格；未修改 data/raw 或已有正式结果。
+
+
+[2026-09-08T17:36:45+08:00] Scenario 2 statewise-adaptive 搜索停止与 Excel 快照刷新
+按用户要求不进入第五轮：第五轮仅生成了276条候选壳、开始拟合5/229个目标状态，未完成整轮，未写入正式候选日志；已安全停止进程。Round 0--4 候选日志保留，checkpoint 标记为 user_requested_stop_before_round_5_completion，已落盘候选总数1064、记录总数567224。
+重新基于 Round 0--4 已落盘日志刷新 statewise_adaptive_best_metrics.xlsx；artifact-tool 重载、425行/8列和公式错误扫描通过，原有 Excel 快照因打开锁定而保留同名文件并在关闭后完成覆盖；未修改 data/raw 或旧正式结果。
+
+
+[2026-09-08T17:36:45+08:00] Scenario 2 statewise-adaptive partial validation 固化
+根据用户停止第五轮的要求，重建并写出 Round 0--4 的 1064 条候选模型网格和 partial_validation.json。Aend 联合 native 可行状态=344/425，C2=196/425；formal_model_bank_complete=false，common-support validation 和 retrieval 未启动；Aend/C2 unresolved state IDs 已完整记录，未伪造 850/850 通过。
+
+
+[2026-09-08T10:01:17.921694+00:00] Scenario 2 statewise-best Round 0--4 model selection/refit
+本次仅冻结并派生选择 Round 0--4 已落盘候选，不继续模型搜索。
+selected Aend/C2=425/425；
+native feasible=344/196；
+850个selected模型重新拟合并与候选日志核对，最大误差=3.218758592993254e-12/2.467004378559068e-11 dB。
+保护复核=True；结果目录=D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_statewise_best_round0_4_5B。
+
+
+[2026-09-08T18:23:13+08:00] Scenario 2 statewise-best Round 0--4 模型库交付
+完成 425 个 Aend 与 425 个 C2 的真实 candidate 选择与重拟合；joint native feasible 分别为344/196，fallback 分别为81/229，候选池严格冻结为 Round 0--4 / 1064，Round 5 未使用。模型选择与日志核对最大绝对误差为3.22e-12/2.47e-11 dB，模型结果目录已交付。
+
+
+[2026-09-08T18:23:13+08:00] Scenario 2 statewise-best 验证补充
+新增模型选择与 retrieval 定向测试共4项全部PASS；全工程28个直接测试中25项PASS，3项旧保护测试因硬编码的完整脚本目录SHA早于本次新增任务脚本而失败，未涉及raw或旧结果内容变化；Ruff、compileall、pip check、git diff check均通过。
+
+
+[2026-09-08T13:17:30.217153+00:00Z] Scenario 2 unified odd-order MP capacity scan
+用户要求完成 Round 3 后终止；仅汇总 Round 0--3，未生成或评估 Round 4。
+使用普通 complex least-squares；ridge、低带宽算子、retrieval、Real-B 均未使用。
+candidate_count=280；selected=(P21,M4)，K=44；stop=user_requested_stop_after_round_3。
+Development/Validation=340/85；selected refit={'all_850_refit': True, 'max_train_abs_diff_dB': 9.331557748737396e-11, 'max_B_abs_diff_dB': 4.168022371686675e-09}。
+raw/protected unchanged=True；结果目录=D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_unified_odd_order_mp_capacity_scan_5B。
+
+
+[2026-09-08T13:31:57.407442+00:00] Scenario 2 unified odd-order MP capacity scan
+用户要求完成 Round 3 后终止；仅汇总 Round 0--3，未生成或评估 Round 4。
+使用普通 complex least-squares；ridge、低带宽算子、retrieval、Real-B 均未使用。
+candidate_count=280；selected=(P21,M4)，K=44；stop=user_requested_stop_after_round_3。
+round_runtimes_seconds=[43.211783500009915, 336.8206148999743, 1359.775167600019, 2699.429932799976]；total_elapsed_seconds=4439.237；candidate_state_evaluations=119000；total_model_fit_count=238000；candidate_state_evaluations_per_second=26.806405。
+CPU/memory monitor unavailable in the fixed environment; no peak/median values claimed.
+Development/Validation=340/85；selected refit={'all_850_refit': True, 'max_train_abs_diff_dB': 9.331557748737396e-11, 'max_B_abs_diff_dB': 4.168022371686675e-09}。
+raw/protected unchanged=True；结果目录=D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_unified_odd_order_mp_capacity_scan_5B。
+
+
+[2026-09-08T14:53:37.449071+00:00] scenario_2_failed14_odd_order_mp_order_dependent_memory_scan_5B
+scenario_2_failed14_odd_order_mp_order_dependent_memory_scan_5B completed: 125/125 candidates × 14/14 failed states.
+Candidate-level ProcessPoolExecutor: logical_cpu_count=20, workers=18, target=0.90, BLAS threads/worker=1, nested_parallelism=False.
+Selected candidate=14, P=5, memory_profile=P5_M[1,1,1], K=3; selection=balanced_worst4_then_joint_then_complexity_when_no_all_four_pass.
+Total fits=3500; elapsed=2.066s; candidate-state evaluations/s=847.191982; model fits/s=1694.383964.
+Serial/parallel regression=True; selected refit=True; raw/protected unchanged=True.
+No LUT retrieval, Real-B validation, low-bandwidth transform, Ridge, or candidate expansion was performed after this finite scan.
+Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_odd_order_mp_order_dependent_memory_scan_5B
+
+
+[2026-09-08T15:00:00+00:00] scenario_2_failed14_odd_order_mp_order_dependent_memory_scan_5B artifact validation
+artifact-tool 创建、重载、范围检查、全表公式错误扫描和工作簿渲染通过；Excel 包含 experiment_config、candidate_grid、candidate_summary、candidate_state_metrics、selected_candidate、selected_state_metrics、statewise_best、pareto_candidates 八个工作表，公式错误数为0。
+Python/matplotlib 生成 Figure 1--10 共30个 PNG/SVG/PDF 文件；SVG 保持可编辑文本，图形视觉抽查通过。最终候选为Candidate 30（P5_M[4,4,1]，K=9），候选和状态完成度为125/125、14/14。
+
+
+[2026-09-08T14:55:20.526396+00:00] scenario_2_failed14_odd_order_mp_order_dependent_memory_scan_5B
+scenario_2_failed14_odd_order_mp_order_dependent_memory_scan_5B completed: 125/125 candidates × 14/14 failed states.
+Candidate-level ProcessPoolExecutor: logical_cpu_count=20, workers=18, target=0.90, BLAS threads/worker=1, nested_parallelism=False.
+Selected candidate=30, P=5, memory_profile=P5_M[4,4,1], K=9; selection=balanced_worst4_then_joint_then_complexity_when_no_all_four_pass.
+Total fits=3500; elapsed=2.989s; candidate-state evaluations/s=585.514276; model fits/s=1171.028553.
+Serial/parallel regression=True; selected refit=True; raw/protected unchanged=True.
+No LUT retrieval, Real-B validation, low-bandwidth transform, Ridge, or candidate expansion was performed after this finite scan.
+Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_odd_order_mp_order_dependent_memory_scan_5B
+
+
+[2026-09-08T18:13:00.460701+00:00] scenario_2_failed14_P5_variable_memory_ridge_scan_5B
+scenario_2_failed14_P5_variable_memory_ridge_scan_5B completed: 200/200 candidates × 14/14 failed states; total fits=5600.
+Candidate-level ProcessPoolExecutor: logical_cpu_count=20, workers=18, target=0.90, BLAS threads/worker=1, nested_parallelism=False.
+Selected candidate=39, profile=P5_M[2,2,2], lambda=1e-04, K=6; selection=balanced_worst4_then_joint_complexity_lambda_when_no_all_four.
+Scan elapsed=3.701s; candidate-state evaluations/s=756.480866; model fits/s=1512.961732.
+Gates: serial_parallel=True; ridge_math=True; OLS=True; B_support=True; refit=True.
+raw/protected unchanged=True; figures=21 PNG/SVG/PDF files; Excel source ready.
+No LUT retrieval, Real-B validation, low-bandwidth transform, or candidate expansion was performed.
+Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_P5_variable_memory_ridge_scan_5B
+
+
+[2026-09-09T18:20:00+00:00] scenario_2_failed14_P5_variable_memory_ridge_scan_5B artifact validation
+使用 bundled @oai/artifact-tool 创建并重载验证 Excel：experiment_config、memory_profiles、ridge_grid、candidate_grid、candidate_summary、candidate_state_metrics、selected_candidate、selected_state_metrics、statewise_best、pareto_candidates、ridge_effect_summary 共11个工作表；公式错误扫描为0，关键范围渲染检查通过。
+Python/matplotlib 生成7组图形共21个 PNG/SVG/PDF 文件；SVG 保持可编辑文本，Figure 4 colorbar 间距完成版式修正并重新导出。最终数值结果不变。
+
+
+[2026-09-08T18:53:38.338718+00:00] scenario_2_failed14_P5_with_order2_variable_memory_OLS_scan_5B
+scenario_2_failed14_P5_with_order2_variable_memory_OLS_scan_5B completed: 35/35 candidates × 14/14 failed states; total fits=980.
+Candidate-level parallel: logical_cpu_count=20, workers=16, target=0.80, BLAS=1, nested=False.
+Selected Candidate 15=P5_M[4,1,1,1], K=7, OLS only; selection=balanced_worst4_then_joint_complexity_when_no_all_four.
+Gates: candidate=True; basis=True; OLS=True; B_support=True; serial_parallel=True; refit=True.
+elapsed=0.004s; candidate-state/s=121966.396919; model-fits/s=243932.793838; raw/protected unchanged=True.
+No LUT retrieval, Real-B validation, low-bandwidth operator, Ridge or expansion was performed.
+Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_P5_with_order2_variable_memory_OLS_scan_5B
+
+
+[2026-09-09T19:20:00+00:00] scenario_2_failed14_P5_with_order2_variable_memory_OLS_scan_5B final artifact and comparison validation
+order2_ablation_comparison 已改为简洁来源标签；Excel 重载显示 10 个工作表且公式错误为0。Figure 1 和 Figure 6 完成图例版式修正，全部27个 PNG/SVG/PDF 文件存在且 SVG 文本可编辑；最终候选保持 Candidate 15=P5_M[4,1,1,1]、K=7。
+
+
+[2026-09-09T19:00:00+00:00] scenario_2_failed14_P5_with_order2_variable_memory_OLS_scan_5B artifact validation
+使用 bundled @oai/artifact-tool 创建并重载验证 Excel：experiment_config、memory_profiles、candidate_grid、candidate_summary、candidate_state_metrics、selected_candidate、selected_state_metrics、statewise_best、pareto_candidates、order2_ablation 共10个工作表；公式错误扫描为0，关键范围渲染检查通过。
+Python/matplotlib 生成 Figure 1--9 共27个 PNG/SVG/PDF 文件；SVG 保持可编辑文本，关键图形视觉抽查通过。order2_ablation 对照明确区分 odd-only P5 OLS、P5+order2 OLS 和历史 frozen model reference。
+
+
+[2026-09-08T18:56:51.282676+00:00] scenario_2_failed14_P5_with_order2_variable_memory_OLS_scan_5B
+scenario_2_failed14_P5_with_order2_variable_memory_OLS_scan_5B completed: 35/35 candidates × 14/14 failed states; total fits=980.
+Candidate-level parallel: logical_cpu_count=20, workers=16, target=0.80, BLAS=1, nested=False.
+Selected Candidate 15=P5_M[4,1,1,1], K=7, OLS only; selection=balanced_worst4_then_joint_complexity_when_no_all_four.
+Gates: candidate=True; basis=True; OLS=True; B_support=True; serial_parallel=True; refit=True.
+elapsed=0.004s; candidate-state/s=134246.575389; model-fits/s=268493.150777; raw/protected unchanged=True.
+No LUT retrieval, Real-B validation, low-bandwidth operator, Ridge or expansion was performed.
+Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_P5_with_order2_variable_memory_OLS_scan_5B
+
+
+[2026-09-09T02:01:29.919711+00:00] scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5B
+scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5B completed: 63 candidates × 14 failed states; post-selection validation=425 states.
+Frozen baseline reproduction=True (max error=1.279e-13 dB); selected candidate=57, profile=S6_M[4,3,2,1,1,1], lambda=1e-08, K=12.
+Candidate-level ProcessPoolExecutor: logical CPUs=20, workers=16, target=0.80, BLAS threads/worker=1, nested_parallelism=False.
+Gates: ridge_math=True; basis=True; OLS=True; B_support=True; serial_parallel=True; refit=True; common_support=True.
+Scan elapsed=0.006s; figures=36 files; all425 validation rows=425.
+raw/protected unchanged=True; no retrieval, Real-B, low-bandwidth operator, or frozen-config replacement.
+Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5B
+
+
+[2026-09-09T10:11:51.0609349+08:00] scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5B artifact validation
+Bundled @oai/artifact-tool 重载 Excel；12 个工作表、关键范围渲染和公式错误扫描（0 条错误）通过。ridge_grid 标签修正为可读的 lambda=... 文本；12 幅图各自输出 PNG/SVG/PDF，SVG 文本可编辑。结果数值和 selected candidate 未改变。
+随后仅将 Figure 4 的坐标标签改为无字体警告的可编辑文本并重新导出 12 幅图；数据表、模型和验证 JSON 未改变。
+
+
+[2026-09-09T02:07:03.892292+00:00] scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5B
+scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5B completed: 63 candidates × 14 failed states; post-selection validation=425 states.
+Frozen baseline reproduction=True (max error=1.279e-13 dB); selected candidate=57, profile=S6_M[4,3,2,1,1,1], lambda=1e-08, K=12.
+Candidate-level ProcessPoolExecutor: logical CPUs=20, workers=16, target=0.80, BLAS threads/worker=1, nested_parallelism=False.
+Gates: ridge_math=True; basis=True; OLS=True; B_support=True; serial_parallel=True; refit=True; common_support=True.
+Scan elapsed=0.006s; figures=36 files; all425 validation rows=425.
+raw/protected unchanged=True; no retrieval, Real-B, low-bandwidth operator, or frozen-config replacement.
+Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5B
+
+
+[2026-09-09T02:10:06.687975+00:00] scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5B
+scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5B completed: 63 candidates × 14 failed states; post-selection validation=425 states.
+Frozen baseline reproduction=True (max error=1.279e-13 dB); selected candidate=57, profile=S6_M[4,3,2,1,1,1], lambda=1e-08, K=12.
+Candidate-level ProcessPoolExecutor: logical CPUs=20, workers=16, target=0.80, BLAS threads/worker=1, nested_parallelism=False.
+Gates: ridge_math=True; basis=True; OLS=True; B_support=True; serial_parallel=True; refit=True; common_support=True.
+Scan orchestration elapsed=0.006s (all candidates resumed from valid chunks=True); figures=36 files; all425 validation rows=425.
+raw/protected unchanged=True; no retrieval, Real-B, low-bandwidth operator, or frozen-config replacement.
+Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5B
+
+
+[2026-09-09T03:04:53.648033+00:00] scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B
+scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B completed: 18 GMP dictionary terms, G0-G8 A/C blocked-CV selection, selected G4 (['GMP005', 'GMP011', 'GMP001', 'GMP017']), 14-state B evaluation and 425-state post-selection validation. Frozen baseline gate=True (max error=1.279e-13 dB); serial/parallel=True; CV leakage=True; raw/protected unchanged=True. Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B
+
+
+[2026-09-09T03:08:46.373622+00:00] scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B
+scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B completed: 18 GMP dictionary terms, G0-G8 A/C blocked-CV selection, selected G4 (['GMP005', 'GMP011', 'GMP001', 'GMP017']), 14-state B evaluation and 425-state post-selection validation. Frozen baseline gate=True (max error=1.279e-13 dB); serial/parallel=True; CV leakage=True; raw/protected unchanged=True. Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B
+
+
+[2026-09-09T03:12:58.372287+00:00] scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B
+scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B completed: 18 GMP dictionary terms, G0-G8 A/C blocked-CV selection, selected G4 (['GMP005', 'GMP011', 'GMP001', 'GMP017']), 14-state B evaluation and 425-state post-selection validation. Frozen baseline gate=True (max error=1.279e-13 dB); serial/parallel=True; CV leakage=True; raw/protected unchanged=True. Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B
+
+
+[2026-09-09T11:13:17+08:00] scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B artifact validation
+Bundled @oai/artifact-tool 创建并重载 Excel；12 个工作表、关键范围渲染通过，公式错误扫描为 0。Python 图形 12 组各输出 PNG/SVG/PDF，SVG 文本可编辑；Figure 3 已包含 train、A/C CV 和 B 三条路径。数据、模型和验证结果未改变。
+
+
+[2026-09-09T03:17:23.408454+00:00] scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B
+scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B completed: 18 GMP dictionary terms, G0-G8 A/C blocked-CV selection, selected G4 (['GMP005', 'GMP011', 'GMP001', 'GMP017']), 14-state B evaluation and 425-state post-selection validation. Frozen baseline gate=True (max error=1.279e-13 dB); serial/parallel=True; CV leakage=True; raw/protected unchanged=True. Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B
+
+
+[2026-09-09T11:18:00+08:00] scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B artifact validation
+最终数值诊断表扩展到 G0–G8、state/side 级 conditioning；Excel 12 工作表重载、关键范围渲染和公式错误扫描通过。图形重新导出 12 组 PNG/SVG/PDF，Figure 3 同时显示 train、A/C CV 和 B。
+
+
+[2026-09-09T06:37:08.365229+00:00] scenario_2_failed14_multibranch_independent_basis_OLS_scan_5B finalization
+scenario_2_failed14_multibranch_independent_basis_OLS_scan_5B finalized after bookkeeping recovery: candidate_count=1576, selected=1492, K=80, passes=3; rank_gate=False, support_gate=True, raw/protected unchanged=True.
+
+[2026-09-09T06:40:00+00:00] scenario_2_failed14_multibranch_independent_basis_OLS_scan_5B artifact validation
+Bundled @oai/artifact-tool 创建并重载 Excel；12 个工作表、保存后导入检查和公式错误扫描（0 条错误）通过。PNG-only 图形输出与代表性渲染检查通过。6 个单元测试、py_compile、Ruff、pip check 通过。最终 80 列 OLS 设计在部分状态/侧为数值秩79并保留为诊断；support gate=True，raw/protected unchanged=True。
+
+
+[2026-09-09T07:31:30.612833+00:00] scenario_2_failed14_frozen_mp_normalized_uniform_ridge_5B
+scenario_2_failed14_frozen_mp_normalized_uniform_ridge_5B completed: states=14, lambda_count=42, selected_lambda=5.6234132519034904e-07, CV_fits=3528, workers=18, normalized_OLS_gate=True, frozen_reproduction_gate=True, raw/protected unchanged=True. Only three result files were written under D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_frozen_mp_normalized_uniform_ridge_5B; no figures, Excel, cache, coefficients, or retrieval were generated.
+
+
+[2026-09-09T08:00:09.672946+00:00] scenario_2_failed14_frozen_mp_normalized_basis_dependent_ridge_5B
+scenario_2_failed14_frozen_mp_normalized_basis_dependent_ridge_5B completed: states=14, coarse_configs=312, refinement_configs=441, total_configs=753, selected_lambda0=1.333521432163324e-10, alpha=9.5136569200217682, beta=6.727171322029716, CV_fits=63252, workers=18, frozen_gate=True, lambda_vector_gate=True, uniform_gate=True, raw/protected unchanged=True. Only three result files were written under D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_frozen_mp_normalized_basis_dependent_ridge_5B; no figures, Excel, cache, coefficients, or retrieval were generated.
+
+
+[2026-09-09T08:02:37.785396+00:00] scenario_2_failed14_frozen_mp_normalized_basis_dependent_ridge_5B
+scenario_2_failed14_frozen_mp_normalized_basis_dependent_ridge_5B completed: states=14, coarse_configs=312, refinement_configs=438, total_configs=750, selected_lambda0=1.333521432163324e-10, alpha=9.5136569200217682, beta=6.727171322029716, CV_fits=63000, workers=18, frozen_gate=True, lambda_vector_gate=True, uniform_gate=True, raw/protected unchanged=True. Only three result files were written under D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_frozen_mp_normalized_basis_dependent_ridge_5B; no figures, Excel, cache, coefficients, or retrieval were generated.
+
+Correction note: the preceding 753-configuration run was superseded immediately because 3 refinement points duplicated coarse configurations. The final files above are from the corrected 750-unique-configuration run; selected hyperparameters and metrics were unchanged.
+
+[2026-09-11T13:24:41.973686+00:00] scenario_2_frozen_mp_global_sparse_gmp_residual_5B
+scenario_2_frozen_mp_global_sparse_gmp_residual_5B
+Global unified residual Sparse-GMP model-layer validation around Frozen MP.
+
+Scope
+state_count=425; development_count=340; validation_count=85
+split_source=D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_ridge_analysis\state_split.csv
+split_sha256=b744cff5714b59704655c3dc71477cc1f85b84ff561bfc0b2a64e319a6ba5f58
+failure14_used_for_support_selection=False
+LUT_retrieval=False; Real-B_for_support_selection=False; DPD_replay=False
+
+Frozen backbone
+orders=[1, 2, 3, 5, 7, 9]
+memory=[3, 2, 2, 1, 1, 1]
+K_Frozen=10; dmax=2; ridge_lambda=1e-08
+raw-basis Ridge through augmented np.linalg.lstsq; no normalization, centering, lambda scan or memory scan
+
+GMP candidate pool
+candidate_count=30; p=[2, 3, 5, 7, 9]; m_q=[0, 1, 2]; m_not_equal_q=True; common_dmax=2
+old_G4_tuples_present=True
+
+Frozen reproduction and G0 equivalence
+pass=True
+maximum_metric_abs_error_dB=1.4210854715202004e-13
+maximum_theta_abs_error=8.9260826473499665e-15
+
+Forward selection path
+stages=G0...G8; candidate_trial_count=212; estimated_CV_fits=432480
+G0: K=10, added=None, A_median=-40.050165537, C_median=-40.429376094, balanced_median=-40.050165537, balanced_q75=-38.569331610, balanced_q90=-35.685220243, final=False
+G1: K=11, added=GMP_p02_m00_q01, A_median=-40.368898153, C_median=-40.868842050, balanced_median=-40.368898153, balanced_q75=-38.914350735, balanced_q90=-36.051036601, final=False
+G2: K=12, added=GMP_p02_m01_q00, A_median=-40.669289083, C_median=-41.275471988, balanced_median=-40.669289083, balanced_q75=-39.083709151, balanced_q90=-36.262639699, final=False
+G3: K=13, added=GMP_p03_m01_q00, A_median=-40.822587575, C_median=-41.412635682, balanced_median=-40.822587575, balanced_q75=-39.139219019, balanced_q90=-36.371658489, final=False
+G4: K=14, added=GMP_p02_m00_q02, A_median=-40.892193238, C_median=-41.480126648, balanced_median=-40.892193238, balanced_q75=-39.178875813, balanced_q90=-36.400386822, final=True
+G5: K=15, added=GMP_p02_m02_q01, A_median=-40.915495073, C_median=-41.487599973, balanced_median=-40.915495073, balanced_q75=-39.202296662, balanced_q90=-36.410585889, final=False
+G6: K=16, added=GMP_p05_m01_q00, A_median=-40.929550318, C_median=-41.483632468, balanced_median=-40.929550318, balanced_q75=-39.269602238, balanced_q90=-36.488296931, final=False
+G7: K=17, added=GMP_p02_m02_q00, A_median=-40.939209364, C_median=-41.481302451, balanced_median=-40.939209364, balanced_q75=-39.282762905, balanced_q90=-36.507117974, final=False
+G8: K=18, added=GMP_p05_m00_q01, A_median=-40.942406302, C_median=-41.472096596, balanced_median=-40.942406302, balanced_q75=-39.283898292, balanced_q90=-36.499336548, final=False
+selected_G=4; final_K=14
+selected_terms=GMP_p02_m00_q01(x[n-0]|x[n-1]|^1), GMP_p02_m01_q00(x[n-1]|x[n-0]|^1), GMP_p03_m01_q00(x[n-1]|x[n-0]|^2), GMP_p02_m00_q02(x[n-0]|x[n-2]|^1)
+selection_rule=smallest G within best BalancedMedian + 0.10 dB
+
+Independent Validation
+validation_pass=False
+validation_criteria={'median_delta_Aend_B_at_most_minus_0p10dB': True, 'median_delta_C2_B_at_most_minus_0p10dB': True, 'median_delta_worst4_at_most_minus_0p10dB': True, 'improved_worst4_count_greater_than_degraded': True, 'median_delta_gap_A_at_most_plus_0p10dB': True, 'median_delta_gap_C_at_most_plus_0p10dB': False}
+validation_delta_medians_dB={'Aend_B': -0.6857392007452177, 'C2_B': -0.6541683705413561, 'worst4': -0.6541683705413561}
+validation_delta_gap_medians_dB={'A': 0.04580585797306469, 'C': 0.21880498608377508}
+validation_worst4_counts=improved:85, unchanged:0, degraded:0
+B_used_for_support_selection=False; Real_B_used_for_support_selection=False
+
+Execution and protection
+logical_cpus=20; workers=18; cpu_target=0.9; BLAS_threads_per_worker=1; nested_parallelism=False
+development_preprocessing=one-time A/C-only arrays in shared memory
+protection={'data_raw_unchanged': True, 'protected_results_unchanged': True, 'protected_scripts_unchanged': True, 'all_protected_unchanged': True, 'result_dirs': {'formal_retrieval': True, 'formal_all_ilc': True, 'unified_capacity': True, 'odd_only_scan': True, 'p5_ridge_scan': True, 'p5_order2_scan': True, 'neighborhood_scan': True, 'prior_sparse_gmp': True, 'g4_retrieval': True}, 'script_files': {'scripts\\behavior_model\\config.py': True, 'scripts\\behavior_model\\basis.py': True, 'scripts\\behavior_model\\sparse_gmp.py': True, 'scripts\\behavior_model\\frozen_neighborhood_memory_ridge_scan.py': True, 'scripts\\behavior_model\\scenario2_ridge_analysis.py': True, 'scripts\\signal_segmentation\\preprocessing.py': True, 'scripts\\signal_segmentation\\partition.py': True, 'scripts\\signal_segmentation\\behavior_pairs.py': True}}
+
+Stopping boundary
+No LUT retrieval, no Real-B ranking, no Type III compression, no low-bandwidth processing, and no Frozen config replacement was performed.
+Frozen MP remains the formal model unless a later separately authorized task changes it.
+
+Output files
+D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_frozen_mp_global_sparse_gmp_residual_5B\forward_selection_summary.csv
+D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_frozen_mp_global_sparse_gmp_residual_5B\validation_per_state_metrics.csv
+D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_frozen_mp_global_sparse_gmp_residual_5B\final_result_summary.txt
+
+[2026-09-11T21:26:12+08:00] scenario_2_frozen_mp_global_sparse_gmp_residual_5B post-run verification
+Validation gate remains False solely because median delta_gap_C=+0.218804986 dB exceeds the predeclared +0.10 dB limit; median Aend_B=-0.685739201 dB, median C2_B=-0.654168371 dB, median worst4=-0.654168371 dB, worst4 improved=85/85. Result directory has exactly the prescribed 3 files and no all425 characterization. Current direct regression: _core=7, data_manager=5, signal_segmentation=12, behavior_model basic=5, sparse_gmp=3; all PASS with fixed interpreter/PYTHONPATH where needed. Ruff --no-cache, pip check, and git diff --check PASS; no raw/protected modifications.
+
+[2026-09-11T15:56:56.288185+00:00] scenario_2_global_sparse_gmp_C2_gap_diagnosis_5B
+scenario_2_global_sparse_gmp_C2_gap_diagnosis_5B
+Post-hoc diagnosis only; no model selection or configuration update.
+
+Frozen models
+Frozen orders=[1, 2, 3, 5, 7, 9]; memory=[3, 2, 2, 1, 1, 1]; K=10; dmax=2; lambda=1e-08
+Global G4 K=14; fixed_support=['GMP_p02_m00_q01', 'GMP_p02_m01_q00', 'GMP_p03_m01_q00', 'GMP_p02_m00_q02']
+Frozen and G4 coefficients were independently jointly refit on each state/side.
+
+State scope
+post_hoc_validation_state_count=85
+split_source=D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_ridge_analysis\state_split.csv
+split_sha256=b744cff5714b59704655c3dc71477cc1f85b84ff561bfc0b2a64e319a6ba5f58
+validation_set_is_untouched_for_future_selection=False
+
+Previous Global-G4 result reproduction
+previous_selected_G=4; previous_validation_pass=False
+previous_failure_reason=median delta_gap_C exceeded +0.10 dB
+reproduction_pass=True; maximum_abs_error_dB=7.1054273576010019e-15
+
+Core C2 gap diagnosis medians
+Frozen_C2_train=-40.512551267 dB; G4_C2_train=-41.269542403 dB; delta=-0.855631792 dB
+Frozen_C2_B=-39.114032131 dB; G4_C2_B=-39.839508794 dB; delta=-0.654168371 dB
+delta_gap_C=0.218804986 dB; train_improvement=0.855631792 dB; B_improvement=0.654168371 dB
+Frozen_gap_C=1.398519136 dB; G4_gap_C=1.430033609 dB
+worst4_improved_count=85/85 for C2→B; all four C2 metrics are finite
+
+Diagnostic A: improvement transfer
+train_vs_B_correlation={'n': 85, 'pearson_r': 0.8093758382922033, 'spearman_rho': 0.8680281414891537, 'p_value': 5.7981545710970495e-27, 'status': 'finite'}
+B_improvement_less_than_train_count=84
+B_improvement_at_least_train_count=1
+
+Diagnostic B: Frozen→G4 correction transfer
+median_alignment_C=0.422890574
+median_alignment_B=0.374965718
+median_alignment_drop_C_to_B=0.066624892
+median_strength_C=0.426567595
+median_strength_B=0.385152070
+median_strength_transfer_dB=-0.751320263
+median_residual_reduction_C=0.178822917
+median_residual_reduction_B=0.139832236
+median_residual_reduction_drop_C_minus_B=0.046077913
+correction_identity_max_error=2.23e-15
+NMSE_identity_max_error_dB=1.51e-14
+interpretation=Both correction weakening and correction-direction mismatch contribute to the reduced C-to-B transfer.
+
+Diagnostic C: C/B feature excitation and geometry
+GMP01 median RMS ratio B/C=0.540693637 dB; median maxcorr delta=0.000195607
+GMP02 median RMS ratio B/C=0.540693637 dB; median maxcorr delta=0.000322916
+GMP03 median RMS ratio B/C=1.102341997 dB; median maxcorr delta=0.000263375
+GMP04 median RMS ratio B/C=0.548496490 dB; median maxcorr delta=0.000538258
+median_GramShift=0.014050078
+median_log10_condition_C=3.685817376
+median_log10_condition_B=3.477523135
+median_condition_log10_delta_B_minus_C=-0.201361917
+
+Aend control
+median_A_delta_gap=0.045805858 dB
+median_A_alignment_drop=0.011836885
+median_A_strength_transfer=-0.037724485 dB
+median_A_residual_reduction_drop=0.008365695
+
+Post-hoc Spearman correlations with delta_gap_C
+residual_reduction_drop_C_minus_B: rho=0.9948993550908735, p=1.804777242422006e-84, n=85, status=finite
+alignment_drop_C_to_B: rho=0.9223373070158295, p=4.989483863298049e-36, n=85, status=finite
+GMP01_RMS_ratio_B_over_C_dB: rho=0.7997264021887824, p=4.403214494195115e-20, n=85, status=finite
+GMP02_RMS_ratio_B_over_C_dB: rho=0.7997264021887824, p=4.403214494195115e-20, n=85, status=finite
+GMP03_RMS_ratio_B_over_C_dB: rho=0.7992378346687512, p=4.819994017247017e-20, n=85, status=finite
+GMP04_RMS_ratio_B_over_C_dB: rho=0.7954270080125074, p=9.676991926836124e-20, n=85, status=finite
+GMP01_maxcorr_Frozen_delta: rho=0.7694743013484462, p=7.759528838542328e-18, n=85, status=finite
+GMP02_maxcorr_Frozen_delta: rho=0.7552081297635334, p=6.8229119846205e-17, n=85, status=finite
+GMP03_maxcorr_Frozen_delta: rho=0.7413914402970491, p=4.884658113310841e-16, n=85, status=finite
+condition_log10_delta_B_minus_C: rho=-0.718624193863592, p=9.668009912194934e-15, n=85, status=finite
+strength_transfer_dB: rho=-0.678092632401798, p=1.0108465533029929e-12, n=85, status=finite
+gram_shift_C_to_B: rho=0.5085987883525503, p=6.707069332060778e-07, n=85, status=finite
+GMP04_maxcorr_Frozen_delta: rho=-0.22843462966581982, p=0.03548595306039563, n=85, status=finite
+Correlation is descriptive and does not establish causality.
+
+Stopping boundary
+No model selection, no support change, no lambda change, no Frozen/G4 modification, no 425-state characterization, no LUT retrieval, no Real-B retrieval validation, and no DPD replay.
+These 85 states are post-hoc diagnostics only and must not be presented as a new untouched validation set for future selection.
+
+Execution and protection
+logical_cpus=20; workers=18; cpu_target=0.9; BLAS_threads_per_worker=1; nested_parallelism=False
+protection={'data_raw_unchanged': True, 'protected_results_unchanged': True, 'all_protected_unchanged': True, 'results': {'previous_global_result': True, 'formal_retrieval': True, 'g4_retrieval': True, 'all_ilc': True}}
+
+Output files
+D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_global_sparse_gmp_C2_gap_diagnosis_5B\c2_gap_diagnosis_per_state.csv
+D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_global_sparse_gmp_C2_gap_diagnosis_5B\c2_gap_diagnosis.png
+D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_global_sparse_gmp_C2_gap_diagnosis_5B\final_result_summary.txt
+
+[2026-09-14T19:00:31+08:00] Mac Python portability maintenance
+将 behavior_model 相关 4 个 Python runner/test 文件中的 raw protection manifest Windows-only `\\?\` 前缀改为 `PROJECT_ROOT / "data" / "raw"`；未修改行为模型、Ridge、lambda、基函数或历史数值预期。受影响 Ridge 测试的 10 项不依赖历史 results 的功能断言通过；完整测试在缺失 `results/behavior_model/scenario_2_ridge_analysis/state_split.csv` 处停止，归类为 historical artifact unavailable。所有 4 个 raw manifest helper 均在 Mac 当前工程上得到既有 digest。
+
+
+[2026-09-11T15:58:40.609346+00:00] scenario_2_global_sparse_gmp_C2_gap_diagnosis_5B
+scenario_2_global_sparse_gmp_C2_gap_diagnosis_5B
+Post-hoc diagnosis only; no model selection or configuration update.
+
+Frozen models
+Frozen orders=[1, 2, 3, 5, 7, 9]; memory=[3, 2, 2, 1, 1, 1]; K=10; dmax=2; lambda=1e-08
+Global G4 K=14; fixed_support=['GMP_p02_m00_q01', 'GMP_p02_m01_q00', 'GMP_p03_m01_q00', 'GMP_p02_m00_q02']
+Frozen and G4 coefficients were independently jointly refit on each state/side.
+
+State scope
+post_hoc_validation_state_count=85
+split_source=D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_ridge_analysis\state_split.csv
+split_sha256=b744cff5714b59704655c3dc71477cc1f85b84ff561bfc0b2a64e319a6ba5f58
+validation_set_is_untouched_for_future_selection=False
+
+Previous Global-G4 result reproduction
+previous_selected_G=4; previous_validation_pass=False
+previous_failure_reason=median delta_gap_C exceeded +0.10 dB
+reproduction_pass=True; maximum_abs_error_dB=7.1054273576010019e-15
+
+Core C2 gap diagnosis medians
+Frozen_C2_train=-40.512551267 dB; G4_C2_train=-41.269542403 dB; delta=-0.855631792 dB
+Frozen_C2_B=-39.114032131 dB; G4_C2_B=-39.839508794 dB; delta=-0.654168371 dB
+delta_gap_C=0.218804986 dB; train_improvement=0.855631792 dB; B_improvement=0.654168371 dB
+Frozen_gap_C=1.398519136 dB; G4_gap_C=1.430033609 dB
+C2_B_improved_count=85/85; all four C2 metrics are finite
+
+Diagnostic A: improvement transfer
+train_vs_B_correlation={'n': 85, 'pearson_r': 0.8093758382922033, 'spearman_rho': 0.8680281414891537, 'p_value': 5.7981545710970495e-27, 'status': 'finite'}
+B_improvement_less_than_train_count=84
+B_improvement_at_least_train_count=1
+
+Diagnostic B: Frozen→G4 correction transfer
+median_alignment_C=0.422890574
+median_alignment_B=0.374965718
+median_alignment_drop_C_to_B=0.066624892
+median_strength_C=0.426567595
+median_strength_B=0.385152070
+median_strength_transfer_dB=-0.751320263
+median_residual_reduction_C=0.178822917
+median_residual_reduction_B=0.139832236
+median_residual_reduction_drop_C_minus_B=0.046077913
+correction_identity_max_error=2.23e-15
+NMSE_identity_max_error_dB=1.51e-14
+interpretation=Both correction weakening and correction-direction mismatch contribute to the reduced C-to-B transfer.
+
+Diagnostic C: C/B feature excitation and geometry
+GMP01 median RMS ratio B/C=0.540693637 dB; median maxcorr delta=0.000195607
+GMP02 median RMS ratio B/C=0.540693637 dB; median maxcorr delta=0.000322916
+GMP03 median RMS ratio B/C=1.102341997 dB; median maxcorr delta=0.000263375
+GMP04 median RMS ratio B/C=0.548496490 dB; median maxcorr delta=0.000538258
+median_GramShift=0.014050078
+median_log10_condition_C=3.685817376
+median_log10_condition_B=3.477523135
+median_condition_log10_delta_B_minus_C=-0.201361917
+
+Aend control
+median_A_delta_gap=0.045805858 dB
+median_A_alignment_drop=0.011836885
+median_A_strength_transfer=-0.037724485 dB
+median_A_residual_reduction_drop=0.008365695
+
+Post-hoc Spearman correlations with delta_gap_C
+residual_reduction_drop_C_minus_B: rho=0.9948993550908735, p=1.804777242422006e-84, n=85, status=finite
+alignment_drop_C_to_B: rho=0.9223373070158295, p=4.989483863298049e-36, n=85, status=finite
+GMP01_RMS_ratio_B_over_C_dB: rho=0.7997264021887824, p=4.403214494195115e-20, n=85, status=finite
+GMP02_RMS_ratio_B_over_C_dB: rho=0.7997264021887824, p=4.403214494195115e-20, n=85, status=finite
+GMP03_RMS_ratio_B_over_C_dB: rho=0.7992378346687512, p=4.819994017247017e-20, n=85, status=finite
+GMP04_RMS_ratio_B_over_C_dB: rho=0.7954270080125074, p=9.676991926836124e-20, n=85, status=finite
+GMP01_maxcorr_Frozen_delta: rho=0.7694743013484462, p=7.759528838542328e-18, n=85, status=finite
+GMP02_maxcorr_Frozen_delta: rho=0.7552081297635334, p=6.8229119846205e-17, n=85, status=finite
+GMP03_maxcorr_Frozen_delta: rho=0.7413914402970491, p=4.884658113310841e-16, n=85, status=finite
+condition_log10_delta_B_minus_C: rho=-0.718624193863592, p=9.668009912194934e-15, n=85, status=finite
+strength_transfer_dB: rho=-0.678092632401798, p=1.0108465533029929e-12, n=85, status=finite
+gram_shift_C_to_B: rho=0.5085987883525503, p=6.707069332060778e-07, n=85, status=finite
+GMP04_maxcorr_Frozen_delta: rho=-0.22843462966581982, p=0.03548595306039563, n=85, status=finite
+Correlation is descriptive and does not establish causality.
+
+Stopping boundary
+No model selection, no support change, no lambda change, no Frozen/G4 modification, no 425-state characterization, no LUT retrieval, no Real-B retrieval validation, and no DPD replay.
+These 85 states are post-hoc diagnostics only and must not be presented as a new untouched validation set for future selection.
+
+Execution and protection
+logical_cpus=20; workers=18; cpu_target=0.9; BLAS_threads_per_worker=1; nested_parallelism=False
+protection={'data_raw_unchanged': True, 'protected_results_unchanged': True, 'all_protected_unchanged': True, 'results': {'previous_global_result': True, 'formal_retrieval': True, 'g4_retrieval': True, 'all_ilc': True}}
+
+Output files
+D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_global_sparse_gmp_C2_gap_diagnosis_5B\c2_gap_diagnosis_per_state.csv
+D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_global_sparse_gmp_C2_gap_diagnosis_5B\c2_gap_diagnosis.png
+D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_global_sparse_gmp_C2_gap_diagnosis_5B\final_result_summary.txt

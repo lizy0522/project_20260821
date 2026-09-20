@@ -1,0 +1,176 @@
+{
+  "task": "scenario_scope_architecture_migration_20260920",
+  "timestamp": "2026-09-21T00:44:14.756225+08:00",
+  "migration_validation": {
+    "task": "scenario_scope_architecture_migration_20260920",
+    "pass": true,
+    "checks": {
+      "protected_journal_clean": true,
+      "data_journal_clean": true,
+      "config_journal_clean": true,
+      "module_mirror": true,
+      "raw_manifest": true,
+      "no_results_shared": true,
+      "no_work_logs_shared": true,
+      "all_ready_script_targets": true,
+      "old_paths_absent": true,
+      "result_log_content_preserved": true,
+      "no_flat_residuals": true
+    },
+    "failures": [],
+    "migrated_task_count": 58,
+    "journal_events": 250,
+    "protected_module_touched": false,
+    "data_touched": false,
+    "config_touched": false
+  },
+  "migration_plan_counts": {
+    "ready_migrated": 58,
+    "deferred_or_no_move": 4
+  },
+  "source_path_patch_counts": {
+    "initial_import_or_path_scope_patches": 44,
+    "scenario_result_log_path_normalization_files": 99,
+    "direct_string_result_log_path_normalization_files": 8,
+    "ruff_noqa_directives_added": 41
+  },
+  "pytest": {
+    "collection_count": 317,
+    "executed_passed": 127,
+    "executed_failed": 20,
+    "remaining_not_executed_after_maxfail": 170,
+    "status": "PARTIAL_WITH_PREEXISTING_MISSING_ARTIFACT_FAILURES",
+    "command_scope": "non-protected modules only",
+    "reason": "failed tests require historical result artifacts absent from the pre-migration inventory; no result artifact was generated or copied"
+  },
+  "raw_manifest": {
+    "sha256": "910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0",
+    "file_count": 429,
+    "mat_count": 427,
+    "bytes": 2258448137
+  },
+  "scope_counts": {
+    "scripts": {
+      "behavior_fingerprint_ranking_consistency": {
+        "scenario_2": {
+          "files": 23,
+          "directories": 13
+        }
+      },
+      "behavior_fingerprint_retrieval": {
+        "scenario_2": {
+          "files": 63,
+          "directories": 29
+        }
+      },
+      "behavior_modeling": {
+        "scenario_2": {
+          "files": 102,
+          "directories": 63
+        }
+      },
+      "low_bandwidth_behavior_analysis": {
+        "scenario_2": {
+          "files": 3,
+          "directories": 3
+        }
+      },
+      "lut_clustering_compression": {
+        "scenario_2": {
+          "files": 10,
+          "directories": 7
+        }
+      },
+      "pa_performance_evaluation": {
+        "scenario_2": {
+          "files": 3,
+          "directories": 3
+        },
+        "cross_scenario": {
+          "files": 6,
+          "directories": 3
+        }
+      },
+      "signal_segmentation": {
+        "scenario_2": {
+          "files": 3,
+          "directories": 3
+        }
+      }
+    },
+    "results": {
+      "behavior_fingerprint_retrieval": {
+        "scenario_2": {
+          "files": 124,
+          "directories": 7
+        }
+      },
+      "behavior_modeling": {
+        "scenario_2": {
+          "files": 104,
+          "directories": 8
+        }
+      },
+      "pa_performance_evaluation": {
+        "cross_scenario": {
+          "files": 20,
+          "directories": 1
+        }
+      }
+    },
+    "work_logs": {
+      "behavior_fingerprint_retrieval": {
+        "scenario_2": {
+          "files": 8,
+          "directories": 8
+        }
+      },
+      "behavior_modeling": {
+        "scenario_2": {
+          "files": 11,
+          "directories": 11
+        }
+      },
+      "low_bandwidth_behavior_analysis": {
+        "scenario_2": {
+          "files": 1,
+          "directories": 1
+        }
+      },
+      "lut_clustering_compression": {
+        "scenario_2": {
+          "files": 1,
+          "directories": 1
+        }
+      },
+      "pa_performance_evaluation": {
+        "cross_scenario": {
+          "files": 1,
+          "directories": 1
+        }
+      }
+    }
+  },
+  "protected_scope": {
+    "retrieval_oriented_model_selection_migration_journal_touched": false,
+    "data_migration_journal_touched": false,
+    "config_migration_journal_touched": false,
+    "formal_search_started_by_this_task": false
+  },
+  "tests_and_runtime": {
+    "pip_check": "No broken requirements found",
+    "compileall": "PASS for non-protected modules",
+    "ruff": "PASS for non-protected modules",
+    "import_smoke": {
+      "attempted": 302,
+      "errors": 0
+    },
+    "active_project_research_processes_at_final_check": []
+  },
+  "result_sizes_from_du": {
+    "results": "33G",
+    "work_logs": "1.6G",
+    "scripts": "29M",
+    "data_raw": "2.1G"
+  }
+}

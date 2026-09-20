@@ -1,0 +1,978 @@
+Codex 工程交接记录
+==================
+
+2026-08-23 工程级维护：统一 Conda 解释器管理
+状态：已完成；不创建新任务，不产生研究结果。
+变更：更新 .vscode/settings.json，显式固定解释器为
+D:\Project_Files\python_project\conda_envs\project_20260821\python.exe，
+并启用 Conda 环境/包管理与终端自动激活。
+验证：Python 3.11.15；conda-meta/history、Conda env list、声明依赖导入和 pip check 均 PASS。
+未修改 data/raw、data/processed、脚本或结果；未 commit/push。
+2026-08-25 | 工程级持续维护：构建 scripts/_core MATLAB 兼容共享模块 | 完成
+- 新增 signal、metrics、utils 三个共享子包，实现 Rough/Fine 对齐、复增益调整、固定预处理链、
+  NMSE、CNMSE 和 MATLAB aclr/chan_pow/dbp 兼容 ACPR。
+- 依据 7 个指定 MATLAB 源文件迁移；fine_align 默认 subtime=256，并返回实际分数采样位移。
+- 直接测试脚本 7/7 PASS，Ruff/compileall/git diff --check PASS。
+- 使用 experiment_2026_0816 标称 MAT 交叉验证：3 种模式的 NMSE/ACPR 最大差约 1.78e-14 dB；
+  完整 Rough->Fine->adjust 波形 relative-L2 约 5.99e-16。
+- 构建详情与调用示例见 work_logs/core_module_build/core_module_build_summary.txt。
+- data/raw 未修改；执行前已有未提交工作已保留；未 commit/push。
+2026-08-25 | 工程级持续维护：构建 scripts/data_manager PA状态数据入口 | 完成
+- 新增 config、state_index、file_index、loader、dataset 和统一 __init__，管理
+  experiment_2026_0816 场景2的425个有效状态。
+- 修正任务文字路径为 data/raw/experiment_2026_0816/data_record/scenario_2；状态空间按
+  25个有效基波条件 × 17个有效二次谐波条件生成，零幅度仅允许零相位。
+- 建立 STATE_FILE_MAP、PARAM_FILE_MAP、FILE_STATE_MAP，均为425项；支持state_id、六参数、
+  文件路径双向查询，并用Windows扩展长度路径只读加载深层MAT。
+- 规定的五项测试全部PASS；load_by_id(0)返回46个业务变量，指定变量读取与全量读取一致；
+  Ruff和git diff --check通过。
+- 构建详情与调用示例见 work_logs/data_manager_build/data_manager_build_summary.txt。
+- data/raw未修改；执行前未提交工作已保留；未commit/push。
+2026-08-26 | pa_performance_observation | 完成
+- 新任务模式，遍历scenario_2全部425状态，直接读取MAT保存的acpr_withdpd_ilc_tmp，按
+  (lower_dBc+upper_dBc)/2计算每次ILC平均ACPR；未重新计算频谱或增加其它PA指标。
+- 动态识别max_iteration=5，nth_inter分布为2次/1状态、3次/416状态、4次/7状态、5次/1状态；
+  Iter1...5有效状态数为425/425/424/8/1，缺失值保持NaN。
+- 生成1个425行CSV和5张300dpi单系列PNG，每次迭代独立一张、统一纵轴，无阈值线或辅助曲线。
+- 新增8项测试及现有44项回归全部PASS；冻结模块哈希和data/raw保持不变，未commit/push。
+- 结果位于results/pa_performance_observation/scenario_2/，详细日志见
+  work_logs/pa_performance_observation/execution_log.txt。
+- 追加维护：新增ilc_iterations_01_to_05_acpr_average.png，将5个ILC iteration绘制在同一图中；
+  保留原5张单iteration图和CSV，当前共1个CSV+6张PNG，新模块9项测试PASS。
+2026-08-27 | behavior_model持续维护：Scenario 2全425状态正式ILC1三模型OLS基线 | 完成
+- 论文正式Y类定义冻结为第一次ILC输入输出对；每状态只提取X-A、Y-A-1、Y-C-1，旧ILC2~5
+  State0与Ridge结果保留为历史诊断，不再作为正式Y类引用。
+- State0三模型回归PASS：指标最大误差7.11e-15、theta误差0；随后完成425状态、1275模型，
+  全部rank=10、theta finite，只使用ILC1，无缺失状态。
+- 生成1275行长表、425行宽表、3行聚合表、theta(425,3,10) NPZ和validation JSON；
+  Train/B-gen/vsX/vsReal有效数量为1275/1275/850/1275。
+- 三类Train median约-41.2~-42.0 dB且全部状态优于-35 dB；Y-C C->B损失median=5.47 dB，
+  明显高于X/Y-A约1 dB。Y-C vs X公共B CNMSE median=-37.05 dB，但跨状态尾部至-28.15 dB，
+  说明整体相似但并非全状态均匀稳定。
+- 新增8项测试及旧53项回归全部PASS；旧xy/ridge结果和segmentation哈希不变，data/raw未修改，
+  未commit/push。详细结果见results/behavior_model/scenario_2_xy_analysis/和behavior_model执行日志。
+2026-08-26 | behavior_model持续维护：State0 canonical X/Y正向行为等效验证 | 完成
+- 复用冻结signal_segmentation OFF/ILC canonical A/B/C；未修改ABC、峰值归一化、同步或段内adjust，
+  未使用STALE，未扩展到425状态。
+- 新增1个X-A、5个Y-A、5个Y-C，共11个10系数复MP模型；全部有限、rank=10。
+- 得到11个Train NMSE和11个真实B泛化NMSE；Y泛化严格使用各自ILC[n].B，公共等效probe固定
+  为OFF.B.input=xin_B。
+- 公共B响应与real_B均为4913点；得到XvsReal 1个、YvsX 10个、YvsReal 10个，合计21个
+  非NaN CNMSE，参考方向和统计数量自动验收通过。
+- 结果位于results/behavior_model/state_000/xy_equivalence/：11行CSV、11个theta、公共响应NPZ、
+  validation.json和4张基础图。新增7项测试及全部既有模块测试PASS。
+- 旧13个behavior_model基线结果和signal_segmentation源码哈希均未变；data/raw未修改，未commit/push。
+2026-08-26 | behavior_model持续维护：State0统一lambda Ridge诊断扫描 | 完成
+- 只改变lambda，冻结State0 canonical A/B/C、MP 10基函数、B泛化、公共xin_B和CNMSE口径；
+  lambda=0走原OLS，lambda>0用sqrt(N*lambda)I增广复数lstsq，无逆/正规方程/特征缩放。
+- 扫描16个lambda，每点11模型，共176次拟合；每点11 Train、11 B泛化和21非NaN CNMSE。
+- lambda=0逐数值复现旧OLS：theta和全部指标最大误差均为0。旧xy_equivalence 18文件与
+  signal_segmentation 9源码SHA-256前后不变。
+- 内部诊断点lambda=1e-8：Y-C B-gen median改善4.3465 dB、vsX改善3.6722 dB、vsReal改善
+  2.8629 dB；X B-gen仅恶化0.0175 dB，Y-A B-gen改善0.1210 dB，Y-C theta norm中位数
+  从25.4637降至16.9436，5个Y-C迭代均改善。
+- 同时改善候选扫描区为[1e-12,1e-8]；下端接触边界，但三项目标各自最佳点均为内部1e-8。
+  仅作为State0 B段Ridge有效性诊断，不是无偏最终lambda，未改config或冻结lambda。
+- 结果位于results/behavior_model/state_000/ridge_scan/：176行长表、16行汇总、theta NPZ、
+  validation JSON和5图；新增8项测试及全部既有回归PASS。data/raw未修改，未commit/push。
+2026-08-26 | 工程级持续维护：新增signal_segmentation canonical A/B/C模块 | 完成
+- 新增固定ABC ownership、axis=0切分、三类原始数据对、完整同步、逐段独立复增益调整、集中验证
+  和state0验收接口；直接复用_core的rough_align/fine_align/adjust_complex_gain。
+- 唯一Partition由xin生成：N=24576时A/B/C=12288/4915/7373，保留B/C奇数长度；不受MP有效区影响。
+- OFF严格使用xin+yout_withoutdpd_ori；5列ILC逐列先恢复峰值1的实际输入，再各自完整Rough/Fine；
+  STALE使用xin_pd_nominal+yout_withdpd_stale_ori。完整同步后才ABC切分和段内独立adjust。
+- 12项新模块测试与state0真实OFF/ILC/STALE验收PASS；所有7组数据有限，轻量摘要位于
+  results/signal_segmentation/state0_validation_summary.csv。
+- 未修改现有behavior_model代码或结果；后续迁移canonical A/C/B属于独立维护。README已增加模块说明。
+- data/raw未修改，未保存canonical波形副本；results/signal_segmentation只含轻量验收CSV；未commit/push。
+2026-08-26 | 工程级文档维护：生成当前工程工作详细梳理 | 完成
+- 新增work_logs/codex_handoff/project_work_summary_2026-08-26.txt，汇总原始数据、_core、
+  data_manager、signal_segmentation、State0整记录/11模型等效验证、Ridge扫描、44项测试、Git状态、
+  冻结科研契约和后续待办。
+- 文档根据当前磁盘、执行日志、CSV/JSON和重新枚举结果生成；未修改代码、results或data/raw，未commit/push。
+2026-08-25 | behavior_model | 完成
+- 新任务模式，仅处理state_id=0，建立包含p=2偶数项的冻结10基函数正向Memory Polynomial模型。
+- X使用xin->已处理yout_withoutdpd；5个Y模型先恢复实际峰值归一化ILC输入，再对原始输出执行
+  Rough/Fine(subtime=256)/复增益处理后拟合；未执行多状态、Behavior Index、LUT、排序或聚类。
+- 生成1个theta_X和5个theta_Y，全部shape=(10,)、complex128、有限、设计矩阵rank=10，
+  有效样本24574；NMSE：X=-42.4222 dB，Y=-41.7103/-41.2351/-41.2569/-41.2595/-41.3531 dB。
+- 五项行为模型测试、Ruff和git diff --check全部PASS；结果位于results/behavior_model/state_000/，
+  详细过程见work_logs/behavior_model/execution_log.txt。
+- data/raw未修改；执行前未提交工作已保留；未commit/push。
+
+2026-08-27T05:13:39.227475+00:00 | behavior_model持续维护：Scenario 2统一Ridge λ开发与验证
+- 统一Ridge Validation PASS，冻结lambda=1e-08并生成425状态/1275模型final结果。
+
+2026-08-27 | behavior_model持续维护：Scenario 2统一Ridge λ开发与验证（结构化完成摘要）
+- 按正式三模型定义 X-A、Y-A-1、Y-C-1 执行；Y仅使用ILC1，未使用ILC2-5或STALE；MP结构仍为10个复数系数。
+- 全425状态lambda=0回归门槛PASS：theta最大误差0.0，指标最大误差7.105427357601002e-15。
+- 固定seed=20260827完成340/85 Development/Validation分层划分；粗扫描16点、细扫描18点均只使用Development。
+- 统一lambda在Validation前冻结为1e-8。Validation PASS：Y-C B-gen/vs-X/vs-Real-B中位paired gain分别为
+  3.803172/3.737124/2.414922 dB，三项改善状态数83/85、76/85、78/85；X B-gen、Y-A B-gen、Y-C Train
+  中位退化为-0.019904/-0.094734/0.687176 dB，均满足保护阈值。
+- 生成 results/behavior_model/scenario_2_ridge_analysis/ 下 state_split、Development粗细扫描、Validation结果、
+  4张必要图和final 425状态/1275模型Ridge结果；final theta shape=(425,3,10)、全finite。
+- 全425最终中位paired gain：Y-C B-gen=3.782993 dB、vs-X=3.576788 dB、vs-Real-B=2.316093 dB；
+  Y-C theta norm median 24.779097→16.929563（ratio=0.679860）。
+- 原有61项测试保持PASS，本次新增12项PASS，共73项；Ruff、git diff --check、旧结果SHA和data/raw扩展manifest均通过保护复核。
+- 当前状态：统一Ridge已通过独立Validation并冻结为Scenario 2后续正式行为模型参数；未commit/push，无执行阻塞。
+
+2026-08-27T06:24:11.902087+00:00 | behavior_fingerprint_ranking_consistency
+完成425状态行为指纹排序一致性分析；冻结lambda=1e-8，生成四个距离矩阵、四个排名矩阵、三类Spearman表和两张图，结果位于D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_ranking_consistency\scenario_2。
+
+2026-08-27 | behavior_fingerprint_ranking_consistency 持续维护
+- 修改plotting.py，使箱线图和逐状态三曲线图的纵坐标自动取三类Spearman实际全局范围，
+  本次为[0.8395313501430336, 0.9997620796923608]；已覆盖原两张PNG并完成可视检查。
+- 未重新计算模型/指纹/距离/排名；维护后原有73项测试和本模块12项测试共85项PASS，Ruff与git diff --check通过。
+
+2026-08-27 | behavior_fingerprint_ranking_consistency | 完成
+- 只读取已通过Validation的Scenario 2 Ridge final theta（lambda=1e-8，X-A/Y-A-1/Y-C-1），未重新训练行为模型。
+- 425个状态的OFF.B.input完全一致（max差异0），生成X-A、Y-A、Y-C Query、Real-B四类(425,4913)指纹。
+- 生成D_RR/D_CX/D_CY/D_CR和R_RR/R_CX/R_CY/R_CR八个(425,425)矩阵；self-match保留，D_RR每行self为最小距离，self rank均为1。
+- 三类Spearman均425个且finite：X-A median=0.962282，Y-A median=0.995673，Real-B median=0.964449；
+  中位排序为Y-A LUT > Real-B LUT > X-A LUT。最差状态为X-A/Real-B共用state210（0.841110/0.839531），
+  Y-A最差state355（0.980134）。
+- 生成spearman_by_state.csv、spearman_summary.csv、validation.json、指纹/距离/排名NPZ及两张Spearman图，
+  均位于results/behavior_fingerprint_ranking_consistency/scenario_2/。
+- 新模块11项测试、原有73项测试共84项PASS；Ruff、git diff --check、旧结果SHA和data/raw扩展manifest保护通过。
+- 当前状态：任务完成，无执行阻塞；未commit/push。
+
+2026-08-27T06:26:37.536817+00:00 | behavior_fingerprint_ranking_consistency
+完成425状态行为指纹排序一致性分析；冻结lambda=1e-8，生成四个距离矩阵、四个排名矩阵、三类Spearman表和两张图，结果位于D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_ranking_consistency\scenario_2。
+
+2026-08-27T07:31:52.137213+00:00 | behavior_fingerprint_ranking_consistency持续维护：Scenario 2全ILC排序扫描
+完成Scenario 2全ILC requested n1×n2排序扫描，Nmax=5，Spearman总数=14875，PNG=10；结果位于D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_ranking_consistency\scenario_2_all_ilc。
+
+2026-08-27 | behavior_fingerprint_ranking_consistency 持续维护：图轴范围与全量回归确认
+- 全ILC扫描使用state-wise saturation，Nmax自动识别为5；实际列数分布N2/N3/N4/N5=1/416/7/1，
+  实际Y-A/Y-C模型各1283，ILC1回归旧指纹误差均为0.0。
+- requested n1×n2共生成14875个Spearman、36个距离矩阵、36个排名矩阵、5个逐n1宽表和10张PNG；
+  每张n1箱线图/曲线图纵坐标均按该图实际Spearman最小值到最大值设置。
+- 全量99项测试、Ruff和git diff --check通过；旧scenario_2/Ridge/OLS结果、behavior_model/signal_segmentation源码和data/raw未修改。
+
+2026-08-27 | behavior_fingerprint_ranking_consistency 持续维护：新增2×5组合大图
+- 新增并运行plot_all_ilc_spearman_2x5()，生成
+  results/behavior_fingerprint_ranking_consistency/scenario_2_all_ilc/spearman_all_ilc_2x5_combined.png。
+- 组合图第一行是n1=1...5五个箱线图，第二行是对应五个逐state曲线图；10个子图共同使用
+  全部实际Spearman的y范围[0.5337871848181208,0.9997620796923608]，不使用固定[-1,1]。
+- 保留原10张单独PNG；新增组合图测试PASS，当前全工程99项测试、Ruff和git diff --check均通过。
+
+2026-08-27T08:42:01.978798+00:00 | behavior_fingerprint_ranking_consistency持续维护
+新增固定LUT阶段Figure1/2（各2×5，颜色+marker区分C阶段，线型区分Figure1路线），共同y轴实际范围分别为[0.5337871848181208,0.9997620796923608]和[0.7781813634303043,0.9993676822310108]；旧图和旧结果保留，产物位于D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_ranking_consistency\scenario_2_all_ilc\fixed_lut_stage_figures。
+
+2026-08-27 | behavior_fingerprint_ranking_consistency 持续维护：Figure1/2 marker与独立输出完成
+- Figure1/2均为2×5新图，第一行箱线图、第二行425-state曲线；Figure1每subplot为15 boxes/15 curves，
+  Figure2每subplot为5 boxes/5 curves；曲线按C阶段同时使用固定颜色和不同marker，Figure1 route再用线型区分。
+- Figure1共同y范围[0.5337871848181208,0.9997620796923608]，Figure2共同y范围[0.7781813634303043,0.9993676822310108]，
+  均直接取各自10个子图实际数据min/max，无padding；旧10张单图和旧2×5组合图未覆盖。
+- 新增固定阶段图测试11项，既有全工程99项回归继续PASS，共110项；Ruff、git diff --check、旧结果/raw保护通过。
+
+2026-08-27T09:11:07.618660+00:00 | behavior_fingerprint_ranking_consistency持续维护：Scenario 2 Y-A LUT指纹融合
+完成Scenario 2固定Y-A LUT融合分析：Y-A1/Y-A2/Y-A12-Mean，15个Query→LUT组合、6375个Spearman；按预声明Worst-C规则选择Y-A2；生成两张正式图，结果位于D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_ranking_consistency\scenario_2_y_lut_fusion。
+
+2026-08-27T09:13:35.934971+00:00 | behavior_fingerprint_ranking_consistency持续维护：Scenario 2 Y-A LUT指纹融合
+完成Scenario 2固定Y-A LUT融合分析：Y-A1/Y-A2/Y-A12-Mean，15个Query→LUT组合、6375个Spearman；按预声明Worst-C规则选择Y-A2；生成两张正式图，结果位于D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_ranking_consistency\scenario_2_y_lut_fusion。
+
+2026-08-27 | behavior_fingerprint_ranking_consistency持续维护：Y-A LUT融合最终验收
+- A1/A2均425/425可用；三类common-B指纹均为(425,4913)，fingerprint mean与theta mean最大误差3.781e-15。
+- 15个距离矩阵和15个排名矩阵均为(425,425)，6375个Spearman全部finite；A1/A2 baseline的Spearman最大误差1.11e-16。
+- Worst-C规则选择Y-A2；Figure1/2已生成并完成Python/matplotlib视觉QA，曲线使用颜色+不同marker。
+- 13个测试入口共129项PASS，Ruff PASS，git diff --check PASS；pytest未安装但未改变环境。
+- data/raw manifest及既有Scenario 2/all-ILC、Ridge、OLS和核心脚本目录SHA均保持不变；无执行阻塞，未执行破坏性Git操作。
+
+2026-08-27T09:44:06.651197+00:00 | behavior_fingerprint_ranking_consistency持续维护：Scenario 2 A123 Y-A LUT融合
+完成Scenario 2 A123 Y-A LUT融合研究：7类固定LUT、35组Query→LUT、14875个Spearman；winner=Y-A2，saturation sensitivity unchanged=True；生成Figure1/2，结果位于D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_ranking_consistency\scenario_2_y_lut_fusion_A123。
+
+2026-08-27 | behavior_fingerprint_ranking_consistency持续维护：A123最终验收
+- A1/A2/A3可用状态为425/425/424，唯一缺失A3为state_id=374；7类fingerprint均为(425,4913)，35组矩阵和14875个Spearman均通过验证。
+- 上一轮A1/A2/A12完整回归通过；full425与排除Ns=2状态的sensitivity winner均为Y-A2。
+- 新增18项测试、全工程147项断言全部PASS，Ruff和git diff --check通过；raw及所有旧结果SHA不变，未执行破坏性Git操作。
+
+2026-08-27T10:23:39.822485+00:00 | behavior_fingerprint_ranking_consistency持续维护：Scenario 2非等权全局Y-A融合
+完成Scenario 2非等权全局Y-A融合：Development 340、Validation 85，coarse/fine候选232/32，最终权重=(0,0,1)，Validation success=False，结果位于D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_ranking_consistency\scenario_2_y_lut_weighted_fusion。
+
+2026-08-27T10:26:25.728222+00:00 | behavior_fingerprint_ranking_consistency持续维护：Scenario 2非等权全局Y-A融合
+完成Scenario 2非等权全局Y-A融合：Development 340、Validation 85，coarse/fine候选232/46，最终权重=(0,0.96,0.04)，Validation success=False，结果位于D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_ranking_consistency\scenario_2_y_lut_weighted_fusion。
+
+2026-08-27T10:31:25.619495+00:00 | behavior_fingerprint_ranking_consistency持续维护：Scenario 2非等权全局Y-A融合
+完成Scenario 2非等权全局Y-A融合：Development 340、Validation 85，coarse/fine候选232/46，最终权重=(0,0.96,0.04)，Validation success=False，结果位于D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_ranking_consistency\scenario_2_y_lut_weighted_fusion。
+
+2026-08-27T10:41:33.047936+00:00 | behavior_fingerprint_ranking_consistency持续维护：Scenario 2非等权全局Y-A融合
+完成Scenario 2非等权全局Y-A融合：Development 340、Validation 85，coarse/fine候选232/60，最终权重=(0,1,0)，Validation success=False，结果位于D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_ranking_consistency\scenario_2_y_lut_weighted_fusion。
+
+2026-08-27 | behavior_fingerprint_ranking_consistency持续维护：非等权融合最终验收
+- 采用(funMng,funAng)分层且seed=20260827，Development/Validation=340/85，coarse/fine=232/60；最终冻结权重=(0,1,0)，即Y-A2。
+- Validation 10个85×425矩阵和850个Spearman全部通过；Weighted与A2完全一致，严格提升规则判定success=False。
+- 新增weighted测试17项、全工程164项断言全部PASS，Ruff与git diff --check通过；C1-C3和state374 sensitivity不改变A2结论。
+- raw manifest及既有Scenario 2、all-ILC、A1/A2/A3 fusion、Ridge、OLS结果SHA不变；未执行破坏性Git操作。
+
+2026-08-27 | behavior_fingerprint_ranking_consistency持续维护：非等权融合最终验收
+- 最终采用(funMng, funAng)分层，Development/Validation=340/85，seed=20260827，candidate始终425；coarse/fine=232/60。
+- Development冻结权重为(w1,w2,w3)=(0,1,0)，即纯Y-A2；Validation中Weighted与A2的10个85×425矩阵、850个Spearman及paired delta完全一致。
+- 严格成功规则要求Worst-C严格超过A2，故Validation success=False；full425/exclude state374与C1-C3 sensitivity均保持Y-A2结论。
+- 新增weighted测试、全工程测试、Ruff和git diff --check均通过；raw和所有既有结果SHA不变，未执行破坏性Git操作。
+
+2026-08-27T11:36:11.157980+00:00 | behavior_fingerprint_lut_retrieval新任务完成
+完成Scenario 2 C3→A2实际LUT检索：425个Query、425个候选；exact=217（0.510588），Top3/Top5=0.727059/0.844706；C3→A2与Real-B→Real-B排名回归均通过；生成检索矩阵、行为诊断、threshold sweep和三幅图，保护复核通过，结果位于D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C3_to_A2。
+
+2026-08-27 | behavior_fingerprint_lut_retrieval最终验收
+- 新增17项测试和全工程16个test_*.py入口全部PASS，Ruff、git diff --check和Python/matplotlib视觉QA通过。
+- 固定Y-C3 Query→Y-A2 LUT完成425/425 Top-1检索；Exact=217/425（51.0588%），Top-3=72.7059%，Top-5=84.4706%，
+  true-state rank median/max=1/20；C3→A2与Real-B→Real-B排名均与旧冻结结果完全回归。
+- Non-exact 208个Real-B CNMSE的mean/median/std=-42.7170573/-43.2436993/1.81126547 dB，
+  q05/q25/q75/q95=-44.5766413/-44.0445273/-41.8977433/-38.8299137 dB；未擅自冻结行为成功阈值。
+- 结果、三幅图、threshold sweep和validation均位于`results/behavior_fingerprint_lut_retrieval/scenario_2_C3_to_A2`；
+  raw及所有受保护旧结果/脚本SHA保持不变，未执行破坏性Git操作，无执行阻塞。
+
+2026-09-06 | behavior_fingerprint_lut_retrieval持续维护：Scenario 2 C2→Aend正式检索
+- 425个状态全部真实存在C2；A_end按每个状态最后实际可用ILC列选择，A2/A3/A4/A5分布为1/416/7/1；A_end/C2冻结响应回归通过。
+- 完成425×425 C2→Aend检索和完整排名，Exact=218/425（51.2941%），Top3/Top5=71.2941%/84.2353%，true-state rank median/max=1/49。
+- 严格Real-B CNMSE<-40 dB判据下DPD-shareable=411/425（96.7059%），failure=14，Non-exact shareable=193/207；
+  Real-B与旧R_RR完全回归，Exact -inf保留，输出Oracle shareable rank、失败状态、区域统计及旧C3→A2对比表。
+- 相比旧C3→A2，shareable增加4、failure减少4；Top3/Top5真实状态命中略降，结果不用于反向调参；生成四幅Python/matplotlib图并完成视觉QA。
+- 新模块19项测试和全工程17个test_*.py入口全部PASS，Ruff与git diff --check通过；raw及全部受保护旧结果/脚本SHA保持不变，未执行破坏性Git操作。
+- 结果目录：`results/behavior_fingerprint_lut_retrieval/scenario_2_C2_to_Aend`；当前状态：完成，无执行阻塞。
+
+2026-09-06 | behavior_fingerprint_lut_retrieval持续维护：425状态 Excel 汇总导出
+- 在不重新检索/建模的前提下生成 `scenario_2_C2_to_Aend_state_summary.xlsx`，单sheet `state_summary`，425行数据、10列固定表头；
+  raw三个标量按state_id只读读取，A_end/C2四项模型指标复用冻结all_ilc_model_metrics，state_id_Q和Real-B CNMSE复用正式CSV。
+- 重新导入的artifact-tool检查通过：426行含表头、10列、header一致、公式错误0、Exact `-Inf`=218、failure=14、DPD-shareable=411；
+  关键state 340=340→217、Real-B CNMSE约-37.1036724 dB；表头/列宽/冻结首行/筛选/阈值条件格式视觉检查通过。
+- 新增Excel测试8项、全工程18个test_*.py入口、Ruff和git diff --check均通过；C2→Aend既有19个正式结果文件和旧C3→A2结果保持不变，raw manifest保持不变，无执行阻塞。
+
+2026-09-06T07:27:38.043173+00:00 | behavior_fingerprint_lut_retrieval持续维护：Scenario 2 C2→Aend检索
+完成Scenario 2正式C2→Aend检索：425个状态全部真实存在C2，Aend按状态最后可用ILC列选择；Exact=218/0.512941，DPD-shareable(strict<-40 dB)=411/0.967059，failure=14；Aend/C2与冻结响应回归、Real-B/R_RR回归和保护复核通过，结果及四幅图已写入D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend。
+
+2026-09-06T07:28:12.849275+00:00 | behavior_fingerprint_lut_retrieval持续维护：Scenario 2 C2→Aend检索
+完成Scenario 2正式C2→Aend检索：425个状态全部真实存在C2，Aend按状态最后可用ILC列选择；Exact=218/0.512941，DPD-shareable(strict<-40 dB)=411/0.967059，failure=14；Aend/C2与冻结响应回归、Real-B/R_RR回归和保护复核通过，结果及四幅图已写入D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend。
+
+2026-09-06T07:29:02.020871+00:00 | behavior_fingerprint_lut_retrieval持续维护：Scenario 2 C2→Aend检索
+完成Scenario 2正式C2→Aend检索：425个状态全部真实存在C2，Aend按状态最后可用ILC列选择；Exact=218/0.512941，DPD-shareable(strict<-40 dB)=411/0.967059，failure=14；Aend/C2与冻结响应回归、Real-B/R_RR回归和保护复核通过，结果及四幅图已写入D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend。
+
+2026-09-06T07:32:23.150416+00:00 | behavior_fingerprint_lut_retrieval持续维护：Scenario 2 C2→Aend检索
+完成Scenario 2正式C2→Aend检索：425个状态全部真实存在C2，Aend按状态最后可用ILC列选择；Exact=218/0.512941，DPD-shareable(strict<-40 dB)=411/0.967059，failure=14；Aend/C2与冻结响应回归、Real-B/R_RR回归和保护复核通过，结果及四幅图已写入D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend。
+
+2026-09-06T08:21:41.026729+00:00 | behavior_fingerprint_lut_retrieval持续维护：Excel状态汇总
+完成Scenario 2 C2→Aend 425状态Excel汇总：单sheet state_summary、10列、425行；Exact -Inf=218、failure=14、DPD-shareable=411；冻结模型指标和PA标量均按state_id join，保护复核通过，输出位于D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend\scenario_2_C2_to_Aend_state_summary.xlsx。
+
+2026-09-06T11:31:33.100038+00:00 | behavior_fingerprint_lut_retrieval持续维护：Figure5状态指标汇总图
+基于scenario_2_C2_to_Aend_state_summary.xlsx生成单Axes六曲线图，207个finite retrieved marker均标注Q，Exact -Inf底部strip，-40 dB仅作Real-B CNMSE阈值；输出D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend\figure5_state_metrics_and_retrieval_cnmse.png，输入Excel和Figure1~4保护不变。
+
+2026-09-06 | 工程级维护：新增 Conda 环境与扩展包管理规则
+- 在 `AGENTS.md` 末尾新增“十二、Conda 环境与扩展包管理”，固定本工程 Conda 前缀和解释器。
+- 新扩展包默认通过 conda-forge、完整 `--prefix` 和 strict channel priority 安装，并保持 OpenBLAS 三项约束。
+- 明确安装前 dry-run、安装后同步 `environment.yml`、解释器/导入/BLAS/`pip check`/相关测试/Ruff 验证，以及 pip 仅作为有记录的受控例外。
+- 本次仅修改工程规则和总体 handoff；未安装或更新任何扩展包，未修改 `environment.yml`、`data/raw`、科研代码或结果，未创建任务目录，未 commit/push。
+
+2026-09-06 | behavior_fingerprint_lut_retrieval持续维护：Figure5状态指标汇总图最终验收
+- 基于既有state_summary Excel生成单Axes六曲线Figure5；前五条曲线按markevery=10使用不同线型/marker，retrieved Real-B CNMSE的207个finite点全部标注Q=state_id_Q。
+- 218个Exact hit的-Inf保留原义并仅用底部strip显示；-40 dB参考线只作用于retrieved Real-B CNMSE；总体有限值范围[-45.2297124,-20.5528273] dB。
+- 输入Excel与Figure1~4 SHA绘图前后保持不变；新增绘图测试8项、全工程19个test_*.py入口、Ruff和git diff --check通过；未读取raw/重算模型/检索，未执行破坏性Git操作。
+- Figure5输出位于`results/behavior_fingerprint_lut_retrieval/scenario_2_C2_to_Aend/figure5_state_metrics_and_retrieval_cnmse.png`，当前状态：完成，无执行阻塞。
+
+2026-09-06T13:07:51.226963+00:00 | behavior_fingerprint_lut_retrieval持续维护：统一Y-Aend/Y-C2模型容量
+完成Scenario 2统一Y-Aend/Y-C2模型容量研究：120 candidates在Development 340状态上按双侧B泛化指标选择，selected=P9/M0/lambda=1e-08，Validation retrieval shareable baseline/selected=83/83，严格提升=False；Full425 selected shareable=411/425，failure=14；raw及旧正式结果保护通过，结果写入D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_unified_model_capacity。
+
+2026-09-06T13:13:55.011291+00:00 | behavior_fingerprint_lut_retrieval持续维护：统一Y-Aend/Y-C2模型容量
+统一模型容量结果的浮点噪声后处理已完成：selected=Baseline，所有有效模型/retrieval gain均按1e-12 dB容差归零，相关性因常量gain记为undefined；原始数据与旧正式结果未改，Figure 2/6已更新。
+
+2026-09-06T13:15:26.226977+00:00 | behavior_fingerprint_lut_retrieval持续维护：统一Y-Aend/Y-C2模型容量
+补充修正统一模型容量结果：worst-side B gain也应用1e-12 dB容差，selected=Baseline的三类gain相关性均为常量0并标记undefined；Figure 2/6和validation.json已同步。
+
+2026-09-06T13:18:46.176541+00:00 | behavior_fingerprint_lut_retrieval持续维护：统一Y-Aend/Y-C2模型容量
+统一模型容量结果的validation.json已规范为严格JSON格式：未定义相关性的数值写为null，科学结论和原始/旧结果保护不变。
+
+2026-09-06T13:21:12.342942+00:00 | behavior_fingerprint_lut_retrieval持续维护：统一Y-Aend/Y-C2模型容量
+统一Y-Aend/Y-C2模型容量研究最终验收：新增测试9/9、全工程测试20/20、Ruff和git diff check通过；raw manifest与旧正式结果SHA保持不变，validation.json已记录1e-12 dB浮点容差和常量gain相关性undefined，当前无执行阻塞。
+
+2026-09-06T14:31:53.130507+00:00 | behavior_fingerprint_lut_retrieval持续维护：Scenario 2 equal ABC 消融
+完成Scenario 2 ABC三等分消融：新A/B/C=8192/8192/8192，segment-local有效长度=8190/8190/8190，冻结P9-M0-lambda=1e-8，Aend/C2结构统一；equal-ABC检索exact/shareable/failure=181/391/34，旧14 failure中failure→success=0，state_Q changed=117；新Real-B矩阵重新计算，旧结果和raw保护通过，结果写入D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_equal_ABC。
+
+2026-09-06T14:35:16.605276+00:00 | behavior_fingerprint_lut_retrieval持续维护：Scenario 2 equal ABC 消融
+补充旧/新泛化gap比较：comparison_vs_original_ABC.csv与validation.json已包含Gap_A/Gap_C median和q95，明确旧/新Real-B窗口不同的端到端解释边界。
+
+2026-09-06T14:42:06.746141+00:00 | behavior_fingerprint_lut_retrieval持续维护：Scenario 2 equal ABC 消融
+等长ABC Excel汇总已完成：artifact-tool创建并重载验证425×10主表，Exact文本-Inf=181、Failure=34、Shareable=391；预览可读，旧结果/raw保护不变。
+
+2026-09-06T14:44:10.690708+00:00 | behavior_fingerprint_lut_retrieval持续维护：Scenario 2 equal ABC 消融
+等长ABC消融最终验收完成：新增测试11/11、全工程测试21/21、Ruff和git diff check通过；Excel 425x10可读且Exact -Inf=181，新的Real-B矩阵确认重算，raw及旧结果保护SHA全部通过。
+
+2026-09-06T14:45:21.411804+00:00 | behavior_fingerprint_lut_retrieval持续维护：Scenario 2 equal ABC 消融
+Scientific summary: equal ABC improves C2-to-B generalization and sharply reduces A/C gap asymmetry, but end-to-end retrieval decreases under the new B window (Exact 218 to 181; Shareable 411 to 391; Failure 14 to 34; State_Q changed 117). This is an end-to-end segmentation comparison, not a fixed-window fingerprint gain.
+
+2026-09-06T14:48:37.884545+00:00 | behavior_fingerprint_lut_retrieval持续维护：Scenario 2 equal ABC 消融
+ABC等长消融最终验收：新增测试11/11、全工程测试21/21、Ruff和git diff check通过；Excel 425x10并正确保存Exact -Inf=181；analysis入口已补齐；新的Real-B矩阵、旧结果与raw保护全部确认。
+
+2026-09-06T16:22:43.492427+00:00 | behavior_fingerprint_lut_retrieval持续维护：retrieval-oriented统一MP扫描
+完成Scenario 2 retrieval-oriented统一MP扫描：200 candidates，完整425×425 Query-LUT检索，Best candidate=P13/M0/lambda=0.0001，shareable=420/425，failure=5，zero-failure candidates=0；Real-B严格用于oracle/post-hoc排名；raw及既有正式结果保护通过；结果写入D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_retrieval_oriented_model_scan。
+
+2026-09-07 | behavior_fingerprint_lut_retrieval持续维护：retrieval-oriented统一MP扫描最终验收
+- 完成原正式不等长ABC上的200 Candidate统一MP检索导向扫描；每个Candidate均执行425个Y-C2 Query对完整425条Y-Aend LUT的检索，形成425×425距离矩阵，statewise共85000行，200/200有效。
+- Baseline P9/M0/lambda=1e-8严格回归为218 Exact、411 Shareable、14 Failure，距离矩阵误差0、排名一致；Best为Candidate 130=P13/M0/lambda=1e-4，420/425 Shareable、Failure=5、Exact=197，救回原14个Failure中的12个并产生3个新Failure，净增加9个Shareable；无0-Failure Candidate。
+- 已生成Candidate grid、progress、summary/ranking/statewise、Best/ Baseline矩阵与系数、Baseline-vs-Best、Failure rescue/Top-K、Support-Control、validation、六幅Python/matplotlib图和Best 425状态Excel；Excel artifact-tool创建/重载/预览检查通过，Exact以文本-Inf保存。
+- Support-Control在d=2/3/4/5均保持Failure=14；Best的四项模型NMSE整体低于Baseline但检索更好，12个Failure→Success状态四项模型指标均变差，说明绝对模型NMSE与检索几何并不等价；memory horizon扩展未优于d=2，P13/较大lambda在本网格中最优。
+- 22个test_*.py入口、Ruff、compileall、Node builder检查和pip check均通过；raw manifest和既有正式/等长/统一容量结果未变化，未执行破坏性Git操作，当前状态：完成，无执行阻塞。
+- 结果维护补充：新增并校验a_end_stage_map.csv，validation.json已同步记录Excel已验证、fit cache可恢复和完整输出清单；不改变科研数值。
+
+2026-09-06T16:35:40.564709+00:00 | behavior_fingerprint_lut_retrieval持续维护：retrieval-oriented统一MP扫描
+完成Scenario 2 retrieval-oriented统一MP扫描：200 candidates，完整425×425 Query-LUT检索，Best candidate=P13/M0/lambda=0.0001，shareable=420/425，failure=5，zero-failure candidates=0；Real-B严格用于oracle/post-hoc排名；raw及既有正式结果保护通过；结果写入D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_retrieval_oriented_model_scan。
+
+2026-09-07T05:27:53.534050+00:00 | low_bandwidth_observation持续维护：Fs_obs唯一控制观测算子
+完成共享LowBandwidthObservationOperator/Bank：k=1..50、Fs_obs=2..100 MHz、B_obs=Fs_obs，固定resample_poly参数，5B identity、synthetic、alias和state0 smoke通过；未执行nB LUT retrieval；结果写入D:\Project_Files\python_project\project_20260821\results\low_bandwidth_observation\sample_rate_operator_bank，raw及既有检索结果保护通过。
+
+2026-09-07T05:30:45.562723+00:00 | low_bandwidth_observation持续维护：Fs_obs唯一控制观测算子
+完成共享LowBandwidthObservationOperator/Bank：k=1..50、Fs_obs=2..100 MHz、B_obs=Fs_obs，固定resample_poly参数，5B identity、synthetic、alias和state0 smoke通过；未执行nB LUT retrieval；结果写入D:\Project_Files\python_project\project_20260821\results\low_bandwidth_observation\sample_rate_operator_bank，raw及既有检索结果保护通过。
+
+2026-09-07T05:32:11.337844+00:00 | low_bandwidth_observation持续维护：Fs_obs唯一控制观测算子
+完成共享LowBandwidthObservationOperator/Bank：k=1..50、Fs_obs=2..100 MHz、B_obs=Fs_obs，固定resample_poly参数，5B identity、synthetic、alias和state0 smoke通过；未执行nB LUT retrieval；结果写入D:\Project_Files\python_project\project_20260821\results\low_bandwidth_observation\sample_rate_operator_bank，raw及既有检索结果保护通过。
+
+2026-09-07 | low_bandwidth_observation持续维护：最终验收
+- 共享算子已冻结为单一 `Fs_obs` 控制的 `scipy.signal.resample_poly`，当前 SciPy=1.17.1，显式 window=`('kaiser', 5.0)`、padtype=`constant`、cval=0、edge_policy=`keep`；`B_obs=Fs_obs`，无独立 effective bandwidth 参数，无可选 ideal/practical mode。
+- 50 个档位完整覆盖 2–100 MHz（n=0.1–5.0，步长2 MHz，up/down精确约分）；N=12286/4913/7371 全部通过；complex128、逐列矩阵、线性性、Pair同步和100 MHz严格identity通过。
+- state0真实5B waveform smoke通过；20 MHz目标采样率的带外tone alias抑制82.3259 dB；生成operator_bank.csv/json、synthetic/real smoke/alias CSV、三张Python图和validation.json；明确未执行任何nB模型或LUT检索。
+- 新增算子测试9/9、全工程23/23、Ruff、compileall、pip check、git diff check通过；raw manifest和既有正式检索结果保护通过，当前状态：完成，无执行阻塞。
+
+2026-09-07 | low_bandwidth_observation持续维护：时间对齐metadata语义修正
+- module version从1.0.0更新为1.0.1；仅修正metadata和timing validation，resample_poly及全部数值参数保持不变；当前正式字段为manual_group_delay_compensation_applied=false、explicit_sample_shift_applied=0、output_time_origin_aligned=true、additional_delay_compensation_required=false，旧group_delay_compensated已从当前正式metadata删除（历史日志保留）。
+- SciPy 1.17.1源码确认中心化/零相位FIR与首样点时间原点约定；项目无额外roll/offset/shift。Interior impulse、matrix/pair timing 50/50通过，max peak-index error=0；tone phase max error=1.2949418786e-09 rad，residual delay=9.4804344460e-08 samples。
+- 固定seed pre/post numerical regression 50档 vector/matrix差异均为0；5B identity、alias suppression、真实state0输出长度和三张原图内容保持；新增timing工程图与CSV；全工程23/23测试、Ruff、compileall、pip check、git diff check通过，raw及既有检索结果SHA保护通过；未执行nB LUT retrieval。
+
+2026-09-07T05:55:38.860319+00:00 | low_bandwidth_observation持续维护：Fs_obs唯一控制观测算子
+完成共享LowBandwidthObservationOperator/Bank：k=1..50、Fs_obs=2..100 MHz、B_obs=Fs_obs，固定resample_poly参数，5B identity、synthetic、alias和state0 smoke通过；未执行nB LUT retrieval；结果写入D:\Project_Files\python_project\project_20260821\results\low_bandwidth_observation\sample_rate_operator_bank，raw及既有检索结果保护通过。
+
+2026-09-07T06:52:11.837732+00:00 | behavior_fingerprint_lut_retrieval持续维护：固定1B检索
+固定1B行为指纹检索完成：5B regression guard=True；425状态，LUT/Query fingerprint=(425, 983)/(425, 983)；shareable=398/0.936471，failure=27；1B仅用于检索，5B Real-B仅用于最终验证；Excel与机器可读结果已写入D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_1B。
+
+2026-09-07 | behavior_fingerprint_lut_retrieval持续维护：固定1B最终验收
+主图布局说明文字和Excel summary failure状态列表完成可读性维护；未改变1B模型、指纹、检索矩阵或Real-B数值。最终24个test_*.py入口、Ruff、compileall、pip check、git diff check通过；raw manifest=429文件/2258448137 bytes/SHA=910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0，既有5B及低带宽保护哈希均未变化；当前状态：完成，无执行阻塞。
+
+2026-09-07T12:53:36.471477+00:00 | behavior_fingerprint_lut_retrieval持续维护：固定1B检索
+固定0.5B行为指纹检索完成：1B regression=True，5B regression=True；425状态，LUT/Query fingerprint=(425, 492)/(425, 492)；shareable=346/0.814118，failure=79；0.5B仅用于检索，5B Real-B仅用于最终验证；1B/5B/算子保护通过。
+
+2026-09-07 | behavior_fingerprint_lut_retrieval持续维护：0.5B日志标记修正
+将0.5B入口调用的执行日志与handoff标题改为明确的fixed 0.5B标记；不改变任何科研结果，静态检查通过，当前0.5B结果仍保持完成状态。
+
+2026-09-07 | behavior_fingerprint_lut_retrieval持续维护：0.5B最终验收
+最终25个test_*.py入口全部通过，Ruff、compileall、pip check、git diff check通过；raw manifest和现有5B/1B/低带宽结果保护哈希均未变化；0.5B固定检索结果、三sheet Excel和六曲线图均完成，当前状态：完成，无执行阻塞。
+
+2026-09-07 | behavior_fingerprint_lut_retrieval持续维护：0.5B最终产物复核
+0.5B validation、正式结果文件、artifact-tool Excel、PNG/SVG/PDF图形和数值稳定性检查再次通过；临时preview/inspect/Excel锁文件已清理，结果目录仅保留正式产物。
+
+2026-09-08T16:43:28+08:00 | behavior_model持续维护：statewise 当前最优精度 Excel 快照
+基于已落盘 Round 0--3 的 Aend/C2 候选日志，按425个状态分别取 A train、A→B、C train、C→B 四个独立最优精度，并读取 raw NMSE_WITHOUTDPD 与上下边带 ACPR 平均值；artifact-tool 创建/重载验证通过，输出 results/behavior_model/scenario_2_statewise_adaptive_Aend_C2_5B/statewise_adaptive_best_metrics.xlsx（425行、严格8列）。第4轮 statewise 搜索仍在运行，未落盘结果未写入该快照。
+
+2026-09-08T17:36:45+08:00 | behavior_model持续维护：按用户要求停止第五轮并刷新当前 Excel
+第五轮仅开始5/229目标状态，未完成且未写入正式日志；已停止进程，Round 0--4候选日志和checkpoint保留。基于Round 0--4已落盘记录刷新 statewise_adaptive_best_metrics.xlsx，artifact-tool验证通过（425行、严格8列）；未修改raw或旧正式结果。
+
+2026-09-08T17:36:45+08:00 | behavior_model持续维护：固化 statewise partial validation
+重建并保存 Round 0--4 的 1064 条候选模型网格和 partial_validation.json；Aend 联合 native 可行344/425，C2=196/425；formal_model_bank_complete=false，common-support 与 retrieval 未执行，unresolved 状态已记录；未修改raw或旧正式结果。
+
+
+[2026-09-08T10:01:17.921694+00:00] Scenario 2 statewise-best Round 0--4 模型选择
+本次仅冻结并派生选择 Round 0--4 已落盘候选，不继续模型搜索。
+selected Aend/C2=425/425；
+native feasible=344/196；
+850个selected模型重新拟合并与候选日志核对，最大误差=3.218758592993254e-12/2.467004378559068e-11 dB。
+保护复核=True；结果目录=D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_statewise_best_round0_4_5B。
+
+2026-09-08T18:23:13+08:00 | behavior_model持续维护：statewise-best Round 0--4 模型库完成
+冻结1064条Round 0--4候选，425个Aend与425个C2均选择并重拟合真实candidate；native feasible=344/196，fallback=81/229，重拟合与日志误差低于2.5e-11 dB，Round5未使用。
+
+2026-09-08T18:23:13+08:00 | behavior_fingerprint_lut_retrieval新派生任务：statewise-best Round 0--4 5B retrieval完成
+完成M_common=9、4906点公共B支撑上的425x425 fingerprint Top1，并仅在State_Q固定后复用canonical 5B OFF Real-B；Exact=161、Shareable=389、Failure=36，相对baseline 218/411/14。五sheet Excel和三幅Python/matplotlib图形输出完成，20状态spot checks、Excel重载/公式扫描和raw/旧结果保护通过。
+
+2026-09-08T18:23:13+08:00 | 工程验证说明：statewise-best Round 0--4
+本任务定向模型选择/retrieval测试4/4通过；全工程28个直接测试25项通过，3项旧保护测试的完整脚本目录SHA硬编码值早于新增 statewise 脚本，仅在脚本摘要断言失败，raw和旧结果保护均通过。Ruff、compileall、pip check和git diff check通过。
+
+
+[2026-09-08T13:17:30.217153+00:00Z] Scenario 2 unified odd-order MP capacity scan
+用户要求完成 Round 3 后终止；仅汇总 Round 0--3，未生成或评估 Round 4。
+使用普通 complex least-squares；ridge、低带宽算子、retrieval、Real-B 均未使用。
+candidate_count=280；selected=(P21,M4)，K=44；stop=user_requested_stop_after_round_3。
+Development/Validation=340/85；selected refit={'all_850_refit': True, 'max_train_abs_diff_dB': 9.331557748737396e-11, 'max_B_abs_diff_dB': 4.168022371686675e-09}。
+raw/protected unchanged=True；结果目录=D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_unified_odd_order_mp_capacity_scan_5B。
+
+
+[2026-09-08T13:31:57.407442+00:00] Scenario 2 unified odd-order MP capacity scan
+用户要求完成 Round 3 后终止；仅汇总 Round 0--3，未生成或评估 Round 4。
+使用普通 complex least-squares；ridge、低带宽算子、retrieval、Real-B 均未使用。
+candidate_count=280；selected=(P21,M4)，K=44；stop=user_requested_stop_after_round_3。
+round_runtimes_seconds=[43.211783500009915, 336.8206148999743, 1359.775167600019, 2699.429932799976]；total_elapsed_seconds=4439.237；candidate_state_evaluations=119000；total_model_fit_count=238000；candidate_state_evaluations_per_second=26.806405。
+CPU/memory monitor unavailable in the fixed environment; no peak/median values claimed.
+Development/Validation=340/85；selected refit={'all_850_refit': True, 'max_train_abs_diff_dB': 9.331557748737396e-11, 'max_B_abs_diff_dB': 4.168022371686675e-09}。
+raw/protected unchanged=True；结果目录=D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_unified_odd_order_mp_capacity_scan_5B。
+
+
+[2026-09-08T14:53:37.449071+00:00] scenario_2_failed14_odd_order_mp_order_dependent_memory_scan_5B
+scenario_2_failed14_odd_order_mp_order_dependent_memory_scan_5B completed: 125/125 candidates × 14/14 failed states.
+Candidate-level ProcessPoolExecutor: logical_cpu_count=20, workers=18, target=0.90, BLAS threads/worker=1, nested_parallelism=False.
+Selected candidate=14, P=5, memory_profile=P5_M[1,1,1], K=3; selection=balanced_worst4_then_joint_then_complexity_when_no_all_four_pass.
+Total fits=3500; elapsed=2.066s; candidate-state evaluations/s=847.191982; model fits/s=1694.383964.
+Serial/parallel regression=True; selected refit=True; raw/protected unchanged=True.
+No LUT retrieval, Real-B validation, low-bandwidth transform, Ridge, or candidate expansion was performed after this finite scan.
+Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_odd_order_mp_order_dependent_memory_scan_5B
+
+2026-09-08T15:00:00+00:00 | behavior_model新派生任务：failed14 odd-order variable-memory MP最终产物
+只对正式5B LUT检索失败的14个状态完成125个紧凑odd-order、order-dependent-memory候选扫描；Candidate-level ProcessPoolExecutor使用20逻辑CPU中的18个worker，BLAS线程/worker=1，串行/并行回归通过。选中平衡候选Candidate 30=P5、memory profile=[4,4,1]、K=9；all-four和Aend/C2 joint均为0/14，未执行retrieval、Real-B、低带宽或Ridge。Excel八工作表及Figure 1--10（PNG/SVG/PDF）完成artifact-tool/重载/公式扫描和Python视觉QA；raw及9个既有结果目录保护通过。
+
+
+[2026-09-08T14:55:20.526396+00:00] scenario_2_failed14_odd_order_mp_order_dependent_memory_scan_5B
+scenario_2_failed14_odd_order_mp_order_dependent_memory_scan_5B completed: 125/125 candidates × 14/14 failed states.
+Candidate-level ProcessPoolExecutor: logical_cpu_count=20, workers=18, target=0.90, BLAS threads/worker=1, nested_parallelism=False.
+Selected candidate=30, P=5, memory_profile=P5_M[4,4,1], K=9; selection=balanced_worst4_then_joint_then_complexity_when_no_all_four_pass.
+Total fits=3500; elapsed=2.989s; candidate-state evaluations/s=585.514276; model fits/s=1171.028553.
+Serial/parallel regression=True; selected refit=True; raw/protected unchanged=True.
+No LUT retrieval, Real-B validation, low-bandwidth transform, Ridge, or candidate expansion was performed after this finite scan.
+Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_odd_order_mp_order_dependent_memory_scan_5B
+
+
+[2026-09-08T18:13:00.460701+00:00] scenario_2_failed14_P5_variable_memory_ridge_scan_5B
+scenario_2_failed14_P5_variable_memory_ridge_scan_5B completed: 200/200 candidates × 14/14 failed states; total fits=5600.
+Candidate-level ProcessPoolExecutor: logical_cpu_count=20, workers=18, target=0.90, BLAS threads/worker=1, nested_parallelism=False.
+Selected candidate=39, profile=P5_M[2,2,2], lambda=1e-04, K=6; selection=balanced_worst4_then_joint_complexity_lambda_when_no_all_four.
+Scan elapsed=3.701s; candidate-state evaluations/s=756.480866; model fits/s=1512.961732.
+Gates: serial_parallel=True; ridge_math=True; OLS=True; B_support=True; refit=True.
+raw/protected unchanged=True; figures=21 PNG/SVG/PDF files; Excel source ready.
+No LUT retrieval, Real-B validation, low-bandwidth transform, or candidate expansion was performed.
+Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_P5_variable_memory_ridge_scan_5B
+
+2026-09-09T18:20:00+00:00 | behavior_model持续维护：P5 variable-memory Ridge Excel和图形最终验收
+200个P5 unified MP+Ridge候选、14个失败状态和5600次拟合已完成；选中Candidate 39=P5_M[2,2,2]、lambda=1e-4、K=6。artifact-tool Excel 11工作表创建/重载/公式扫描通过，Python图形21文件完成视觉QA；Ridge math、OLS、B support、serial/parallel和selected refit gates均通过，raw及既有结果保护通过，未进入retrieval或Real-B验证。
+
+
+[2026-09-08T18:53:38.338718+00:00] scenario_2_failed14_P5_with_order2_variable_memory_OLS_scan_5B
+scenario_2_failed14_P5_with_order2_variable_memory_OLS_scan_5B completed: 35/35 candidates × 14/14 failed states; total fits=980.
+Candidate-level parallel: logical_cpu_count=20, workers=16, target=0.80, BLAS=1, nested=False.
+Selected Candidate 15=P5_M[4,1,1,1], K=7, OLS only; selection=balanced_worst4_then_joint_complexity_when_no_all_four.
+Gates: candidate=True; basis=True; OLS=True; B_support=True; serial_parallel=True; refit=True.
+elapsed=0.004s; candidate-state/s=121966.396919; model-fits/s=243932.793838; raw/protected unchanged=True.
+No LUT retrieval, Real-B validation, low-bandwidth operator, Ridge or expansion was performed.
+Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_P5_with_order2_variable_memory_OLS_scan_5B
+
+2026-09-09T19:20:00+00:00 | behavior_model持续维护：P5 + order2 OLS最终图形/Excel版式
+修正 Figure 1、Figure 6 图例遮挡并完成重新导出；order2_ablation Excel来源改为可读标签。数值、候选选择和验证结论不变，27个图形文件及10工作表Excel重载/公式扫描均通过。
+
+2026-09-09T19:00:00+00:00 | behavior_model新派生任务：P5 + order2 OLS结构消融最终验收
+35个P5 `[1,2,3,5]` 变量记忆结构、14个失败状态和980次拟合全部完成；balanced candidate=15，profile=[4,1,1,1]，K=7。与上一轮 odd-only P5 OLS的 order2_ablation 对照表已生成；all-four/Aend joint/C2 joint最大均为0/14。Candidate-level 16 worker并行、basis/OLS/B-support/serial-parallel/refit gates、Excel 10工作表重载和公式扫描、27个Python图形视觉QA均通过；raw及既有正式结果保护通过，未进入retrieval或Real-B验证。
+
+
+[2026-09-08T18:56:51.282676+00:00] scenario_2_failed14_P5_with_order2_variable_memory_OLS_scan_5B
+scenario_2_failed14_P5_with_order2_variable_memory_OLS_scan_5B completed: 35/35 candidates × 14/14 failed states; total fits=980.
+Candidate-level parallel: logical_cpu_count=20, workers=16, target=0.80, BLAS=1, nested=False.
+Selected Candidate 15=P5_M[4,1,1,1], K=7, OLS only; selection=balanced_worst4_then_joint_complexity_when_no_all_four.
+Gates: candidate=True; basis=True; OLS=True; B_support=True; serial_parallel=True; refit=True.
+elapsed=0.004s; candidate-state/s=134246.575389; model-fits/s=268493.150777; raw/protected unchanged=True.
+No LUT retrieval, Real-B validation, low-bandwidth operator, Ridge or expansion was performed.
+Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_P5_with_order2_variable_memory_OLS_scan_5B
+
+
+[2026-09-09T02:01:29.919711+00:00] scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5B
+scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5B completed: 63 candidates × 14 failed states; post-selection validation=425 states.
+Frozen baseline reproduction=True (max error=1.279e-13 dB); selected candidate=57, profile=S6_M[4,3,2,1,1,1], lambda=1e-08, K=12.
+Candidate-level ProcessPoolExecutor: logical CPUs=20, workers=16, target=0.80, BLAS threads/worker=1, nested_parallelism=False.
+Gates: ridge_math=True; basis=True; OLS=True; B_support=True; serial_parallel=True; refit=True; common_support=True.
+Scan elapsed=0.006s; figures=36 files; all425 validation rows=425.
+raw/protected unchanged=True; no retrieval, Real-B, low-bandwidth operator, or frozen-config replacement.
+Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5B
+
+
+[2026-09-09T02:07:03.892292+00:00] scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5B
+scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5B completed: 63 candidates × 14 failed states; post-selection validation=425 states.
+Frozen baseline reproduction=True (max error=1.279e-13 dB); selected candidate=57, profile=S6_M[4,3,2,1,1,1], lambda=1e-08, K=12.
+Candidate-level ProcessPoolExecutor: logical CPUs=20, workers=16, target=0.80, BLAS threads/worker=1, nested_parallelism=False.
+Gates: ridge_math=True; basis=True; OLS=True; B_support=True; serial_parallel=True; refit=True; common_support=True.
+Scan elapsed=0.006s; figures=36 files; all425 validation rows=425.
+raw/protected unchanged=True; no retrieval, Real-B, low-bandwidth operator, or frozen-config replacement.
+Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5B
+
+
+[2026-09-09T02:10:06.687975+00:00] scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5B
+scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5B completed: 63 candidates × 14 failed states; post-selection validation=425 states.
+Frozen baseline reproduction=True (max error=1.279e-13 dB); selected candidate=57, profile=S6_M[4,3,2,1,1,1], lambda=1e-08, K=12.
+Candidate-level ProcessPoolExecutor: logical CPUs=20, workers=16, target=0.80, BLAS threads/worker=1, nested_parallelism=False.
+Gates: ridge_math=True; basis=True; OLS=True; B_support=True; serial_parallel=True; refit=True; common_support=True.
+Scan orchestration elapsed=0.006s (all candidates resumed from valid chunks=True); figures=36 files; all425 validation rows=425.
+raw/protected unchanged=True; no retrieval, Real-B, low-bandwidth operator, or frozen-config replacement.
+Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5B
+
+
+[2026-09-09T10:11:51.0609349+08:00] scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5B artifact validation
+Bundled @oai/artifact-tool 重载 Excel；12 个工作表、关键范围渲染和公式错误扫描（0 条错误）通过。ridge_grid 标签修正为可读的 lambda=... 文本；12 幅图各自输出 PNG/SVG/PDF，SVG 文本可编辑。结果数值和 selected candidate 未改变。
+随后仅将 Figure 4 的坐标标签改为无字体警告的可编辑文本并重新导出 12 幅图；数据表、模型和验证 JSON 未改变。
+
+
+[2026-09-09T03:04:53.648033+00:00] scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B
+scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B completed: 18 GMP dictionary terms, G0-G8 A/C blocked-CV selection, selected G4 (['GMP005', 'GMP011', 'GMP001', 'GMP017']), 14-state B evaluation and 425-state post-selection validation. Frozen baseline gate=True (max error=1.279e-13 dB); serial/parallel=True; CV leakage=True; raw/protected unchanged=True. Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B
+
+
+[2026-09-09T03:08:46.373622+00:00] scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B
+scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B completed: 18 GMP dictionary terms, G0-G8 A/C blocked-CV selection, selected G4 (['GMP005', 'GMP011', 'GMP001', 'GMP017']), 14-state B evaluation and 425-state post-selection validation. Frozen baseline gate=True (max error=1.279e-13 dB); serial/parallel=True; CV leakage=True; raw/protected unchanged=True. Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B
+
+
+[2026-09-09T03:12:58.372287+00:00] scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B
+scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B completed: 18 GMP dictionary terms, G0-G8 A/C blocked-CV selection, selected G4 (['GMP005', 'GMP011', 'GMP001', 'GMP017']), 14-state B evaluation and 425-state post-selection validation. Frozen baseline gate=True (max error=1.279e-13 dB); serial/parallel=True; CV leakage=True; raw/protected unchanged=True. Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B
+
+
+[2026-09-09T11:13:17+08:00] scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B artifact validation
+Bundled @oai/artifact-tool 创建并重载 Excel；12 个工作表、关键范围渲染通过，公式错误扫描为 0。Python 图形 12 组各输出 PNG/SVG/PDF，SVG 文本可编辑；Figure 3 已包含 train、A/C CV 和 B 三条路径。数据、模型和验证结果未改变。
+
+
+[2026-09-09T03:17:23.408454+00:00] scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B
+scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B completed: 18 GMP dictionary terms, G0-G8 A/C blocked-CV selection, selected G4 (['GMP005', 'GMP011', 'GMP001', 'GMP017']), 14-state B evaluation and 425-state post-selection validation. Frozen baseline gate=True (max error=1.279e-13 dB); serial/parallel=True; CV leakage=True; raw/protected unchanged=True. Results: D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B
+
+
+[2026-09-09T11:18:00+08:00] scenario_2_failed14_frozen_mp_residual_sparse_gmp_5B artifact validation
+最终数值诊断表扩展到 G0–G8、state/side 级 conditioning；Excel 12 工作表重载、关键范围渲染和公式错误扫描通过。图形重新导出 12 组 PNG/SVG/PDF，Figure 3 同时显示 train、A/C CV 和 B。
+
+
+2026-09-09T12:20:56.0373992+08:00 | behavior_fingerprint_lut_retrieval持续维护：Scenario 2 C2→Aend G4 Sparse-GMP retrieval
+G4 从冻结结构文件加载并完成 425 状态 Aend/C2 拟合、425×425 行为 CNMSE 检索及 canonical Real-B 验证。G4 Exact=235、Shareable=419、Failure=6；原 failure14 救回8个且 success411 无新失败。Excel 7 工作表、图形5组 PNG/SVG/PDF、定向测试与保护门禁通过；未覆盖历史 Frozen retrieval。
+
+
+[2026-09-09T06:37:08.365229+00:00] scenario_2_failed14_multibranch_independent_basis_OLS_scan_5B finalization
+scenario_2_failed14_multibranch_independent_basis_OLS_scan_5B finalized after bookkeeping recovery: candidate_count=1576, selected=1492, K=80, passes=3; rank_gate=False, support_gate=True, raw/protected unchanged=True.
+
+2026-09-09T06:40:00+00:00 | behavior_model 新派生任务：独立多分支基函数 OLS 扫描验收
+14 个固定失败状态的 3-pass coordinate-beam 搜索完成，记录 1576 条候选评估；选中 candidate 1492，K=80，common support trim=26。结构冻结后才打开 B，A/C→B 结果、Frozen/G4/SourceTop 对照、conditioning/family/uniqueness 表和 PNG 图已生成；Excel 12 个工作表保存后重载、公式错误扫描为0。6个单元测试、编译、Ruff、pip check通过；raw及既有历史结果保护通过。最终模型数值秩为79/80且条件数约1e16，作为明确警告保留；任务停止于行为模型验证，未进入 LUT retrieval、Real-B 或低带宽实验。
+
+
+2026-09-09T07:31:30.612833+00:00 | behavior_model 新派生任务：Frozen MP basis RMS归一化 + uniform Ridge
+scenario_2_failed14_frozen_mp_normalized_uniform_ridge_5B completed: states=14, lambda_count=42, selected_lambda=5.6234132519034904e-07, CV_fits=3528, workers=18, normalized_OLS_gate=True, frozen_reproduction_gate=True, raw/protected unchanged=True. Only three result files were written under D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_frozen_mp_normalized_uniform_ridge_5B; no figures, Excel, cache, coefficients, or retrieval were generated.
+
+
+2026-09-09T08:00:09.672946+00:00 | behavior_model 新派生任务：Frozen MP normalized basis-dependent Ridge
+scenario_2_failed14_frozen_mp_normalized_basis_dependent_ridge_5B completed: states=14, coarse_configs=312, refinement_configs=441, total_configs=753, selected_lambda0=1.333521432163324e-10, alpha=9.5136569200217682, beta=6.727171322029716, CV_fits=63252, workers=18, frozen_gate=True, lambda_vector_gate=True, uniform_gate=True, raw/protected unchanged=True. Only three result files were written under D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_frozen_mp_normalized_basis_dependent_ridge_5B; no figures, Excel, cache, coefficients, or retrieval were generated.
+
+
+2026-09-09T08:02:37.785396+00:00 | behavior_model 新派生任务：Frozen MP normalized basis-dependent Ridge
+scenario_2_failed14_frozen_mp_normalized_basis_dependent_ridge_5B completed: states=14, coarse_configs=312, refinement_configs=438, total_configs=750, selected_lambda0=1.333521432163324e-10, alpha=9.5136569200217682, beta=6.727171322029716, CV_fits=63000, workers=18, frozen_gate=True, lambda_vector_gate=True, uniform_gate=True, raw/protected unchanged=True. Only three result files were written under D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_failed14_frozen_mp_normalized_basis_dependent_ridge_5B; no figures, Excel, cache, coefficients, or retrieval were generated.
+
+修正说明：首次 753 configuration 运行后发现 refinement 中有 3 个 coarse 重复点，随即去重并重新完成 750 个唯一 configuration 的正式运行；最优超参数和最终指标未改变，当前结果以修正后的运行版本为准。
+
+
+2026-09-09T08:53:52.197279+00:00 | clustering 新派生任务：Scenario 2 5B-A yout_withoutdpd_ori complete-link
+scenario_2_yout_withoutdpd_ori_5B_A_complete_link_clustering completed: threshold=-40 dB, states=425, clusters=77, matrix=recomputed, workers=18, synthetic_gates={'chain_gate': True, 'compatible_gate': True, 'strict_less_gate': True}, preprocessing_gate=True, clustering_gates=True, raw/protected unchanged=True. Result: D:\Project_Files\python_project\project_20260821\results\clustering\scenario_2_yout_withoutdpd_ori_5B_A_complete_link_clustering\threshold_m40p0dB
+
+
+2026-09-09T08:54:35.638863+00:00 | clustering 新派生任务：Scenario 2 5B-A yout_withoutdpd_ori complete-link
+scenario_2_yout_withoutdpd_ori_5B_A_complete_link_clustering completed: threshold=-40 dB, states=425, clusters=77, matrix=reused, workers=18, synthetic_gates={'chain_gate': True, 'compatible_gate': True, 'strict_less_gate': True}, preprocessing_gate=True, clustering_gates=True, raw/protected unchanged=True. Result: D:\Project_Files\python_project\project_20260821\results\clustering\scenario_2_yout_withoutdpd_ori_5B_A_complete_link_clustering\threshold_m40p0dB
+
+
+2026-09-09T11:53:55.562255+00:00 | clustering 持续维护：Complete-Link 代表状态选择
+scenario_2_yout_withoutdpd_ori_5B_A_complete_link_clustering representative-selection maintenance completed: threshold=-40 dB, clusters=77, representatives=77, matrix=reused, reproduction=True, all_cluster_gates=True, representative_gates=True, raw/protected unchanged=True. Updated cluster assignments/summary and added cluster_representatives.csv; no fingerprint/DPD payload copied.
+
+
+2026-09-09T11:55:45.243405+00:00 | clustering 持续维护：Complete-Link 代表状态选择
+scenario_2_yout_withoutdpd_ori_5B_A_complete_link_clustering representative-selection maintenance completed: threshold=-40 dB, clusters=77, representatives=77, matrix=reused, reproduction=True, all_cluster_gates=True, representative_gates=True, raw/protected unchanged=True. Updated cluster assignments/summary and added cluster_representatives.csv; no fingerprint/DPD payload copied.
+
+Complete-Link tie-break 按冻结定义细化为 score→合并后规模→两侧 cluster 最小 state_id→内部 ID，重新运行 -40 dB reproduction 仍为 PASS，77 个代表状态不变。
+
+
+2026-09-09T11:56:40.735816+00:00 | clustering 持续维护：Complete-Link 代表状态选择
+scenario_2_yout_withoutdpd_ori_5B_A_complete_link_clustering representative-selection maintenance completed: threshold=-40 dB, clusters=77, representatives=77, matrix=reused, reproduction=True, all_cluster_gates=True, representative_gates=True, raw/protected unchanged=True. Updated cluster assignments/summary and added cluster_representatives.csv; no fingerprint/DPD payload copied.
+
+
+[2026-09-09T20:46:49+08:00] 新任务：scenario_2_C2_to_Aend_type3_cluster_compressed_5B
+状态：完成。基于既有 5B-A yout_withoutdpd_ori Complete-Link -40 dB 聚类，复用 77 个 cluster/representative，完成 425 个 Y-C2→Y-Aend 压缩 LUT Top-1 检索。LUT 指纹/DPD 条目由 425 压缩到 77（81.8823529%）；Exact=63/425，同簇命中=295/425；strict Real-B CNMSE<-40 dB=402/425。Frozen MP Aend/C2 复现、Real-B helper/ranking、raw/历史结果保护均通过。
+主要输出：results/behavior_fingerprint_lut_retrieval/scenario_2_C2_to_Aend_type3_cluster_compressed_5B/threshold_m40p0dB/ 下的 type3_cluster_compressed_retrieval.xlsx、type3_cluster_compressed_retrieval.png、final_result_summary.txt。Excel 为单一 per_state 工作表（425 行、21 列），PNG 为单轴六曲线并在 Real-B marker 标注命中 State_Q；目录无过程副产物。未执行 DPD replay、LUT-I/LUT-II、低带宽或旧结果覆盖。
+
+[2026-09-09T20:51:28+08:00] Type-III 代表映射契约补强
+新增并验证代表状态/指纹/DPD 三列一致性和 assignment 标志校验；同一冻结输入复跑结果无变化，结果目录仍仅含 Excel、PNG、总结文本三件正式产物。
+
+[2026-09-11T13:24:41.975030+00:00] scenario_2_frozen_mp_global_sparse_gmp_residual_5B
+scenario_2_frozen_mp_global_sparse_gmp_residual_5B completed: selected_G=4, selected_terms=['GMP_p02_m00_q01', 'GMP_p02_m01_q00', 'GMP_p03_m01_q00', 'GMP_p02_m00_q02'], validation_pass=False, characterization_425=False, raw/protected_unchanged=True; results=D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_frozen_mp_global_sparse_gmp_residual_5B
+
+[2026-09-11T21:26:12+08:00] 全局 Sparse-GMP 任务最终验证
+Validation 失败原因被确认且未触发后续阶段：仅 `delta_gap_C` 中位数 `+0.218804986 dB` 超过预设 `+0.10 dB`；Aend→B、C2→B、worst4 和 85/85 worst4 改善条件均通过。按规则没有生成 425-state characterization、没有进入 LUT retrieval、没有修改 Frozen 配置。结果目录精确保留 3 个文件；核心/数据管理/canonical/行为模型/Sparse-GMP 直接测试、Ruff、pip check、git diff check 均通过。
+
+[2026-09-11T15:56:56.288185+00:00] scenario_2_global_sparse_gmp_C2_gap_diagnosis_5B
+post-hoc C2 gap diagnosis completed: fixed Global G4 support=['GMP_p02_m00_q01', 'GMP_p02_m01_q00', 'GMP_p03_m01_q00', 'GMP_p02_m00_q02'], 85-state reproduction=True, max delta_gap_C=0.218804986 dB, diagnostic identities=True, no model selection/425 characterization/LUT retrieval; raw/protected unchanged=True; results=D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_global_sparse_gmp_C2_gap_diagnosis_5B
+
+[2026-09-11T15:58:40.609346+00:00] scenario_2_global_sparse_gmp_C2_gap_diagnosis_5B
+post-hoc C2 gap diagnosis completed: fixed Global G4 support=['GMP_p02_m00_q01', 'GMP_p02_m01_q00', 'GMP_p03_m01_q00', 'GMP_p02_m00_q02'], 85-state reproduction=True, max delta_gap_C=0.218804986 dB, diagnostic identities=True, no model selection/425 characterization/LUT retrieval; raw/protected unchanged=True; results=D:\Project_Files\python_project\project_20260821\results\behavior_model\scenario_2_global_sparse_gmp_C2_gap_diagnosis_5B
+
+
+2026-09-12T16:05:37+08:00 | basis_function_selection: scenario_2_hard20_volterra_basis_selection_5B
+Completed scenario_2_hard20_volterra_basis_selection_5B. Hard20=[325, 332, 333, 334, 336, 353, 324, 338, 350, 326, 349, 339, 351, 342, 328, 323, 355, 331, 327, 356]; workers=12; capacity={'full81_all_full_rank': True, 'full81_q99_condition': 881120628.292375, 'numerically_reliable': True, 'train_failure_state_ids': [323, 324, 325, 326, 327, 328, 331, 332, 333, 334, 336, 338, 339, 342, 349, 350, 351, 353, 355, 356], 'capacity_failure': True, 'inconclusive': False}; result=D:\Project_Files\python_project\project_20260821\results\basis_function_selection\scenario_2_hard20_volterra_basis_selection_5B; elapsed=24.207s; data/raw and protected historical results unchanged.
+
+2026-09-12T16:08:46+08:00 | basis_function_selection summary clarification
+Capacity stop occurred before Test preprocessing; summary wording now explicitly states that Test gain and Test NMSE were not computed. Metrics unchanged.
+
+
+2026-09-12T16:37:24+08:00 | basis_function_selection Frozen10 reference gate
+Completed scenario_2_hard20_frozen10_reference_gate_5B: Hard20 exact, models=5, rows=100, M4 median Train=-39.156791519 dB, Full81 median Train=-27.720055677 dB, Test not accessed, workers=12, result=D:\Project_Files\python_project\project_20260821\results\basis_function_selection\scenario_2_hard20_frozen10_reference_gate_5B, elapsed=5.272s, engineering={'compileall': {'returncode': 0, 'stdout_tail': '', 'stderr_tail': ''}, 'ruff': {'returncode': 0, 'stdout_tail': 'All checks passed!\n', 'stderr_tail': ''}, 'pip_check': {'returncode': 0, 'stdout_tail': 'No broken requirements found.\n', 'stderr_tail': ''}, 'git_diff_check': {'returncode': 0, 'stdout_tail': '', 'stderr_tail': "warning: in the working copy of 'work_logs/codex_handoff/codex_handoff.txt', CRLF will be replaced by LF the next time Git touches it\n"}, 'core_regression': {'returncode': 0, 'stdout_tail': 'PASS: test_rough_align_recovers_integer_delay\nPASS: test_fine_align_recovers_fraction_delay\nPASS: test_adjust_complex_gain_recovers_reference\nPASS: test_nmse_identical_is_negative_infinity\nPASS: test_cnmse_identical_is_negative_infinity\nPASS: test_acpr_resolves_lower_and_upper_adjacent_tones\nPASS: test_preprocess_pair_runs_fixed_pipeline_without_mutating_inputs\nAll 7 core module tests passed.\n', 'stderr_tail': ''}, 'data_manager_regression': {'returncode': 0, 'stdout_tail': 'state table test: PASS\nfile index test: PASS\nload by id test: PASS\nload by condition test: PASS\ndataset test: PASS\n', 'stderr_tail': ''}, 'signal_segmentation_regression': {'returncode': 0, 'stdout_tail': '24576 partition test: PASS\nodd length partition test: PASS\n1D split reconstruction test: PASS\n2D ILC split test: PASS\nownership integrity test: PASS\nILC peak normalization test: PASS\nzero peak guard test: PASS\nfull pair length guard test: PASS\nILC column guard test: PASS\nsegment adjust independence test: PASS\nraw pair field contract test: PASS\nreal state0 integration test: PASS\n', 'stderr_tail': ''}}.
+
+
+2026-09-12T17:10:07+08:00 | basis_function_selection Frozen-centered task
+Completed scenario_2_hard20_frozen_centered_basis_selection_5B: selected_gate=GATE_B, capacity=[{'gate_id': 'FROZEN10', 'K': 10, 'all_full_rank': True, 'condition_q90': 809.2725157469863, 'condition_q99': 809.2725157469863, 'condition_max': 809.2725157469863, 'numerically_reliable': True, 'train_mean': -39.08911613938328, 'train_median': -39.15679151886499, 'train_best': -39.3990723413492, 'train_worst': -38.796031320917564, 'W_mean': -38.781247095334386, 'W_median': -38.76085665282638, 'W_best': -39.25491639668666, 'W_worst': -38.22256728354275, 'N_train40': 0, 'N_W40': 0, 'median_delta_train_vs_previous_gate': nan, 'median_delta_W_vs_previous_gate': nan, 'capacity_success': False, 'capacity_failure': True, 'capacity_inconclusive': False}, {'gate_id': 'GATE_A', 'K': 18, 'all_full_rank': True, 'condition_q90': 1461.3442441957038, 'condition_q99': 1461.3442441957038, 'condition_max': 1461.3442441957038, 'numerically_reliable': True, 'train_mean': -39.23404699568414, 'train_median': -39.28798602950461, 'train_best': -39.57264053088701, 'train_worst': -38.89936943140416, 'W_mean': -38.8710537940846, 'W_median': -38.844703435432045, 'W_best': -39.372144178425344, 'W_worst': -38.27032378010942, 'N_train40': 0, 'N_W40': 0, 'median_delta_train_vs_previous_gate': -0.12713101567340246, 'median_delta_W_vs_previous_gate': -0.06559276317292273, 'capacity_success': False, 'capacity_failure': True, 'capacity_inconclusive': False}, {'gate_id': 'GATE_B', 'K': 48, 'all_full_rank': True, 'condition_q90': 63470.138788771044, 'condition_q99': 63470.138788771044, 'condition_max': 63470.138788771044, 'numerically_reliable': True, 'train_mean': -41.92426885494334, 'train_median': -41.768532942015064, 'train_best': -43.02179825104066, 'train_worst': -40.72523174040196, 'W_mean': -41.13537977468423, 'W_median': -40.7522112741858, 'W_best': -42.75198375305425, 'W_worst': -39.592012670424175, 'N_train40': 20, 'N_W40': 19, 'median_delta_train_vs_previous_gate': -2.5005118280629617, 'median_delta_W_vs_previous_gate': -1.9864240991453386, 'capacity_success': True, 'capacity_failure': False, 'capacity_inconclusive': False}], final_both=19/20, Test_accessed=True, workers=12, result=D:\Project_Files\python_project\project_20260821\results\basis_function_selection\scenario_2_hard20_frozen_centered_basis_selection_5B, elapsed=193.410s, engineering={'compileall': {'returncode': 0, 'stdout_tail': '', 'stderr_tail': ''}, 'ruff': {'returncode': 0, 'stdout_tail': 'All checks passed!\n', 'stderr_tail': ''}, 'pip_check': {'returncode': 0, 'stdout_tail': 'No broken requirements found.\n', 'stderr_tail': ''}, 'git_diff_check': {'returncode': 0, 'stdout_tail': '', 'stderr_tail': "warning: in the working copy of 'work_logs/codex_handoff/codex_handoff.txt', CRLF will be replaced by LF the next time Git touches it\n"}, 'core_regression': {'returncode': 0, 'stdout_tail': 'PASS: test_rough_align_recovers_integer_delay\nPASS: test_fine_align_recovers_fraction_delay\nPASS: test_adjust_complex_gain_recovers_reference\nPASS: test_nmse_identical_is_negative_infinity\nPASS: test_cnmse_identical_is_negative_infinity\nPASS: test_acpr_resolves_lower_and_upper_adjacent_tones\nPASS: test_preprocess_pair_runs_fixed_pipeline_without_mutating_inputs\nAll 7 core module tests passed.\n', 'stderr_tail': ''}, 'data_manager_regression': {'returncode': 0, 'stdout_tail': 'state table test: PASS\nfile index test: PASS\nload by id test: PASS\nload by condition test: PASS\ndataset test: PASS\n', 'stderr_tail': ''}, 'signal_segmentation_regression': {'returncode': 0, 'stdout_tail': '24576 partition test: PASS\nodd length partition test: PASS\n1D split reconstruction test: PASS\n2D ILC split test: PASS\nownership integrity test: PASS\nILC peak normalization test: PASS\nzero peak guard test: PASS\nfull pair length guard test: PASS\nILC column guard test: PASS\nsegment adjust independence test: PASS\nraw pair field contract test: PASS\nreal state0 integration test: PASS\n', 'stderr_tail': ''}}.
+
+
+2026-09-13T10:47:59+08:00 | Frozen-centered17 Type-III compressed retrieval
+Completed 425-state state-specific-B C2->Aend retrieval with frozen K=17, lambda=1e-8 and the existing 77 minimax-medoid Type-III representatives. Exact=9/425, same-cluster=43/425, Real-B behavior CNMSE<-40 dB=136/425; 289 failed the behavior proxy. DPD entries were packaged but not replayed. The historical common-B Type-III result is not directly comparable. Seven core files produced; Excel and PNG visually reviewed; raw/protected results unchanged. One old retrieval test's pre-task scripts/behavior_model whole-directory digest is stale, while all functional tests and all other protected digests passed.
+
+
+2026-09-13T21:22:41+08:00 | Frozen-centered17 common-B control
+Completed scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B: commonB exact=67/425, same_cluster=309/425, Real-B pass=409/425, FAIL->PASS=274, PASS->FAIL=1, workers=12, result=D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B, elapsed=61.760s. Common-B source and all frozen historical inputs were read-only; DPD replay was not performed.
+
+
+2026-09-13T21:45:08+08:00 | Frozen-centered17 common-B control
+Completed scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B: commonB exact=67/425, same_cluster=309/425, Real-B pass=409/425, FAIL->PASS=274, PASS->FAIL=1, workers=12, result=D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B, elapsed=57.624s. Common-B source and all frozen historical inputs were read-only; DPD replay was not performed.
+
+
+2026-09-13T21:49:27+08:00 | Frozen-centered17 common-B control
+Completed scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B: commonB exact=67/425, same_cluster=309/425, Real-B pass=409/425, FAIL->PASS=274, PASS->FAIL=1, workers=12, result=D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B, elapsed=57.195s. Common-B source and all frozen historical inputs were read-only; DPD replay was not performed.
+
+
+2026-09-13T21:50:50+08:00 | Frozen-centered17 common-B control
+Completed scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B: commonB exact=67/425, same_cluster=309/425, Real-B pass=409/425, FAIL->PASS=274, PASS->FAIL=1, workers=12, result=D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B, elapsed=57.411s. Common-B source and all frozen historical inputs were read-only; DPD replay was not performed.
+
+
+2026-09-13T21:52:53+08:00 | Frozen-centered17 common-B control
+Completed scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B: commonB exact=67/425, same_cluster=309/425, Real-B pass=409/425, FAIL->PASS=274, PASS->FAIL=1, workers=12, result=D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B, elapsed=58.136s. Common-B source and all frozen historical inputs were read-only; DPD replay was not performed.
+
+
+2026-09-13T21:54:44+08:00 | Frozen-centered17 common-B control
+Completed scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B: commonB exact=67/425, same_cluster=309/425, Real-B pass=409/425, FAIL->PASS=274, PASS->FAIL=1, workers=12, result=D:\Project_Files\python_project\project_20260821\results\behavior_fingerprint_lut_retrieval\scenario_2_C2_to_Aend_frozen_centered17_type3_commonB_control_5B, elapsed=57.469s. Common-B source and all frozen historical inputs were read-only; DPD replay was not performed.
+2026-09-13 | common-B control final verification: common-B 17-basis changed only the historical common-B fingerprint excitation. Primary paired result versus state-specific-B baseline: Exact 67/425 vs 9/425, Same-cluster 309/425 vs 43/425, Real-B CNMSE<-40 dB 409/425 vs 136/425; transitions FAIL->PASS 274 and PASS->FAIL 1. Common-B probe provenance, 850-model Train reproduction, representative/DPD immutability, MAT/Excel/PNG gates, and raw/protected checks passed. Functional regressions passed; the pre-existing retrieval whole-directory digest assertion remains stale and the old test was not modified. No DPD replay or retrieval performance claim was made.
+2026-09-14 | 工程级维护：Git 提交规则
+新增“只提交代码和必要配置”的 Git 规则：源代码、测试代码和必要配置允许提交；results、work_logs、数据、运行结果、模型、图形、缓存和其他生成物不进入新的 Git 提交。同步更新 .gitignore 和 README.md，既有已跟踪文件、结果目录、Git 历史和远程仓库未被删除或修改。
+
+2026-09-14 | Git 提交规则澄清
+规则调整为：允许提交源代码、测试代码、配置型文件和必要工程规则；代码运行生成的结果不提交。手写并作为程序输入的 JSON 等配置可以提交，脚本生成的 JSON、CSV、TXT、NDJSON 等结果按用途判定为不可提交。
+
+2026-09-14 | Git 提交规则补充
+规则进一步调整为：允许提交源代码、测试代码、配置型文件、工作日志和交接文档；代码运行产生的结果、数据、模型、图形和缓存仍不提交。移除 work_logs/ 的整体忽略规则，保留 results/ 和生成结果扩展名的忽略规则。
+
+
+2026-09-14T09:31:22+08:00 | Codex session export for project_20260821
+Completed codex_session_export_project_20260821: matched_sessions=4, visible_messages=1296, source_bytes=241203293, archive_bytes=81070317, elapsed=7.651s. Source .codex session files were read-only.
+
+2026-09-14 | Codex session export final verification: exported the four local Codex rollout files whose session metadata cwd exactly matches project_20260821. The task result contains a readable transcript, visible-message JSONL, compressed complete event archive, manifest and summary; source files were unchanged and no session data was deleted or moved.
+
+
+2026-09-14T09:34:26+08:00 | Codex session export for project_20260821
+Completed codex_session_export_project_20260821: matched_sessions=4, visible_messages=1300, source_bytes=241348299, archive_bytes=81109890, elapsed=10.322s. Source .codex session files were read-only.
+
+2026-09-14T17:31:52+08:00 | 工程级维护：Mac Conda 环境重建与恢复门禁
+按工程根目录 environment.yml 成功创建 project_20260821 Conda 环境；未创建新的科研任务目录，未生成 results 结果。当前环境为 macOS 26.6.2 arm64，Python 3.11.16，NumPy 2.4.6，SciPy 1.17.1，Pandas 3.0.5，Matplotlib 3.11.1，Seaborn 0.13.2，Ruff 0.16.7；libblas/libcblas/liblapack/libopenblas 均为 conda-forge OpenBLAS 构建，pip check 通过。
+工程门禁通过：Ruff、compileall、_core 7 项、data_manager、signal_segmentation 12 项、low_bandwidth_observation 12 项、clustering representative 6 项、行为模型核心及候选基函数/记忆深度/Sparse-GMP 测试通过；真实 MAT 状态 0/100/187/340/424 只读加载通过；Frozen-centered17 在上述 5 个状态上的 Ridge 拟合均为 rank=17、Train/B 支持长度正确；检索导向测试 8 项及真实 5x5 C2→Aend 距离矩阵冒烟通过。
+保护检查：data/raw 当前 429 个文件、results 仅保留 results/.gitkeep；执行前工作区为 clean，本次除追加本交接记录外无其他 Git 修改；测试生成的 scripts/**/__pycache__ 已清理；未修改源代码、data/raw 或历史结果。
+边界说明：state0_ridge_scan 的算法门禁通过，但其最后一步依赖缺失的历史 results/behavior_model/.../state0_xy_equivalence_summary.csv，因此历史产物状态标记为 unavailable；未运行完整研究扫描、425-state 全量重建、全量聚类、低带宽 sweep 或 DPD replay。源代码中仍有少量历史 Windows raw_root 和 .mjs 导出器路径，且 node 不在当前环境；这些属于未被本次动态路径冒烟使用的历史/不可执行部分，未作无关修复。
+结论：Environment Ready=PASS；Core Code Ready=PASS；Research Ready=NOT YET（需要后续重新生成历史 results 后再判定）。
+
+2026-09-14T17:32:51+08:00 | 工程级维护补充：PA 性能观察模块
+补充运行 pa_performance_observation/test_ilc_acpr_observation.py，ACPR 平均公式、state0 ILC 结构、425 状态完整性、动态 iteration、NaN 语义、保存值一致性以及临时 PNG/组合 PNG 可读性共 9 项全部通过；正式 results 目录未写入。
+
+2026-09-14T19:02:02+08:00 | 工程级维护：Mac Python Path Portability Closure
+模式：持续维护。扫描发现并修复 16 个 Python 文件中的 Windows 工程 raw 路径依赖：5 个硬编码 D:\\Project_Files 路径以及 11 个 `\\?\` raw manifest 前缀，统一改为已有 `PROJECT_ROOT / "data" / "raw"`；未修改算法、模型、阈值、结果断言或 environment.yml。修改范围为 behavior_fingerprint_lut_retrieval 10 个文件、behavior_model 4 个文件、behavior_fingerprint_ranking_consistency 1 个文件和 low_bandwidth_observation 1 个文件。
+最终 Python 工程路径扫描：D:\\Project_Files、Project_Files、Mac 用户绝对路径均无可执行命中；剩余 Python drive 命中仅为 Node/Excel/bundled-Python 导出工具链路径，以及一条 PowerShell 错误提示字符串。data_manager 中的 `\\?\` 仅是按 `os.name == "nt"` 条件启用的 Windows I/O 兼容逻辑，保留。`.mjs` 中的 D:/Project_Files 路径未修改，Node 未安装，作为延期的非 Python 工具链边界。
+验证：目标文件 py_compile、全量 compileall、目标文件 Ruff、全量 Ruff、pip check、git diff --check 均通过；core=7、data_manager、signal_segmentation=12、low_bandwidth=12、retrieval functional subset=20、retrieval-oriented=8、Ridge functional subset=10、all-ILC contract=1、state0 real MAT smoke 和 C3-to-A2 runner import/path smoke 通过；16 个 raw manifest helper 均在当前 Mac 工程上复算既有 digest。C2-to-Aend、C3-to-A2、Ridge、all-ILC 完整测试均已解析到当前工程 results 路径，并在历史文件缺失处停止，均归类为 historical artifact unavailable。
+保护结果：data/raw manifest 仍为既有 429 文件/既有 digest，data/processed 仅保留 .gitkeep，results 仅保留 results/.gitkeep；未生成正式科研结果、未修改原始数据、未安装 Node；测试缓存已清理。源代码 diff 仅包含路径表达式变化，任务日志与本 handoff 为记录性追加。
+结论：Environment Ready=PASS；Core Code Ready=PASS；Python Research Ready=PASS；Historical Results Restored=NO；Node/Excel Export Ready=NO。
+
+2026-09-14 | 新任务：scenario_2_gateb48_unified_basis_refinement_5B
+完成 Scenario 2 Gate-B48 unified-support refinement：425 states，Fs=100 MHz，B=20 MHz，5B，N=24576；复用 canonical signal_segmentation 的 A/B/C（有效长度 12286/4913/7371），按既有 `(funMng, funAng)` 分层 seed=20260827 复现 Development/Validation=340/85。Gate-B=48，Baseline17=17，剩余候选=31；worker benchmark 6/8/10/12/14/16/18、BLAS threads/worker=1，按三个百分点近最大吞吐规则选择 16 workers。
+- Development：Baseline17 通过 160/340；搜索后 Ridge λ=1e-8、K=18 支持通过 162/340，joint Q95=-33.672210 dB、worst=-31.568855 dB。
+- 冻结后 Validation：Baseline17 40/85、joint Q95=-33.743026 dB；候选 41/85、joint Q95=-33.712140 dB。候选只增加 1 个通过状态且 Q95 gain=-0.030886 dB，未达到采用规则；最终保留 Baseline17/K=17/λ=1e-8，并标记 Development improvement not confirmed。
+- 结果位于 `results/scenario_2_gateb48_unified_basis_refinement_5B/`，包含字典、split、Baseline17 425-state 指标、forward/backward/swap history、3 个 Pareto support、Ridge scan、170 行 Validation 对比、最终模型定义、3 张图和 checkpoint；未运行 LUT retrieval、common-B、Type-III、clustering、DPD、low-bandwidth 或扩展 p/dmax。
+- data/raw 仍为 429 files / 2258448137 bytes / SHA=910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0；compileall、全量 Ruff、pip check、git diff --check、data_manager、signal_segmentation 和 Ridge 增广最小二乘门通过。此前 Mac portability 的 16 个未提交文件修改已保留；本任务未 commit/push/reset/clean/restore。
+
+2026-09-15T01:03:10+0800 | 新任务：scenario_2_hard20_envelope75_basis_selection_5B
+完成 Envelope75 Hard-20 正向基函数选择主线；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_hard20_envelope75_basis_selection_5B
+结果摘要：{"capacity_status": "Envelope75 Train capacity solved", "final_test_pass": 20, "raw_data_modified": false, "selected_lambda": 0.0, "selected_support": ["LIN_d0", "LIN_d1", "LIN_d2", "ENV_p02_m0_q0", "ENV_p02_m0_q1", "ENV_p02_m0_q2", "ENV_p02_m1_q0", "ENV_p03_m0_q0", "ENV_p03_m0_q1", "ENV_p03_m1_q0", "ENV_p03_m1_q1", "ENV_p04_m0_q0", "ENV_p04_m1_q0", "ENV_p05_m0_q0", "ENV_p05_m1_q0", "ENV_p07_m0_q0", "ENV_p08_m0_q0", "ENV_p09_m0_q0"]}
+严格使用 10 个 spawn worker、每 worker 1 个 BLAS 线程；Test 仅在 support/lambda 冻结后解锁；未运行 Aend/C2、LUT retrieval、clustering、DPD、low-bandwidth 或自动 dmax=3。
+
+2026-09-15 | scenario_2_hard20_envelope75_basis_selection_5B final verification
+Envelope75 Hard-20 forward-behavior task completed. 425-state Train no-DPD ranking
+froze Hard-20 IDs [325,332,333,334,336,353,324,338,350,326,349,339,351,342,328,323,355,331,327,356].
+Full48 and Full75 OLS capacity both reached Train 20/20; median/worst were
+Full48=-41.768533/-40.725232 dB and Full75=-44.586262/-43.997108 dB.
+Train-only sparse search plus Ridge selected K=18, lambda=0, support containing
+ENV_p04_m0_q0, ENV_p04_m1_q0, and ENV_p08_m0_q0; p4/p6/p8 counts=2/0/1.
+Frozen final model achieved Train=20/20, contiguous-CV W=20/20, Test=20/20;
+Test was unlocked only after support/lambda freeze. Raw manifest stayed at
+429 files / 427 MAT / 2258448137 bytes / SHA=910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0.
+Direct task regression, core/data_manager/signal_segmentation checks, compileall,
+full Ruff, pip check, and git diff --check passed. A first output-only plot-column
+error was resumed within the same task without deleting prior artifacts. No
+Aend/C2, common-B, LUT retrieval, clustering, DPD, low-bandwidth, or automatic dmax=3.
+
+2026-09-15T09:59:53+0800 | 新任务：scenario_2_all425_envelope18_coverage_evaluation_5B
+完成冻结 Envelope18 的 All-425 coverage evaluation；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_all425_envelope18_coverage_evaluation_5B
+结果摘要：{"both_pass_count": 425, "failed_count": 0, "generalization_pass_count": 425, "modeling_pass_count": 425, "raw_data_modified": false, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_all425_envelope18_coverage_evaluation_5B", "support_hash": "e6a8405ba5b9417b169e64acff2d8c2426139ae199ce7b5a45ca92dbc035cdbc", "task": "scenario_2_all425_envelope18_coverage_evaluation_5B"}
+使用 10 个 spawn worker、每 worker 1 个 BLAS 线程；不重新选择 support、lambda 或 dmax；Test 只使用 Train 拟合系数；未运行 LUT retrieval、clustering、DPD 或 low-bandwidth。
+
+2026-09-15 | scenario_2_all425_envelope18_coverage_evaluation_5B final verification
+冻结 Envelope18 在全部 425 个 canonical State 上完成覆盖评价：K=18、lambda=0、dmax=2，support hash=e6a8405ba5b9417b169e64acff2d8c2426139ae199ce7b5a45ca92dbc035cdbc。
+Modeling=425/425，Generalization=425/425，Both=425/425；02_failed_states.csv 为表头-only。四类负载组计数 matched/fundamental_only/second_harmonic_only/joint_mismatch=1/24/16/384，全部 100% Both 通过。All425 Train median/Q95/worst=-44.625279/-43.361106/-42.736840 dB；Test=-44.630165/-43.211541/-42.770731 dB；gap median/Q95/max=0.058140/0.450079/0.718344 dB。所有 rank=18、condition q99/max=58607.657274、finite gate PASS。
+raw manifest 前后保持 429 files / 427 MAT / 2258448137 bytes / SHA=910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0；未保存 design matrix 或 coefficients archive。主图和 gap 图完成视觉检查；All-425/Envelope75 direct tests、core/data_manager/signal_segmentation、model_solver OLS/Ridge/scaling、compileall、全量 Ruff、pip check、git diff --check 均通过。未运行重新选模、Ridge scan、dmax/p-order 扩展、LUT retrieval、clustering、DPD 或 low-bandwidth。
+
+2026-09-15T11:01:00+0800 | 新任务：scenario_2_envelope18_commonB_full_lut_retrieval_5B
+完成冻结 Envelope18 + Aend/C2 + common-B + Full-425 LUT retrieval；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_envelope18_commonB_full_lut_retrieval_5B
+结果摘要：{"common_B_sha256": "b3a794e22b6beb7171f696d41685714da122f948ca8284553abaaa9a68c4abac", "exact_state_hit_count": 170, "failed_count": 22, "raw_data_modified": false, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_envelope18_commonB_full_lut_retrieval_5B", "retrieved_real_B_pass_count": 403, "support_hash": "e6a8405ba5b9417b169e64acff2d8c2426139ae199ce7b5a45ca92dbc035cdbc", "task": "scenario_2_envelope18_commonB_full_lut_retrieval_5B"}
+使用 10 个 spawn worker、每 worker 1 个 BLAS 线程；Full425 LUT 不聚类、允许 self retrieval；未运行 support/lambda/dmax 调整、Type-III、DPD 或 low-bandwidth。
+
+2026-09-15 | scenario_2_envelope18_commonB_full_lut_retrieval_5B final verification
+完成冻结 Envelope18 + Aend/C2 + common-B + Full-425 LUT retrieval。Envelope18 support hash=e6a8405ba5b9417b169e64acff2d8c2426139ae199ce7b5a45ca92dbc035cdbc，common-B 为 State 0 canonical xin B，raw/valid=4915/4913，SHA256=b3a794e22b6beb7171f696d41685714da122f948ca8284553abaaa9a68c4abac。Aend/C2=425/425，全部 rank=18、finite，Aend ILC count distribution=1/416/7/1 for stages 2/3/4/5；fingerprint distance=(425,425)。Top-1 exact=170/425，Real-B CNMSE<-40=403/425，失败=22，nonexact pass=233，self-hit -Inf=170。Real-B finite-only median/Q95/worst=-43.206264/-39.063127/-35.802925 dB；model quality Aend train/Aend-B/C2 train/C2-B pass=425/380/425/195。
+为正式 Excel 产物将 openpyxl=3.1.5 及 et_xmlfile=2.0.0 通过 conda-forge 加入 environment.yml 并同步，NumPy/SciPy/OpenBLAS 未变；Excel/CSV 均 425 行且 State 0...424。主图和 clean 图完成视觉检查，原始数据 manifest 前后仍为 429 files / 427 MAT / 2258448137 bytes / SHA=910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0，未保存 design cache。All-425 retrieval/Envelope75/core/data_manager/signal_segmentation/model_solver checks、compileall、全量 Ruff、pip check、git diff --check 和抽查重算均通过。未运行重新选模、Ridge/dmax 调整、聚类、Type-III、DPD 或 low-bandwidth。
+
+2026-09-15T14:11:25+0800 | 新任务：scenario_2_hard20_ilcend_envelope75_basis_selection_5B
+完成 ilc_end Envelope75 Hard20 basis selection；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_hard20_ilcend_envelope75_basis_selection_5B
+结果摘要：{"cv_pass_count": 20, "final_K": 23, "final_lambda": 0.0, "raw_data_modified": false, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_hard20_ilcend_envelope75_basis_selection_5B", "status": "SUCCESS", "test_pass_count": 20, "train_pass_count": 20}
+固定使用 10 个 spawn worker、每 worker 1 个 BLAS 线程；Test 仅在 support/lambda/dmax freeze 后解锁；未运行 LUT retrieval、Aend/C2、common-B、Type-III、DPD 或 low-bandwidth。
+
+2026-09-15 | scenario_2_hard20_ilcend_envelope75_basis_selection_5B final verification
+按更新后的 ilc_end 定义完成正式任务：每个 State 使用 xin_pd_ori_ilc/yout_withdpd_ori_ilc 最后有效 ILC 列，full-record 对齐后切 Train/Test，Train/Test 独立复增益。Hard20 仍由 no-DPD NMSE 冻结；ilc_end 列分布 2/3/4/5 columns=1/416/7/1。Full75 Train capacity=20/20；正确 Envelope18 baseline K=18 的 CV-W=1/20；最终 ilc_end support K=23、lambda=0，Train/CV-W/Test=20/20。最终 support 与 no-DPD Envelope18 shared=17、ilc_end-only=6、noDPD-only=1。结果目录：results/scenario_2_hard20_ilcend_envelope75_basis_selection_5B/。raw manifest 未变（429 files / 427 MAT / 2258448137 bytes / SHA=910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0）。第一次使用旧17项 baseline 的同任务结果已在任务日志中标记为 invalid pre-run，最终结论只基于修正后的18项 Envelope18 baseline。未运行 LUT retrieval、Aend/C2、common-B、Type-III、DPD、low-bandwidth 或 dmax3。
+
+2026-09-15T14:15:40+0800 | 新任务：scenario_2_hard20_ilcend_envelope75_basis_selection_5B
+完成 ilc_end Envelope75 Hard20 basis selection；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_hard20_ilcend_envelope75_basis_selection_5B
+结果摘要：{"cv_pass_count": 20, "final_K": 23, "final_lambda": 0.0, "raw_data_modified": false, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_hard20_ilcend_envelope75_basis_selection_5B", "status": "SUCCESS", "test_pass_count": 20, "train_pass_count": 20}
+固定使用 10 个 spawn worker、每 worker 1 个 BLAS 线程；Test 仅在 support/lambda/dmax freeze 后解锁；未运行 LUT retrieval、Aend/C2、common-B、Type-III、DPD 或 low-bandwidth。
+
+2026-09-15T16:16:39+0800 | 新任务：scenario_2_all425_ilcend_envelope23_coverage_evaluation_5B
+完成冻结 ilc_end Envelope23 的 All-425 evaluation-only coverage；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_all425_ilcend_envelope23_coverage_evaluation_5B
+结果摘要：{"Both_pass_count": 425, "Test_pass_count": 425, "Train_pass_count": 425, "failed_count": 0, "hard20_regression": {"max_abs_test_error_dB": 7.105427357601002e-15, "max_abs_train_error_dB": 7.105427357601002e-15, "pass": true, "previous_result": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_hard20_ilcend_envelope75_basis_selection_5B/09_final_hard20_train_cv_test.csv"}, "raw_data_modified": false, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_all425_ilcend_envelope23_coverage_evaluation_5B", "support_hash": "7c8348beaaa9db183c26bb8adfd29f226c11f36bf54ad587e9ac0baa6f14ea14", "task": "scenario_2_all425_ilcend_envelope23_coverage_evaluation_5B"}
+model_selection=false，Train-only theta，Test 使用同一 Train theta；未运行 search/Ridge/LUT retrieval/Aend-C2/common-B/Type-III/DPD/low-bandwidth/dmax3。
+
+2026-09-15 | scenario_2_all425_ilcend_envelope23_coverage_evaluation_5B final verification
+完成冻结 ilc_end Envelope23 的 All-425 evaluation-only coverage：K=23、lambda=0、dmax=2、support hash=7c8348beaaa9db183c26bb8adfd29f226c11f36bf54ad587e9ac0baa6f14ea14。425/425 Train、425/425 Test、425/425 Both 通过；Hard20 regression 与上一轮 `09_final_hard20_train_cv_test.csv` 最大绝对误差=7.105427601e-15 dB；Remaining405 也为 Train/Test/Both=405/405/405。All425 Train median/Q95/worst=-43.826151/-41.359301/-40.878603 dB；Test=-43.724310/-41.473358/-40.781225 dB；Pearson=0.976896871。保存 425x23 complex128 Train-only coefficients、All425 metrics、failure header-only、load-type/Hard20-vs-Remaining405 汇总、主图和 gap 图；raw manifest 未变。第一次入口因上一轮模型定义字段为 term_index 而非 global_index 在状态计算前停止，修正后重跑，最终结果只基于修正版。未运行 search/Ridge/LUT retrieval/Aend-C2/common-B/Type-III/DPD/low-bandwidth/dmax3。
+
+2026-09-15T16:43:45+0800 | 新任务：scenario_2_envelope23_ilcend_commonB_full_lut_retrieval_5B
+完成 Envelope18 vs Frozen Envelope23-ilcEnd 严格单变量 paired retrieval comparison；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_envelope23_ilcend_commonB_full_lut_retrieval_5B
+结果摘要：{"envelope18_real_B_pass": 403, "envelope23_real_B_pass": 401, "exact_state_hit_count_E18": 170, "exact_state_hit_count_E23": 123, "failed_count": 24, "net_change": -2, "raw_data_modified": false, "recovered": 5, "regressed": 7, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_envelope23_ilcend_commonB_full_lut_retrieval_5B", "task": "scenario_2_envelope23_ilcend_commonB_full_lut_retrieval_5B"}
+Aend/C2、ABC、common-B、Full425、Top-1、Real-B 和 -40 dB 判据保持旧任务合同；未运行重新选模、Ridge、Top-k、聚类、Type-III、DPD 或 low-bandwidth。
+
+2026-09-15 | scenario_2_envelope23_ilcend_commonB_full_lut_retrieval_5B final verification
+直接结果合同、425 状态覆盖、E18 基线重算一致性、E23 425x425 距离矩阵、425x23 系数、checkpoint、compileall、全量 Ruff、pip check、git diff --check 和三张结果图视觉检查均通过。E23 Real-B pass=401/425，相比 E18 的 403/425：恢复 5 个、回退 7 个、净变化 -2；raw manifest 未变。任务已完成，未进行后续模型调整或新实验。
+
+2026-09-15 | scenario_2_envelope23_ilcend_commonB_full_lut_retrieval_5B 持续维护：补齐 Excel 状态汇总
+基于已验证的 E23 全 425 状态 CSV 生成 `scenario_2_envelope23_ilcend_full_lut_state_summary.xlsx`；单 sheet `retrieval_results`、425 行、10 列指定中文表头，保存后重载、表头/状态序列、公式错误扫描和视觉预览均通过。未重新建模或检索，raw 与既有科研结果保持不变。
+
+2026-09-15T20:16:34+0800 | 新任务：scenario_2_all425_c2_envelope23_ridge_generalization_5B
+完成 Frozen Envelope23-ilcEnd + C2-only Ridge 系数提取；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_all425_c2_envelope23_ridge_generalization_5B
+结果摘要：{"cv_W_pass_count": 425, "ols_C_to_B_pass": 57, "ols_C_train_pass": 425, "ols_regression": {"max_abs_C_to_B_error_dB": 7.105427357601002e-15, "max_abs_C_train_error_dB": 7.105427357601002e-15, "pass": true, "previous_C_to_B_pass": 57, "previous_C_train_pass": 425, "previous_result": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_envelope23_ilcend_commonB_full_lut_retrieval_5B/03_envelope23_all425_retrieval_metrics.csv"}, "raw_data_modified": false, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_all425_c2_envelope23_ridge_generalization_5B", "ridge_C_to_B_pass": 57, "ridge_C_train_pass": 425, "selected_lambda": 0.0, "task": "scenario_2_all425_c2_envelope23_ridge_generalization_5B", "transition": {"OLS_fail_to_Ridge_pass": 0, "OLS_pass_to_Ridge_fail": 0, "unchanged_fail": 368, "unchanged_pass": 57}}
+lambda 仅由 C-only contiguous CV 选择，B 只在 lambda 冻结后用于 C→B 泛化评价；未运行 LUT、指纹、聚类、DPD 或 low-bandwidth。
+
+2026-09-15 | scenario_2_all425_c2_envelope23_ridge_generalization_5B final verification
+Frozen Envelope23-ilcEnd C2-only Ridge 任务完成。12 个 λ × 425 状态的 C-only contiguous CV 选择 `lambda*=0`，CV-W=425/425；最终 OLS 与 Ridge 的 C Train 均为 425/425，C→B 均为 57/425，逐状态完全一致，transition=57/0/0/368。OLS 参考回归最大误差 7.11e-15 dB，B-lock、无 LUT、独立抽查、compileall、全量 Ruff、pip check、git diff check、raw manifest 和两张图视觉检查均通过。raw 未变，任务停止在 C2 Ridge/泛化评价边界。
+
+2026-09-15 | scenario_2_all425_c2_envelope23_ridge_generalization_5B final verification
+Frozen Envelope23-ilcEnd C2-only Ridge 任务完成。C-only 3-fold CV 在 12 个 λ 上覆盖 425 状态，选择 `lambda*=0`；OLS 与最终 Ridge 的 C Train 均为 425/425，C→B 均为 57/425，逐状态结果一致，transition=57/0/0/368。OLS 参考回归最大误差为 7.11e-15 dB，B-lock、无 LUT、独立抽查、compileall、全量 Ruff、pip check、git diff check、raw manifest 和两张图视觉检查均通过。raw 未变，任务停止在 C2 Ridge/泛化评价边界。
+
+2026-09-15T20:18:15+0800 | 新任务：scenario_2_all425_c2_envelope23_ridge_generalization_5B
+完成 Frozen Envelope23-ilcEnd + C2-only Ridge 系数提取；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_all425_c2_envelope23_ridge_generalization_5B
+结果摘要：{"cv_W_pass_count": 425, "ols_C_to_B_pass": 57, "ols_C_train_pass": 425, "ols_regression": {"max_abs_C_to_B_error_dB": 7.105427357601002e-15, "max_abs_C_train_error_dB": 7.105427357601002e-15, "pass": true, "previous_C_to_B_pass": 57, "previous_C_train_pass": 425, "previous_result": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_envelope23_ilcend_commonB_full_lut_retrieval_5B/03_envelope23_all425_retrieval_metrics.csv"}, "raw_data_modified": false, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_all425_c2_envelope23_ridge_generalization_5B", "ridge_C_to_B_pass": 57, "ridge_C_train_pass": 425, "selected_lambda": 0.0, "task": "scenario_2_all425_c2_envelope23_ridge_generalization_5B", "transition": {"OLS_fail_to_Ridge_pass": 0, "OLS_pass_to_Ridge_fail": 0, "unchanged_fail": 368, "unchanged_pass": 57}}
+lambda 仅由 C-only contiguous CV 选择，B 只在 lambda 冻结后用于 C→B 泛化评价；未运行 LUT、指纹、聚类、DPD 或 low-bandwidth。
+
+2026-09-15T21:13:13+0800 | 新任务：scenario_2_hard20_c2_ilcend_shared_envelope75_basis_selection_5B
+完成 C2 + ilc_end 双行为统一基函数选择；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_hard20_c2_ilcend_shared_envelope75_basis_selection_5B
+结果摘要：{"ILC_COL2_test_pass": 20, "ILC_END_test_pass": 20, "joint_final_pass": 20, "joint_train_cv_pass": 20, "raw_data_modified": false, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_hard20_c2_ilcend_shared_envelope75_basis_selection_5B", "selected_K": 19, "selected_support": "Backward_Backward_Backward_Backward_Backward_Union24_minus_ENV_p03_m0_q1_minus_ENV_p04_m1_q0_minus_ENV_p03_m1_q1_minus_ENV_p03_m2_q1_minus_ENV_p02_m2_q0", "selected_support_hash": "dda04e2fc270c9f5c2eb72b0b030059211ba0295934e3e3a4b2834172b11ac90", "status": "SUCCESS", "task": "scenario_2_hard20_c2_ilcend_shared_envelope75_basis_selection_5B"}
+固定 OLS/dmax=2，仅搜索 shared Envelope75 support；Test 仅在 support freeze 后解锁，未运行 Ridge、LUT、聚类、DPD 或 low-bandwidth。
+
+2026-09-15 | scenario_2_hard20_c2_ilcend_shared_envelope75_basis_selection_5B final verification
+双行为 shared support 任务完成：Hard20 固定 20 个状态，Full75 capacity=40/40；Train/CV-only 搜索选择 `Envelope19-C2EndShared`（K=19、dmax=2、lambda=0、OLS，support hash=`dda04e2fc270c9f5c2eb72b0b030059211ba0295934e3e3a4b2834172b11ac90`）。ILC_END 与 ILC_COL2 的 Train/CV-W/Test 均为 20/20，joint final=20/20；两种行为系数独立，Test 仅在 support freeze 后解锁。全工程和基础回归门禁、独立抽查、raw manifest、图形检查均通过；未进入 Ridge、ABC、common-B、LUT、聚类、DPD 或 low-bandwidth。
+
+2026-09-15 | scenario_2_hard20_c2_ilcend_shared_envelope75_basis_selection_5B final verification
+完成 C2 + ilc_end 双行为 shared Envelope75 support 选择：Hard20 固定 20 个状态，Full75 Train capacity=40/40；Train/CV-only 搜索后选择 `Envelope19-C2EndShared`（K=19、dmax=2、lambda=0、OLS，support hash=`dda04e2fc270c9f5c2eb72b0b030059211ba0295934e3e3a4b2834172b11ac90`）。ILC_END 和 ILC_COL2 的 Train/CV-W/Test 均为 20/20，joint final=20/20；两种行为系数独立，Test 仅在 support freeze 后解锁。dual contract、独立抽查、基础回归、compileall、Ruff、pip check、git diff check、raw manifest 和图形检查均通过；未进入 Ridge、ABC、common-B、LUT、聚类、DPD 或 low-bandwidth。
+
+2026-09-15T21:18:16+0800 | 新任务：scenario_2_hard20_c2_ilcend_shared_envelope75_basis_selection_5B
+完成 C2 + ilc_end 双行为统一基函数选择；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_hard20_c2_ilcend_shared_envelope75_basis_selection_5B
+结果摘要：{"ILC_COL2_test_pass": 20, "ILC_END_test_pass": 20, "joint_final_pass": 20, "joint_train_cv_pass": 20, "raw_data_modified": false, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_hard20_c2_ilcend_shared_envelope75_basis_selection_5B", "selected_K": 19, "selected_support": "Backward_Backward_Backward_Backward_Backward_Union24_minus_ENV_p03_m0_q1_minus_ENV_p04_m1_q0_minus_ENV_p03_m1_q1_minus_ENV_p03_m2_q1_minus_ENV_p02_m2_q0", "selected_support_hash": "dda04e2fc270c9f5c2eb72b0b030059211ba0295934e3e3a4b2834172b11ac90", "status": "SUCCESS", "task": "scenario_2_hard20_c2_ilcend_shared_envelope75_basis_selection_5B"}
+固定 OLS/dmax=2，仅搜索 shared Envelope75 support；Test 仅在 support freeze 后解锁，未运行 Ridge、LUT、聚类、DPD 或 low-bandwidth。
+
+2026-09-15T21:44:04+0800 | 新任务：scenario_2_all425_c2_ilcend_envelope19_shared_coverage_5B
+完成 Frozen Envelope19-C2EndShared 的 All425 双行为 coverage evaluation；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_all425_c2_ilcend_envelope19_shared_coverage_5B
+结果摘要：{"ILC_COL2_Test_pass": 425, "ILC_COL2_Train_pass": 425, "ILC_END_Test_pass": 425, "ILC_END_Train_pass": 425, "Joint_Final_pass": 425, "failed_state_count": 0, "hard20_regression": {"max_abs_delta_dB": 7.105427357601002e-15, "pass": true, "row_count": 80}, "raw_data_modified": false, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_all425_c2_ilcend_envelope19_shared_coverage_5B", "state_count": 425, "status": "SUCCESS", "task": "scenario_2_all425_c2_ilcend_envelope19_shared_coverage_5B"}
+仅评价 ILC_END/ILC_COL2 的 Train/Test；未重新选 support、未运行 CV/Ridge/ABC/LUT/retrieval。
+
+2026-09-15 | scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B final verification
+Frozen Envelope19-C2EndShared common-B Full425 LUT retrieval 完成。E19 Exact=132/425、Real-B pass=403/425；相对 E23 的 123/425、401/425，恢复 2 个、回退 0 个。E19 模型质量 Aend Train/Aend→B/C2 Train/C2→B=425/404/425/64；Excel 10 列主表、425x425 fingerprint 矩阵、系数、诊断 CSV、paired comparison、六曲线/425 标签图均验证通过。raw 未变，任务停止在 frozen retrieval boundary。
+
+2026-09-15 | scenario_2_all425_c2_ilcend_envelope19_shared_coverage_5B final verification
+Frozen Envelope19-C2EndShared All425 evaluation 完成。425 个状态的 ILC_END 与 ILC_COL2 均达到 Train/Test=425/425，Joint Final=425/425，failed states=0；Hard20 80 项回归最大误差 7.11e-15 dB。raw manifest 未变，基础回归、compileall、Ruff、pip check、git diff check 和两张共享 y 轴图形检查均通过。任务停止在 evaluation_only 边界，未进入新的 support/Ridge/ABC/LUT/retrieval 工作。
+
+2026-09-15T22:12:51+0800 | 新任务：scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B
+完成 Frozen Envelope19-C2EndShared 的 5B Full425 common-B LUT retrieval；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B
+结果摘要：{"e23_real_B_pass_count": 401, "envelope19_exact_state_hit_count": 132, "envelope19_failure_count": 22, "envelope19_real_B_pass_count": 403, "raw_data_modified": false, "recovered": 2, "regressed": 0, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B", "status": "SUCCESS", "task": "scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B"}
+完整复用 E23 Full-LUT protocol，仅替换 support；未运行新的 support/Ridge/聚类/DPD/low-bandwidth。
+
+2026-09-15T22:14:12+0800 | 新任务：scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B
+完成 Frozen Envelope19-C2EndShared 的 5B Full425 common-B LUT retrieval；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B
+结果摘要：{"e23_real_B_pass_count": 401, "envelope19_exact_state_hit_count": 132, "envelope19_failure_count": 22, "envelope19_real_B_pass_count": 403, "raw_data_modified": false, "recovered": 2, "regressed": 0, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B", "status": "SUCCESS", "task": "scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B"}
+完整复用 E23 Full-LUT protocol，仅替换 support；未运行新的 support/Ridge/聚类/DPD/low-bandwidth。
+
+2026-09-15T22:15:36+0800 | 新任务：scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B
+完成 Frozen Envelope19-C2EndShared 的 5B Full425 common-B LUT retrieval；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B
+结果摘要：{"e23_real_B_pass_count": 401, "envelope19_exact_state_hit_count": 132, "envelope19_failure_count": 22, "envelope19_real_B_pass_count": 403, "raw_data_modified": false, "recovered": 2, "regressed": 0, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B", "status": "SUCCESS", "task": "scenario_2_envelope19_c2endshared_commonB_full_lut_retrieval_5B"}
+完整复用 E23 Full-LUT protocol，仅替换 support；未运行新的 support/Ridge/聚类/DPD/low-bandwidth。
+
+2026-09-15T23:00:29+0800 | 新任务：scenario_2_mp10_full_lut_retrieval_5b
+完成历史 Frozen MP10 + 当前 E19 Full425 common-B LUT retrieval；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_mp10_full_lut_retrieval_5b
+摘要：{"exact_count": 218, "exact_real_B_negative_infinity_count": 218, "failure_count": 14, "fingerprint_CNMSE_median_finite_dB": -48.31463311934557, "nonself_count": 207, "nonself_pass_count": 193, "raw_manifest_after": {"bytes": 2258448137, "file_count": 429, "mat_count": 427, "sha256": "910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0"}, "raw_manifest_before": {"bytes": 2258448137, "file_count": 429, "mat_count": 427, "sha256": "910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0"}, "real_B_pass_count": 411, "recovered_state_ids": [191, 192, 201, 202, 203, 205, 324, 326, 333, 337, 338, 342], "regressed_state_ids": [189, 196, 344, 354], "retrieved_real_B_median_finite_dB": -43.162329851387746, "retrieved_real_B_worst_finite_dB": -37.10367236988057, "state_index_abs_delta_Q90": 12.0, "state_index_abs_delta_max": 155, "state_index_abs_delta_median": 0.0, "transitions_vs_E19": {"E19_fail_to_MP10_pass": 12, "E19_pass_to_MP10_fail": 4, "unchanged_fail": 10, "unchanged_pass": 399}}
+复用 historical sparse_gmp MP10、现有 signal_segmentation、E19 CNMSE/Top-1/Real-B/Excel/plot；未进行模型优化或扫描。
+共享绘图接口仅增加可选标题参数，默认 E19 输出行为保持不变。
+
+2026-09-16T01:30:16+0800 | 新任务：scenario_2_mp10_k9_retrieval_oriented_basis_ablation_5b
+完成 Frozen MP10 的 10 个 leave-one-basis-out K9 retrieval-oriented ablation；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_mp10_k9_retrieval_oriented_basis_ablation_5b
+摘要：{"baseline_regression_pass": true, "baseline_top1_realB_pass": 411, "cv_winner_counts": [{"candidate_name": "MP10_full", "train_winner_count": 3}, {"candidate_name": "MP10_minus_p2_m1", "train_winner_count": 2}], "diagnostic_winner": "MP10_full", "diagnostic_winner_rank": 1, "diagnostic_winner_top1_realB_pass": 411, "max_k9_top1_realB_pass": 411, "raw_data_modified": false, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_mp10_k9_retrieval_oriented_basis_ablation_5b", "status": "SUCCESS", "task": "scenario_2_mp10_k9_retrieval_oriented_basis_ablation_5b", "transition_counts_across_k9": {"recovered": 50, "regressed": 453, "unchanged_fail": 90, "unchanged_pass": 3657}}
+保存 Real-B 425x425 ground truth/mask、候选检索指标、Delta、5-fold Query-State CV 和两张诊断图；未冻结新的最终模型。
+后续独立产物验证通过：11 个候选距离矩阵、argmin、shareability margin、Top-k oracle、20 对 Real-B 和 5-fold 平衡性均通过；两张诊断图完成视觉检查。
+
+2026-09-16T02:06:45+0800 | 新任务：scenario_2_mp10_k11_retrieval_oriented_forward_scan_5b
+完成 Frozen MP10 + 65 个单项 Envelope75 K11 forward candidates；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_mp10_k11_retrieval_oriented_forward_scan_5b
+摘要：{"baseline_regression_pass": true, "baseline_top1_pass": 411, "cv_winner_counts": [{"model_name": "MP10_plus_ENV_p04_m2_q0", "train_winner_count": 5}], "diagnostic_best_basis": "ENV_p04_m2_q0", "diagnostic_best_model": "MP10_plus_ENV_p04_m2_q0", "diagnostic_best_top1_pass": 416, "k11_positive_delta_count": 27, "max_k11_top1_pass": 416, "raw_data_modified": false, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_mp10_k11_retrieval_oriented_forward_scan_5b", "status": "SUCCESS", "task": "scenario_2_mp10_k11_retrieval_oriented_forward_scan_5b", "transition_counts_across_k11": {"recovered": 113, "regressed": 44, "unchanged_fail": 797, "unchanged_pass": 26671}}
+完成 MP10/Envelope75 overlap regression、Full425 retrieval、recovered/regressed、basis type summary 和 5-fold Query-State CV；未冻结新模型。
+最终独立验收通过：66 个候选距离矩阵、330 个 argmin、20 对 Real-B、28050 行模型/Query 长表和每 fold 唯一 winner 均通过；原始数据未改变。
+
+2026-09-16T11:56:44+0800 | 新任务：scenario_2_k11_backward_retrieval_oriented_basis_ablation_5b
+完成当前最佳 K11 的 11 个单项 backward deletion candidates；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_k11_backward_retrieval_oriented_basis_ablation_5b
+摘要：{"baseline_regression_pass": true, "cv_winner_counts": [{"model_name": "K11_full", "train_winner_count": 4}, {"model_name": "K11_minus_LIN_d2", "train_winner_count": 1}], "deletion_to_mp10_regression_pass": true, "diagnostic_winner": "K11_full", "diagnostic_winner_class": "baseline", "diagnostic_winner_top1": 416, "max_deletion_top1": 415, "raw_data_modified": false, "recommend_delete_basis_ids": [], "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_k11_backward_retrieval_oriented_basis_ablation_5b", "status": "SUCCESS", "task": "scenario_2_k11_backward_retrieval_oriented_basis_ablation_5b", "transition_counts_across_deletions": {"recovered": 36, "regressed": 500, "unchanged_fail": 63, "unchanged_pass": 4076}}
+完成 K11/MP10 regression、Full425 retrieval、failure9、deletion recommendation、5-fold CV 和三张诊断图；未冻结新模型。
+最终独立验收通过：12 个 candidate、60 个 argmin、20 对 Real-B、5100 行模型/Query 表、99 行 failure9 和 CV fold 一致性均通过；11 项删除全部判定为 necessary，未推荐删除。
+
+2026-09-16T12:24:02+0800 | 新任务：scenario_2_k12_retrieval_oriented_forward_scan_5b
+完成当前最佳 K11 的 64 个单项 K12 forward candidates；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_k12_retrieval_oriented_forward_scan_5b
+摘要：{"baseline_regression_pass": true, "baseline_top1": 416, "cv_winner_counts": [{"model_name": "K11_plus_ENV_p03_m0_q1", "train_winner_count": 1}, {"model_name": "K11_plus_ENV_p04_m0_q1", "train_winner_count": 4}], "diagnostic_best_basis": "ENV_p04_m0_q1", "diagnostic_best_model": "K11_plus_ENV_p04_m0_q1", "diagnostic_best_top1": 419, "hard_pair_count": 7, "k11_failure_rank_distribution": {"rank_1": 416, "rank_2": 7, "rank_3_to_5": 1, "rank_6_to_10": 1, "rank_gt_10": 0}, "max_k12_top1": 419, "positive_k12_delta_count": 11, "raw_data_modified": false, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_k12_retrieval_oriented_forward_scan_5b", "status": "SUCCESS", "task": "scenario_2_k12_retrieval_oriented_forward_scan_5b", "transition_counts_across_k12": {"recovered": 20, "regressed": 65, "unchanged_fail": 556, "unchanged_pass": 26559}}
+完成 failure rank/hard-pair、Full425 retrieval、K12 delta、5-fold Query-State CV、类型与结构分析；未冻结新模型。
+最终独立验收通过：65 个模型、325 个 argmin、576 行 failure9、448 行 hard-pair、27625 行模型/Query、20 对 Real-B 和 CV fold 一致性均通过；未执行 K13。
+
+2026-09-16T12:57:53+0800 | 新任务：scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b
+完成当前最佳 K12 的 12 个单项 backward deletion；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b
+摘要：{"baseline_regression_pass": true, "cv_winner_counts": [{"model_name": "K12_full", "train_winner_count": 4}, {"model_name": "K12_minus_LIN_d2", "train_winner_count": 1}], "deletion_to_k11_regression_pass": true, "diagnostic_winner": "K12_full", "diagnostic_winner_top1": 419, "max_deletion_top1": 417, "raw_data_modified": false, "recommend_delete_basis_ids": [], "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b", "status": "SUCCESS", "task": "scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b", "transition_counts_across_deletions": {"recovered": 26, "regressed": 412, "unchanged_fail": 46, "unchanged_pass": 4616}}
+完成 K12/K11 regression、failure6、cross-delay interaction、Full425 retrieval、5-fold CV 和 deletion recommendation；未冻结新模型。
+
+2026-09-16T12:59:56+0800 | 新任务：scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b
+完成当前最佳 K12 的 12 个单项 backward deletion；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b
+摘要：{"baseline_regression_pass": true, "cv_winner_counts": [{"model_name": "K12_full", "train_winner_count": 4}, {"model_name": "K12_minus_LIN_d2", "train_winner_count": 1}], "deletion_to_k11_regression_pass": true, "diagnostic_winner": "K12_full", "diagnostic_winner_top1": 419, "max_deletion_top1": 417, "raw_data_modified": false, "recommend_delete_basis_ids": [], "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b", "status": "SUCCESS", "task": "scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b", "transition_counts_across_deletions": {"recovered": 26, "regressed": 412, "unchanged_fail": 46, "unchanged_pass": 4616}}
+完成 K12/K11 regression、failure6、cross-delay interaction、Full425 retrieval、5-fold CV 和 deletion recommendation；未冻结新模型。
+2026-09-16 13:05 +0800 | 新任务：scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b
+完成当前最佳 K12 的 12 项 retrieval-oriented single-basis backward elimination。1 个 K12 baseline + 12 个 K11 deletion candidates 共 13 个模型；K12 baseline 回归 419/425，所有删除候选均低于 baseline，最高 417/425，recommend_delete=0，未执行第二次删除、K13、swap、beam 或参数扫描。ENV_p04_m0_q1 删除严格回归正式 K11，独立验证 PASS；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b
+
+2026-09-16T14:46:13+0800 | 新任务：scenario_2_smallbeam3_k13_retrieval_oriented_forward_expansion_5b
+完成 Beam=3 one-layer retrieval-oriented K13 expansion；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_smallbeam3_k13_retrieval_oriented_forward_expansion_5b
+摘要：{"branch_best_models": {"seed_A_global_champion": 12, "seed_B_margin_branch": 74, "seed_C_structural_branch": 125}, "cv_global_winner_counts": [{"global_train_winner_count": 4, "model_name": "K13_plus_ENV_p03_m0_q1__ENV_p03_m1_q0"}, {"global_train_winner_count": 1, "model_name": "K13_plus_ENV_p03_m0_q1__ENV_p09_m2_q0"}], "evaluation_pool": 189, "global_best_k13_model": "K13_plus_ENV_p03_m0_q1__ENV_p03_m1_q0", "global_best_k13_top1": 421, "global_best_model": "K13_plus_ENV_p03_m0_q1__ENV_p03_m1_q0", "global_best_model_type": "k13", "global_best_top1": 421, "global_child_transition_totals": {"recovered_count": 100, "regressed_count": 313, "unchanged_fail": 1016, "unchanged_pass": 77621}, "multi_parent_child_count": 3, "raw_data_modified": false, "raw_expansion_edges": 189, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_smallbeam3_k13_retrieval_oriented_forward_expansion_5b", "safe_breakthrough_count": 5, "seed_regression_pass": true, "status": "SUCCESS", "strict_breakthrough_count": 25, "task": "scenario_2_smallbeam3_k13_retrieval_oriented_forward_expansion_5b", "unique_k13_children": 186}
+完成 3 seed regression、189 raw edges/186 unique children、Full425 retrieval、pairwise interaction、failure6、branch comparison 和 5-fold Query-State stability；未启动第二层 beam。
+2026-09-16 15:10 +0800 | 新任务：scenario_2_smallbeam3_k13_retrieval_oriented_forward_expansion_5b
+完成第一轮 Beam=3 one-layer retrieval-oriented K13 expansion：3 个冻结 K12 seed，每条 63 条 expansion，189 raw edges 去重为 186 个唯一 K13 child，evaluation pool=189。发现 strict breakthrough：最佳 K13 Top1=421/425；25 个 K13 超过 419，5 个相对 Seed A 达到 Top1>419 且 regressed=0。Seed A/B/C regression、dedup、189 distance matrix、945 argmin、failure6、pairwise interaction、branch/CV 与 raw manifest 独立验证均通过；未启动第二层 beam、K14、backward 或 swap。结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_smallbeam3_k13_retrieval_oriented_forward_expansion_5b
+
+2026-09-16T15:36:13+0800 | 新任务：scenario_2_beam3_k13_floating_backward_retrieval_ablation_5b
+完成三条 K13 frontier 的统一 Floating Backward Elimination；39 raw edges 去重为 37 unique K12 children，4 个历史复用、33 个 novel fit，evaluation pool=40。结果：global best K12=child_K12_13 Top1=421/425，beneficial=0，strict safe compression=0，reordered=1；未启动 K14、第二次 backward、第二层 beam 或 swap。结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_beam3_k13_floating_backward_retrieval_ablation_5b
+
+2026-09-16T15:42:21+0800 | 新任务：scenario_2_beam3_k13_floating_backward_retrieval_ablation_5b
+完成三条 K13 frontier 的统一 Floating Backward Elimination；39 raw edges 去重为 37 unique K12 children，4 个历史复用、33 个 novel fit，evaluation pool=40。结果：global best K12=child_K12_13 Top1=421/425，beneficial=0，strict safe compression=0，reordered=1；未启动 K14、第二次 backward、第二层 beam 或 swap。结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_beam3_k13_floating_backward_retrieval_ablation_5b
+2026-09-16 16:15 +0800 | 新任务：scenario_2_beam3_k13_floating_backward_retrieval_ablation_5b
+完成三条 K13 frontier 的统一 Floating Backward Elimination：39 raw deletion edges 去重为 37 unique K12 children，4 个历史结果复用、33 个 novel K12 fit，evaluation pool=40。未发现 Top1>421 或 strict safe compression；唯一 K12=421 child 为 child_K12_13，属于 performance-preserving-but-reordered（Recovered=1、Regressed=1）；其全局 rank 1，Top1=421。persistent failure intersection=[189,323,340]。3 frontier regression、4 historical reuse、40 distance matrix、200 argmin、200 shareability、50 fragile、500 Phi slicing 与 CV 独立验证通过；未启动 K14、第二次 backward、第二层 beam 或 swap。结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_beam3_k13_floating_backward_retrieval_ablation_5b
+已完成最终 edge schema 收口（child_global_rank、parent/child Top-k 字段），validation 复跑通过；checkpoint 已标记 independent_validation_pass=true。
+
+2026-09-16T15:45:55+0800 | 新任务：scenario_2_beam3_k13_floating_backward_retrieval_ablation_5b
+完成三条 K13 frontier 的统一 Floating Backward Elimination；39 raw edges 去重为 37 unique K12 children，4 个历史复用、33 个 novel fit，evaluation pool=40。结果：global best K12=child_K12_13 Top1=421/425，beneficial=0，strict safe compression=0，reordered=1；未启动 K14、第二次 backward、第二层 beam 或 swap。结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_beam3_k13_floating_backward_retrieval_ablation_5b
+
+2026-09-16T15:48:18+0800 | 新任务：scenario_2_beam3_k13_floating_backward_retrieval_ablation_5b
+完成三条 K13 frontier 的统一 Floating Backward Elimination；39 raw edges 去重为 37 unique K12 children，4 个历史复用、33 个 novel fit，evaluation pool=40。结果：global best K12=child_K12_13 Top1=421/425，beneficial=0，strict safe compression=0，reordered=1；未启动 K14、第二次 backward、第二层 beam 或 swap。结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_beam3_k13_floating_backward_retrieval_ablation_5b
+
+2026-09-16T17:45:02+0800 | 新任务：scenario_2_updated_beam3_iteration2_retrieval_oriented_forward_expansion_5b
+完成 scenario_2_updated_beam3_iteration2_retrieval_oriented_forward_expansion_5b：更新 Beam=3 Iteration-2 一层前向扩展、条件数审计、Full425 retrieval、fragile/hard-state、conditional contribution、CV 和图形；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_updated_beam3_iteration2_retrieval_oriented_forward_expansion_5b
+摘要：{"best_child_model": "F2_safe_K13__plus_ENV_p06_m1_q0", "best_child_top1": 422, "conditioning_hard_failures": 0, "evaluation_pool": 190, "failure_union": [189, 190, 195, 323, 330, 340, 346], "global_best_model": "F2_safe_K13__plus_ENV_p06_m1_q0", "global_best_top1": 422, "historical_SeedA_safe_breakthrough_count": 2, "historical_child_reuse_count": 1, "parent_monotonic_breakthrough_count": 2, "parent_regression_pass": true, "persistent_failure_intersection": [189, 340], "raw_data_modified": false, "raw_expansion_edges": 187, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_updated_beam3_iteration2_retrieval_oriented_forward_expansion_5b", "status": "SUCCESS", "strict_breakthrough_count": 2, "task": "scenario_2_updated_beam3_iteration2_retrieval_oriented_forward_expansion_5b", "unique_children": 187}
+
+2026-09-16T17:51:44+0800 | 新任务：scenario_2_updated_beam3_iteration2_retrieval_oriented_forward_expansion_5b
+完成 scenario_2_updated_beam3_iteration2_retrieval_oriented_forward_expansion_5b：更新 Beam=3 Iteration-2 一层前向扩展、条件数审计、Full425 retrieval、fragile/hard-state、conditional contribution、CV 和图形；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_updated_beam3_iteration2_retrieval_oriented_forward_expansion_5b
+摘要：{"best_child_model": "F2_safe_K13__plus_ENV_p06_m1_q0", "best_child_top1": 422, "conditioning_hard_failures": 0, "evaluation_pool": 190, "failure_union": [189, 190, 195, 323, 330, 340, 346], "global_best_model": "F2_safe_K13__plus_ENV_p06_m1_q0", "global_best_top1": 422, "historical_SeedA_safe_breakthrough_count": 2, "historical_child_reuse_count": 1, "parent_monotonic_breakthrough_count": 2, "parent_regression_pass": true, "persistent_failure_intersection": [189, 340], "raw_data_modified": false, "raw_expansion_edges": 187, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_updated_beam3_iteration2_retrieval_oriented_forward_expansion_5b", "status": "SUCCESS", "strict_breakthrough_count": 2, "task": "scenario_2_updated_beam3_iteration2_retrieval_oriented_forward_expansion_5b", "unique_children": 187}
+
+2026-09-16 18:00 +0800 | 持续维护：scenario_2_updated_beam3_iteration2_retrieval_oriented_forward_expansion_5b
+补充生成用户要求的 statewise 六曲线图 `39_statewise_global_best_metrics.png`，并用 artifact-tool 创建、重新载入和检查 `updated_beam_iteration2_state_report.xlsx`。Excel 包含 State Report、Summary、Audit 三个工作表；State Report 为 425 行 x 10 列，表头按用户指定内容，公式错误扫描为 0。Excel 主表对应全局 diagnostic rank 1 的 F2_safe_K13__plus_ENV_p06_m1_q0，Top1=422/425。raw MAT 未修改。
+
+2026-09-16T22:44:04+0800 | 新任务：scenario_2_self_first_joint_basis_ridge_lut_retrieval_search_5b
+完成 Self-First 初版结构搜索框架；OBJECTIVE_VERSION=SELF_FIRST_V1；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_self_first_joint_basis_ridge_lut_retrieval_search_5b；当前 best N_self=270, N_valid=419。最终 Dense Ridge、basis importance、Nested CV 和完整独立验收需在后续阶段完成。
+
+2026-09-16T23:56:45+0800 | 新任务：scenario_2_self_first_joint_basis_ridge_lut_retrieval_search_5b
+完成 Self-First joint support+Ridge 搜索；OBJECTIVE_VERSION=SELF_FIRST_V1；stop_reason=MAX_SEARCH_ROUNDS_REACHED；best N_self=270, N_valid=419；结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_self_first_joint_basis_ridge_lut_retrieval_search_5b
+
+2026-09-17 01:44 +0800 | 工程级维护：module_layout_reorganization_20260917
+完成固定 10 模块目录重构：scripts/results/work_logs 一级目录已严格镜像；所有 root-level Scenario 2 任务、旧模块目录和 basis_function_selection 一级目录已迁入对应模块。迁移采用同一 filesystem 原位 rename，未重算科研结果，未删除或复制 Self-First 约 30G 结果。Self-First 新路径 validator PASS，最终 champion 仍为 K=18、lambda=3.16227766e-12、N_self=270、N_fallback=149、N_valid=419、N_fail=6；Nested CV 仍 deferred。raw manifest unchanged；compileall、Ruff、pip check、module-layout validator、core/data/signal 回归均通过。未执行 git add、commit 或 push。
+
+2026-09-17T12:28:01+08:00 | 工程级维护：module_internal_layout_reorganization_20260917 final validation pass=False：每个 scripts 模块均已分为 shared 与具体 task，task_count=67，dependency_violations=0，cycles=0；raw manifest unchanged=True，Self-First tree unchanged=True；compileall/Ruff/pip check/10-module shared import/public API smoke 均纳入 12_validation_report.json，未执行科研计算。
+
+2026-09-17T12:28:26+08:00 | 工程级维护：module_internal_layout_reorganization_20260917 final validation pass=False：每个 scripts 模块均已分为 shared 与具体 task，task_count=67，dependency_violations=0，cycles=0；raw manifest unchanged=True，Self-First tree unchanged=True；compileall/Ruff/pip check/10-module shared import/public API smoke 均纳入 12_validation_report.json，未执行科研计算。
+
+2026-09-17T12:28:43+08:00 | 工程级维护：module_internal_layout_reorganization_20260917 final validation pass=True：每个 scripts 模块均已分为 shared 与具体 task，task_count=67，dependency_violations=0，cycles=0；raw manifest unchanged=True，Self-First tree unchanged=True；compileall/Ruff/pip check/10-module shared import/public API smoke 均纳入 12_validation_report.json，未执行科研计算。
+
+2026-09-17 | 工程级维护：module_internal_layout_reorganization_20260917 回归收口：完成 10 个一级模块的 shared/task 内部结构、公共测试归位、跨任务支持提升和导入/结果路径修正；core/data/signal/behavior shared tests、retrieval-oriented scan、Envelope18/19 direct regression 均通过。未重算结果，未修改 data/raw，未删除 Self-First `_cache` 或 distance matrices，未执行 git add/commit/push。
+
+2026-09-17T12:44:00+08:00 | 工程级维护：module_internal_layout_reorganization_20260917 final validation pass=False：每个 scripts 模块均已分为 shared 与具体 task，task_count=67，dependency_violations=0，cycles=0；raw manifest unchanged=True，Self-First tree unchanged=True；compileall/Ruff/pip check/10-module shared import/public API smoke 均纳入 12_validation_report.json，未执行科研计算。
+
+2026-09-17T12:44:28+08:00 | 工程级维护：module_internal_layout_reorganization_20260917 final validation pass=True：每个 scripts 模块均已分为 shared 与具体 task，task_count=67，dependency_violations=0，cycles=0；raw manifest unchanged=True，Self-First tree unchanged=True；compileall/Ruff/pip check/10-module shared import/public API smoke 均纳入 12_validation_report.json，未执行科研计算。
+
+2026-09-17T12:45:08+08:00 | 工程级维护：module_internal_layout_reorganization_20260917 final validation pass=True：每个 scripts 模块均已分为 shared 与具体 task，task_count=67，dependency_violations=0，cycles=0；raw manifest unchanged=True，Self-First tree unchanged=True；compileall/Ruff/pip check/10-module shared import/public API smoke 均纳入 12_validation_report.json，未执行科研计算。
+
+2026-09-17T12:46:06+08:00 | 工程级维护：module_internal_layout_reorganization_20260917 final validation pass=False：每个 scripts 模块均已分为 shared 与具体 task，task_count=67，dependency_violations=0，cycles=0；raw manifest unchanged=True，Self-First tree unchanged=True；compileall/Ruff/pip check/10-module shared import/public API smoke 均纳入 12_validation_report.json，未执行科研计算。
+
+2026-09-17T12:46:38+08:00 | 工程级维护：module_internal_layout_reorganization_20260917 final validation pass=True：每个 scripts 模块均已分为 shared 与具体 task，task_count=67，dependency_violations=0，cycles=0；raw manifest unchanged=True，Self-First tree unchanged=True；compileall/Ruff/pip check/10-module shared import/public API smoke 均纳入 12_validation_report.json，未执行科研计算。
+
+2026-09-18T15:09:51+0800 | 新任务：scenario_2_k18_aend_c2_full_lut_retrieval_5b
+完成固定 K18 Aend/C2 Full-425 LUT 检索：N_self=270，N_fallback=149，N_valid=419，N_fail=6；历史 State_Q 一致=True；raw_unchanged=True。未启动模型搜索、Nested CV 或 Self-First runner。结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/behavior_fingerprint_retrieval/scenario_2_k18_aend_c2_full_lut_retrieval_5b
+
+2026-09-18T15:11:10+0800 | 新任务：scenario_2_k18_aend_c2_full_lut_retrieval_5b
+完成固定 K18 Aend/C2 Full-425 LUT 检索：N_self=270，N_fallback=149，N_valid=419，N_fail=6；历史 State_Q 一致=True；raw_unchanged=True。未启动模型搜索、Nested CV 或 Self-First runner。结果目录：/Users/lizy/Project Files/Python Files/project_20260821/results/behavior_fingerprint_retrieval/scenario_2_k18_aend_c2_full_lut_retrieval_5b
+
+2026-09-18 | 新任务：scenario_2_k18_aend_c2_full_lut_retrieval_5b
+独立 validator PASS；固定 K18、lambda=3.16227766e-12、Aend/C2、Full-425、Common-B、Real-B 严格 < -40 dB 及历史 State_Q/距离矩阵回归均通过；raw manifest unchanged；未启动模型搜索、Self-First runner 或 Nested CV。
+
+2026-09-18 | 新任务：scenario_2_k18_aend_c2_full_lut_retrieval_0p5b
+完成固定 K18 0.5B Aend/C2 Full-425 检索；artifact-tool 严格 10 列 Excel、6/1 曲线、全部 R→Q 标注、5B Real-B 验证和 raw manifest 均通过；未启动任何模型搜索。
+
+2026-09-18 | 新任务：scenario_1_load_drift_state_selection_from_scenario_2
+完成 Scenario 1 load-drift candidate selection：17 candidates、17x17 B-CNMSE、8 phase comparisons、56 phase triplets、artifact-tool 5-sheet Excel；primary phases=[0, 90, 180]，states=[0, 17, 51, 85, 153, 187, 221]；raw unchanged，own-DPD recovery 与 validation 通过。
+
+2026-09-18 | 新任务：scenario_1_load_drift_state_selection_from_scenario_2
+完成 Scenario 1 load-drift candidate selection：17 candidates、17x17 B-CNMSE、8 phase comparisons、56 phase triplets、artifact-tool 5-sheet Excel；primary phases=[0, 90, 180]，states=[0, 17, 51, 85, 153, 187, 221]；raw unchanged，own-DPD recovery 与 validation 通过。
+
+2026-09-19 | 新任务：scenario_2_k18_aend_c2_full_lut_retrieval_0p1b
+完成固定 K18 0.1B Aend/C2 Full-425 检索；artifact-tool 严格 10 列 Excel、6/1 曲线、全部 R→Q 标注、5B Real-B 验证和 raw manifest 均通过；未启动任何模型搜索。
+
+[2026-09-19T18:59:24+08:00] 工程维护：retrieval_model_selection 内部两路线分割
+routes=self_hit_oriented, dpd_shareability_oriented; moved=29; source_rewrite=19; research_recomputed=false; raw_unchanged=true; root_config_unchanged=true; route-aware validator/config update deferred.
+
+2026-09-19 | 工程维护：retrieval_model_selection route split final validation
+- 实际分类：self_hit_oriented=1，dpd_shareability_oriented=10；按现场 winner selection 证据分类，未采用冲突的预期分类。
+- 三棵树实际移动目录共29项：scripts=11，results=9，work_logs=9；Self-First约31.8GB结果使用同filesystem rename，未复制。
+- 唯一 active retrieval source path/import 改动文件数=24；历史 result/work_log 内容未改；shared 层未拆出 route-level shared，仅增加 route path helper并修复必要 active path。
+- route validator PASS；active stale path=0；task-to-task dependency=0；10个一级模块镜像 PASS；raw unchanged；根配置文件相对迁移前 hash unchanged。
+- compileall、Ruff、pip check、17个包 import smoke、git diff --check 全部 PASS；未执行任何科研计算、模型搜索或结果重算。
+- AGENTS.md、README.md、environment.yml、pyproject.toml、.gitignore 及正式 global route-aware validator 更新 DEFERRED；旧 validator 状态为 EXPECTED_SCHEMA_MISMATCH。
+
+2026-09-19T19:27:40+08:00 | 工程维护：纠正 retrieval_model_selection route ownership
+上一轮按历史辅助指标推断的 route 分类已按用户明确研究目的纠正：全部 11 个历史任务归入 self_hit_oriented；dpd_shareability_oriented 保留为空，留给未来 shareability-first 新任务。
+
+2026-09-19 | 工程维护：corrective route reorganization final PASS
+- 纠正前：self_hit=1、dpd_shareability=10；纠正后：历史 self_hit=11、dpd_shareability=0。
+- 实际 same-filesystem rename=26（scripts=10、results=8、work_logs=8）；Self-First 未移动；未复制大型结果。
+- results/work_logs integrity PASS；active old-route refs=0；flat task=0；task-to-task dependency=0；route-level shared 不存在；module shared 保留。
+- raw manifest unchanged，根配置 hash unchanged；15 个 corrected package import smoke、compileall、Ruff、pip check、module mirror、git diff --check 全部 PASS。
+- 本轮未执行科研计算、模型搜索或历史结果重算；AGENTS/README/正式 route-aware global validator 同步继续 DEFERRED；旧 validator 仍为 EXPECTED_SCHEMA_MISMATCH。
+
+2026-09-19 | 工程维护：DPD-shareability 公共基础设施完成
+- 复用已有 core/retrieval_model_selection_route_split 维护上下文；在 behavior_modeling.shared 扩展严格 Volterra 描述符/按需列生成，在 retrieval_oriented_model_selection.shared 建设带宽、support/Ridge、Aend/C2 拟合编排、Common-B 指纹、CNMSE 排序、Real-B 后验 oracle、N_shareable 第一目标及 Top1/3/5/10 真状态观测、Forward/Backward/Swap/Ridge 搜索接口、缓存和 JSON checkpoint/resume；低带宽操作符仍复用 low_bandwidth_behavior_analysis.shared。
+- 已同步当前 route-aware global/internal layout validator 和 README；DPD route 保持空、11 个 Self-hit 历史任务及科研结果未修改。synthetic 11/11、低带宽 12/12、Envelope75 回归、Ruff/compileall/pip check、18 个 import smoke、layout/dependency、raw/历史结果完整性、git diff --check 均 PASS。
+- 没有真实 425 状态搜索、Real-B 425x425 oracle 构建、带宽 champion 或模型/Ridge 最终选择。状态：Infrastructure Ready；Scientific Search Not Started。详见 results/core/retrieval_model_selection_route_split/15_shareability_infrastructure_validation.json。
+
+2026-09-20 | 工程维护：DPD-shareability 10-worker candidate-level parallel 执行架构
+- 统一 ParallelExecutionSpec：默认10个 spawn worker、worker内1个BLAS线程、不绑核、不使用GPU、禁止嵌套，1 worker串行回退。主进程负责候选/beam/tie/checkpoint，worker只处理轻量 candidate、文件引用和评分；异常按 candidate ID fail-fast，Ctrl+C清理子进程并保存安全 checkpoint。
+- cache 实现并发单写者与原子发布；checkpoint 保存独立运行时元数据，2-worker partial→10-worker resume与串行科研状态一致；candidate ID 不含 worker 参数。
+- synthetic 20/20、既有 Envelope75 和低带宽12/12、compileall/Ruff/pip check/route-aware layout/依赖扫描/raw/历史结果完整性/git diff --check 均 PASS。20个 tiny synthetic job 的串行/并行耗时分别约1.13/0.98秒、并行观察到10个PID；不可推断真实425状态耗时。
+- 未创建新科研任务，未运行真实425状态搜索或 oracle，未选基函数/Ridge/bandwidth champion。详见 results/core/retrieval_model_selection_route_split/16_parallel_execution_validation.json。
+
+2026-09-20 | 科研任务暂停：scenario_2_volterra_shareability_basis_search_5b
+- 用户明确要求暂停；当前没有该任务主进程或 spawn worker。
+- K=1 seed 已完成 191675/191675；K=2 Forward continuation 已启动但首批候选尚未形成阶段 checkpoint，已在安全边界停止。
+- checkpoint、search trace、runtime memmap 和日志保留；未生成正式 PNG/XLSX，未选 champion，未修改 data/raw 或历史结果。
+
+2026-09-20 | 同一任务持续维护：DPD-shareability 固定种子搜索计算架构优化（阶段性交付）
+- 从 canonical dictionary 自动识别 x[n] = V1_u0；新 K2 38,334 个唯一 child，结构阶段仅 λ=1e-8，全局 dmax=4。注意原求解器约定为 Gram + NλI。
+- 新增 active-parent 增量统计/多 RHS Schur、按 state 流式复用 parent union 与候选列的评估器；旧 exhaustive K1/multi-Ridge 入口已封存，旧 trace/checkpoint/raw 数据保持不动。
+- 完整 425-state K2/5/10/20 各 1 support 与参考结果计数一致；10 spawn workers 的 K2 100/500/1000 小基准已跑。compileall、Ruff、pip check、布局检查通过；raw manifest 前后匹配。
+- work_logs/retrieval_oriented_model_selection/dpd_shareability_oriented/scenario_2_volterra_shareability_basis_search_5b/optimization/ 记录审计、等价性和性能详情。完整新搜索调度、持久缓存接线、Backward/Swap、充分回归和块长选择尚未完成；不得启动正式 K2→K20。
+
+[2026-09-21] 完成 scenario_scope_architecture_migration_20260920：58 个非保护任务按 scenario_2/cross_scenario 原子归位；retrieval_oriented_model_selection、data/raw、工程配置保持保护。迁移 validator PASS：三棵一级模块镜像、结果/日志内容字节级保持、旧路径消失、无 results/work_logs/shared、raw manifest 未变。源码收尾修正 44 个初始导入/路径引用、99 个场景结果/日志路径文件和 8 个直接字符串路径文件；compileall、Ruff、302 模块 import smoke、pip check 均通过。pytest 收集 317 项，已执行 127 项通过、20 项因迁移前清单中不存在的历史结果产物而失败，达到 maxfail 后停止，未生成/复制任何科研结果；未启动正式科研 runner。
+[2026-09-21] 完成 DPD-shareability 路线 K3 多父集合预搜索验证：K3 exhaustive exact 从已验证 39333/114996 checkpoint 恢复并完成 114996/114996，117 blocks、114996 trace/cache、zero fallback、无残留 worker/resource tracker；修正离线 provenance 后确认三个 K2 Exact Top3 parent 各有 38333 个子候选。随后以 10 个 spawn worker、每 worker 单 BLAS 线程，对共享 38334 候选池完成 40 分区 SOMP screening，artifact/checkpoint 均通过 checksum/父项排除/数量校验。Policy A=3000（2100 exploit+900 exploration）全局 Top1/3/10/20/50/100=true/1/5/11/25/52；Policy B=5000（3000 exploit+2000 exploration）为 true/1/5/11/28/58。B 优于 A，但两者 K3 global Exact Top3 均仅 1/3，formal search 仍 NOT READY；未启动 K4、Beam、Backward、Swap、Dense Ridge 或正式 K2→K20。最终摘要：work_logs/retrieval_oriented_model_selection/dpd_shareability_oriented/scenario_2_volterra_shareability_basis_search_5b/pre_search_validation/k3_multi_parent_policy_validation/08_k3_screening_policy_validation.json。raw data、历史 self-hit 文件、K2 exact/screening 结果均未修改。
+
+[2026-09-21] 完成 final_architecture_consolidation_20260921：data/raw/experiment_2026_0816 原子移动至 data/raw/scenario_2/experiment_2026_0816；experiment 内部 428 文件、427 MAT、2,258,448,112 bytes 逐文件 SHA 保持；retrieval scripts/results/work_logs 完成 route/scenario_2/task 原子 rename，331,316 个 retrieval 文件 inode/size/mtime 校验通过；route/scenario/layout validator、raw content manifest、Self-First resume/read gate、DPD readiness gate、compileall、Ruff、pip check、383 个 import smoke 通过；清理 558 项非科研运行缓存，data/raw、results 科研内容和 work_logs 科研中间文件未清理；配置文件冻结，未执行 Git 写操作，未启动正式科研任务。

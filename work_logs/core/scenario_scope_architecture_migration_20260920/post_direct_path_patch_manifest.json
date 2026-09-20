@@ -1,0 +1,54 @@
+{
+  "timestamp": "2026-09-21T00:29:39.480418+08:00",
+  "files_changed": 8,
+  "records": [
+    {
+      "file": "scripts/pa_performance_evaluation/scenario_2/scenario_2_ilc_acpr_observation/run_scenario2_ilc_acpr_observation.py",
+      "old_sha256": "16689c3df6cafccd7e4f6b63fdfbe33f8fe527212f5fe61b42601290cf38c6d8",
+      "new_sha256": "6f0a8c7b778a0993a5e87927ef768de6711b2bae6e0f94ebc97916269f2e9716",
+      "change_category": "SCENARIO_DIRECT_STRING_PATH_NORMALIZATION"
+    },
+    {
+      "file": "scripts/behavior_modeling/scenario_2/scenario_2_failed14_P5_with_order2_variable_memory_OLS_scan_5b/export_scenario2_failed14_P5_with_order2_variable_memory_OLS_scan_5b.mjs",
+      "old_sha256": "ea916706f1166f7ef53cb4a0381a1ea7e74f5a00123c2c42a6677bbf08a192dc",
+      "new_sha256": "050390d4ab42587b6570bfa4ff76a0e79598ca333e2fa67dcccb68c09932cf97",
+      "change_category": "SCENARIO_DIRECT_STRING_PATH_NORMALIZATION"
+    },
+    {
+      "file": "scripts/behavior_modeling/scenario_2/scenario_2_failed14_frozen_mp_residual_sparse_gmp_5b/export_scenario2_failed14_frozen_mp_residual_sparse_gmp_5b.mjs",
+      "old_sha256": "d92e8329a9575b2bda347c1276835c70ecd1166a5cc76830a55186b9a8e05b3b",
+      "new_sha256": "256ee9b96fec3c5ec94e3cbc28586768a921313dd0afbf4baaf53dd469191fc4",
+      "change_category": "SCENARIO_DIRECT_STRING_PATH_NORMALIZATION"
+    },
+    {
+      "file": "scripts/behavior_modeling/scenario_2/scenario_2_failed14_frozen_neighborhood_memory_ridge_scan_5b/export_scenario2_failed14_frozen_neighborhood_memory_ridge_scan_5b.mjs",
+      "old_sha256": "2c6e51c0535479966c5f1130371ef02bc5a3f596aa2748c6d022b37b5f4f0e27",
+      "new_sha256": "aad7f1037c09e525732013a23a22e2ca7c4f7c65faa6868d1ab693011021ef07",
+      "change_category": "SCENARIO_DIRECT_STRING_PATH_NORMALIZATION"
+    },
+    {
+      "file": "scripts/behavior_modeling/scenario_2/scenario_2_failed14_odd_order_mp_order_dependent_memory_scan_5b/export_scenario2_failed14_odd_order_mp_order_dependent_memory_scan_5b.mjs",
+      "old_sha256": "4968b05dd74ca7b14d35c9172a997b192c0fe4155d577f7e2fdaf52b3a643a60",
+      "new_sha256": "0866d269daaa733cd6013829e042fba24415049731855d889ca9f6351b296d12",
+      "change_category": "SCENARIO_DIRECT_STRING_PATH_NORMALIZATION"
+    },
+    {
+      "file": "scripts/behavior_modeling/scenario_2/scenario_2_failed14_p5_variable_memory_ridge_scan_5b/export_scenario2_failed14_p5_variable_memory_ridge_scan_5b.mjs",
+      "old_sha256": "cd5b8e52cacf82a8e31958c23a87baa9a366a346316bf7c74d11470cd773ad64",
+      "new_sha256": "1dd9df69d22375597ebddabea781176331d3247618df93449f64f1bc20929f96",
+      "change_category": "SCENARIO_DIRECT_STRING_PATH_NORMALIZATION"
+    },
+    {
+      "file": "scripts/behavior_modeling/scenario_2/scenario_2_unified_odd_order_mp_capacity_scan_5b/export_scenario2_unified_odd_order_mp_capacity_scan_5b.mjs",
+      "old_sha256": "c20c1aef467ffea105121b535f0cc6ba9c4327b5a22de4a8b55ccec1d940ee80",
+      "new_sha256": "534d9c5f1cbc4e0a5f463bd633836ecac8682f955dc765835b38d19463dcd130",
+      "change_category": "SCENARIO_DIRECT_STRING_PATH_NORMALIZATION"
+    },
+    {
+      "file": "scripts/behavior_fingerprint_retrieval/scenario_2/scenario_2_C2_to_Aend_g4_sparse_gmp_5b/export_scenario2_c2_to_aend_g4_sparse_gmp_5b.mjs",
+      "old_sha256": "5d48d4dbd89b8ddf9ca3c05c26fc2da0b8feed0f2d8d5c72b29f44db6e47820c",
+      "new_sha256": "3ac26ae4ba9ac7c1f44fa296efbef62f65129082084ffa9f00976c769e61c5ca",
+      "change_category": "SCENARIO_DIRECT_STRING_PATH_NORMALIZATION"
+    }
+  ]
+}

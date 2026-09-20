@@ -1,0 +1,25 @@
+
+[2026-09-15T16:42:09+0800] Start scenario_2_envelope23_ilcend_commonB_full_lut_retrieval_5B
+Mode: frozen-model paired comparison; only Envelope18 -> Envelope23 changes.
+Old baseline exact/pass=170/403; common-B sha=b3a794e22b6beb7171f696d41685714da122f948ca8284553abaaa9a68c4abac; raw={"bytes": 2258448137, "file_count": 429, "mat_count": 427, "sha256": "910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0"}
+Workers=10; BLAS threads/worker=1; self retrieval allowed.
+[2026-09-15T16:42:36+0800] FAILED scenario_2_envelope23_ilcend_commonB_full_lut_retrieval_5B: KeyError: 'nmse_withoutdpd_dB'
+
+[2026-09-15T16:43:16+0800] Start scenario_2_envelope23_ilcend_commonB_full_lut_retrieval_5B
+Mode: frozen-model paired comparison; only Envelope18 -> Envelope23 changes.
+Old baseline exact/pass=170/403; common-B sha=b3a794e22b6beb7171f696d41685714da122f948ca8284553abaaa9a68c4abac; raw={"bytes": 2258448137, "file_count": 429, "mat_count": 427, "sha256": "910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0"}
+Workers=10; BLAS threads/worker=1; self retrieval allowed.
+[2026-09-15T16:43:45+0800] Completed scenario_2_envelope23_ilcend_commonB_full_lut_retrieval_5B
+Result: {"envelope18_real_B_pass": 403, "envelope23_real_B_pass": 401, "exact_state_hit_count_E18": 170, "exact_state_hit_count_E23": 123, "failed_count": 24, "net_change": -2, "raw_data_modified": false, "recovered": 5, "regressed": 7, "result_root": "/Users/lizy/Project Files/Python Files/project_20260821/results/scenario_2_envelope23_ilcend_commonB_full_lut_retrieval_5B", "task": "scenario_2_envelope23_ilcend_commonB_full_lut_retrieval_5B"}
+No re-selection, Ridge scan, Top-k fallback, clustering, Type-III, DPD, or low-bandwidth task was run.
+[2026-09-15T16:47:42+0800] Final verification
+Result contract passed: 425 paired rows; Envelope18 Real-B pass=403/425; Envelope23 Real-B pass=401/425; exact hits=170/425 versus 123/425; recovered=5; regressed=7; unchanged pass/fail=396/17.
+Artifact checks passed: 425x425 E18/E23 fingerprint distance matrices, 425x23 E23 Aend/C2 coefficient arrays, 24 E23 failed states, 22 historical E18 failure rows, completed checkpoint, and unchanged common-B SHA256.
+Engineering checks passed: direct paired-result contract, compileall, full Ruff, pip check, git diff --check, and visual inspection of all three generated figures. Raw manifest remained 429 files / 427 MAT / 2258448137 bytes / SHA=910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0.
+Task is complete; no further experiment or model adjustment was performed.
+[2026-09-15T19:21:43+0800] Continuous maintenance: Excel state-summary export
+Purpose:补齐本任务缺失的 Excel 汇总产物，不重新建模、不重新检索、不改变 CSV/NPZ/NPY/PNG/TXT/JSON 科研结果。
+Source: results/scenario_2_envelope23_ilcend_commonB_full_lut_retrieval_5B/03_envelope23_all425_retrieval_metrics.csv。
+Output: results/scenario_2_envelope23_ilcend_commonB_full_lut_retrieval_5B/scenario_2_envelope23_ilcend_full_lut_state_summary.xlsx。
+Workbook: one sheet retrieval_results, 425 data rows, 10 requested columns; load configuration combined from funMng/funAng/secMng/secAng; exact-hit retrieved Real-B CNMSE -Inf stored as text -Inf, other values kept as typed numeric cells.
+Verification: artifact-tool source inspection, save/reload inspection, 426x10 shape/header/state-sequence checks, formula-error scan=0, and visual preview passed. Raw input and prior result files were not modified.

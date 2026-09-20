@@ -1,0 +1,149 @@
+{
+  "timestamp": "2026-09-21T01:14:47.637909+08:00",
+  "data_raw_source": "/Users/lizy/Project Files/Python Files/project_20260821/data/raw/experiment_2026_0816",
+  "data_raw_target": "/Users/lizy/Project Files/Python Files/project_20260821/data/raw/scenario_2/experiment_2026_0816",
+  "retrieval_moves": [
+    {
+      "root": "results",
+      "route": "self_hit_oriented",
+      "task": "scenario_2_beam3_k13_floating_backward_retrieval_ablation_5b",
+      "source": "/Users/lizy/Project Files/Python Files/project_20260821/results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_beam3_k13_floating_backward_retrieval_ablation_5b",
+      "target": "/Users/lizy/Project Files/Python Files/project_20260821/results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_beam3_k13_floating_backward_retrieval_ablation_5b"
+    },
+    {
+      "root": "results",
+      "route": "self_hit_oriented",
+      "task": "scenario_2_k11_backward_retrieval_oriented_basis_ablation_5b",
+      "source": "/Users/lizy/Project Files/Python Files/project_20260821/results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_k11_backward_retrieval_oriented_basis_ablation_5b",
+      "target": "/Users/lizy/Project Files/Python Files/project_20260821/results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_k11_backward_retrieval_oriented_basis_ablation_5b"
+    },
+    {
+      "root": "results",
+      "route": "self_hit_oriented",
+      "task": "scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b",
+      "source": "/Users/lizy/Project Files/Python Files/project_20260821/results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b",
+      "target": "/Users/lizy/Project Files/Python Files/project_20260821/results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b"
+    },
+    {
+      "root": "results",
+      "route": "self_hit_oriented",
+      "task": "scenario_2_k12_retrieval_oriented_forward_scan_5b",
+      "source": "/Users/lizy/Project Files/Python Files/project_20260821/results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_k12_retrieval_oriented_forward_scan_5b",
+      "target": "/Users/lizy/Project Files/Python Files/project_20260821/results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_k12_retrieval_oriented_forward_scan_5b"
+    },
+    {
+      "root": "results",
+      "route": "self_hit_oriented",
+      "task": "scenario_2_mp10_k11_retrieval_oriented_forward_scan_5b",
+      "source": "/Users/lizy/Project Files/Python Files/project_20260821/results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_mp10_k11_retrieval_oriented_forward_scan_5b",
+      "target": "/Users/lizy/Project Files/Python Files/project_20260821/results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_mp10_k11_retrieval_oriented_forward_scan_5b"
+    },
+    {
+      "root": "results",
+      "route": "self_hit_oriented",
+      "task": "scenario_2_mp10_k9_retrieval_oriented_basis_ablation_5b",
+      "source": "/Users/lizy/Project Files/Python Files/project_20260821/results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_mp10_k9_retrieval_oriented_basis_ablation_5b",
+      "target": "/Users/lizy/Project Files/Python Files/project_20260821/results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_mp10_k9_retrieval_oriented_basis_ablation_5b"
+    },
+    {
+      "root": "results",
+      "route": "self_hit_oriented",
+      "task": "scenario_2_self_first_joint_basis_ridge_lut_retrieval_search_5b",
+      "source": "/Users/lizy/Project Files/Python Files/project_20260821/results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_self_first_joint_basis_ridge_lut_retrieval_search_5b",
+      "target": "/Users/lizy/Project Files/Python Files/project_20260821/results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_self_first_joint_basis_ridge_lut_retrieval_search_5b"
+    },
+    {
+      "root": "results",
+      "route": "self_hit_oriented",
+      "task": "scenario_2_smallbeam3_k13_retrieval_oriented_forward_expansion_5b",
+      "source": "/Users/lizy/Project Files/Python Files/project_20260821/results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_smallbeam3_k13_retrieval_oriented_forward_expansion_5b",
+      "target": "/Users/lizy/Project Files/Python Files/project_20260821/results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_smallbeam3_k13_retrieval_oriented_forward_expansion_5b"
+    },
+    {
+      "root": "results",
+      "route": "self_hit_oriented",
+      "task": "scenario_2_updated_beam3_iteration2_retrieval_oriented_forward_expansion_5b",
+      "source": "/Users/lizy/Project Files/Python Files/project_20260821/results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_updated_beam3_iteration2_retrieval_oriented_forward_expansion_5b",
+      "target": "/Users/lizy/Project Files/Python Files/project_20260821/results/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_updated_beam3_iteration2_retrieval_oriented_forward_expansion_5b"
+    },
+    {
+      "root": "results",
+      "route": "dpd_shareability_oriented",
+      "task": "scenario_2_volterra_shareability_basis_search_5b",
+      "source": "/Users/lizy/Project Files/Python Files/project_20260821/results/retrieval_oriented_model_selection/dpd_shareability_oriented/scenario_2_volterra_shareability_basis_search_5b",
+      "target": "/Users/lizy/Project Files/Python Files/project_20260821/results/retrieval_oriented_model_selection/dpd_shareability_oriented/scenario_2/scenario_2_volterra_shareability_basis_search_5b"
+    },
+    {
+      "root": "work_logs",
+      "route": "self_hit_oriented",
+      "task": "scenario_2_beam3_k13_floating_backward_retrieval_ablation_5b",
+      "source": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_beam3_k13_floating_backward_retrieval_ablation_5b",
+      "target": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_beam3_k13_floating_backward_retrieval_ablation_5b"
+    },
+    {
+      "root": "work_logs",
+      "route": "self_hit_oriented",
+      "task": "scenario_2_k11_backward_retrieval_oriented_basis_ablation_5b",
+      "source": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_k11_backward_retrieval_oriented_basis_ablation_5b",
+      "target": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_k11_backward_retrieval_oriented_basis_ablation_5b"
+    },
+    {
+      "root": "work_logs",
+      "route": "self_hit_oriented",
+      "task": "scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b",
+      "source": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b",
+      "target": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_k12_backward_retrieval_oriented_basis_ablation_5b"
+    },
+    {
+      "root": "work_logs",
+      "route": "self_hit_oriented",
+      "task": "scenario_2_k12_retrieval_oriented_forward_scan_5b",
+      "source": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_k12_retrieval_oriented_forward_scan_5b",
+      "target": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_k12_retrieval_oriented_forward_scan_5b"
+    },
+    {
+      "root": "work_logs",
+      "route": "self_hit_oriented",
+      "task": "scenario_2_mp10_k11_retrieval_oriented_forward_scan_5b",
+      "source": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_mp10_k11_retrieval_oriented_forward_scan_5b",
+      "target": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_mp10_k11_retrieval_oriented_forward_scan_5b"
+    },
+    {
+      "root": "work_logs",
+      "route": "self_hit_oriented",
+      "task": "scenario_2_mp10_k9_retrieval_oriented_basis_ablation_5b",
+      "source": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_mp10_k9_retrieval_oriented_basis_ablation_5b",
+      "target": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_mp10_k9_retrieval_oriented_basis_ablation_5b"
+    },
+    {
+      "root": "work_logs",
+      "route": "self_hit_oriented",
+      "task": "scenario_2_self_first_joint_basis_ridge_lut_retrieval_search_5b",
+      "source": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_self_first_joint_basis_ridge_lut_retrieval_search_5b",
+      "target": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_self_first_joint_basis_ridge_lut_retrieval_search_5b"
+    },
+    {
+      "root": "work_logs",
+      "route": "self_hit_oriented",
+      "task": "scenario_2_smallbeam3_k13_retrieval_oriented_forward_expansion_5b",
+      "source": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_smallbeam3_k13_retrieval_oriented_forward_expansion_5b",
+      "target": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_smallbeam3_k13_retrieval_oriented_forward_expansion_5b"
+    },
+    {
+      "root": "work_logs",
+      "route": "self_hit_oriented",
+      "task": "scenario_2_updated_beam3_iteration2_retrieval_oriented_forward_expansion_5b",
+      "source": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2_updated_beam3_iteration2_retrieval_oriented_forward_expansion_5b",
+      "target": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/retrieval_oriented_model_selection/self_hit_oriented/scenario_2/scenario_2_updated_beam3_iteration2_retrieval_oriented_forward_expansion_5b"
+    },
+    {
+      "root": "work_logs",
+      "route": "dpd_shareability_oriented",
+      "task": "scenario_2_volterra_shareability_basis_search_5b",
+      "source": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/retrieval_oriented_model_selection/dpd_shareability_oriented/scenario_2_volterra_shareability_basis_search_5b",
+      "target": "/Users/lizy/Project Files/Python Files/project_20260821/work_logs/retrieval_oriented_model_selection/dpd_shareability_oriented/scenario_2/scenario_2_volterra_shareability_basis_search_5b"
+    }
+  ],
+  "config_touched": false,
+  "formal_research_started": false
+}

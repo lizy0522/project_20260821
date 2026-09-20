@@ -1,0 +1,62 @@
+
+[2026-09-14T20:29:44+0800] Start new task scenario_2_gateb48_unified_basis_refinement_5B
+Mode: new task; Scenario 2 Gate-B48 unified-support refinement.
+Contract: Development-only selection, Validation after freeze; no retrieval/DPD/clustering/low-bandwidth.
+Raw snapshot before: {"bytes": 2258448137, "exists": true, "file_count": 429, "latest_mtime_ns": 1789320379280916143, "mat_count": 427}
+[2026-09-14T20:33:14+0800] Completed scenario_2_gateb48_unified_basis_refinement_5B
+Worker count=16; raw unchanged=True; adopted=False; final_support_K=17; final_lambda=1e-08.
+Results: 00_parallel_benchmark.csv through 13_ridge_scan.png plus search_checkpoint.json.
+No LUT retrieval, clustering, DPD, or low-bandwidth calculation was run.
+
+[2026-09-14T20:46:00+0800] Final verification and artifact closure
+Implemented task-local scripts:
+- scripts/basis_function_selection/gateb48_refinement.py
+- scripts/basis_function_selection/run_scenario2_gateb48_unified_basis_refinement_5b.py
+
+Contract gates: Frozen-centered dictionary 108/10/18/48/108 counts PASS; Gate-B=48;
+Baseline17=17; remaining nonlinear candidates=31; ABC valid lengths A/B/C=12286/4913/7371;
+historical split builder reproduced Development/Validation=340/85 with seed=20260827.
+Worker benchmark tested 6/8/10/12/14/16/18 processes with BLAS threads/worker=1;
+selected worker count=16 by the three-percent-near-maximum rule.
+
+Development results: Baseline17 pass=160/340, joint Q95=-33.712630 dB, worst=-31.629973 dB;
+selected K=18 support pass=162/340, joint Q95=-33.672210 dB, worst=-31.568855 dB,
+lambda=1e-8. Validation: Baseline17 pass=40/85, joint Q95=-33.743026 dB;
+selected pass=41/85, joint Q95=-33.712140 dB, pass delta=+1 and Q95 gain=-0.030886 dB.
+Validation adoption rule therefore failed; final model retains Baseline17, K=17, lambda=1e-8.
+
+Generated 15 expected artifacts plus search_checkpoint.json in
+results/scenario_2_gateb48_unified_basis_refinement_5B/. A metadata-only correction set
+split=Validation for all 170 rows in 08_validation_comparison.csv; no model numeric value
+or selection result changed. data/raw protection manifest after execution:
+429 files, 427 MAT files, 2258448137 bytes,
+SHA=910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0.
+Final artifact contract, raw protection, data_manager, signal_segmentation, model-solver
+augmented-Ridge smoke, compileall, Ruff, pip check, and git diff --check all PASS.
+pytest is not declared in environment.yml; equivalent direct test mains and focused contract
+calls were executed successfully. No retrieval, clustering, DPD, low-bandwidth, or p/dmax
+expansion was run. No commit, push, reset, clean, or restore was performed.
+Generated benchmark, Pareto, and Ridge figures were opened for visual QA; labels and axes are readable.
+
+[2026-09-14T20:35:34+0800] Start new task scenario_2_gateb48_unified_basis_refinement_5B
+Mode: new task; Scenario 2 Gate-B48 unified-support refinement.
+Contract: Development-only selection, Validation after freeze; no retrieval/DPD/clustering/low-bandwidth.
+Raw snapshot before: {"bytes": 2258448137, "exists": true, "file_count": 429, "latest_mtime_ns": 1789320379280916143, "mat_count": 427}
+[2026-09-14T20:39:13+0800] Completed scenario_2_gateb48_unified_basis_refinement_5B
+Worker count=16; raw unchanged=True; adopted=False; final_support_K=17; final_lambda=1e-08.
+Results: 00_parallel_benchmark.csv through 13_ridge_scan.png plus search_checkpoint.json.
+No LUT retrieval, clustering, DPD, or low-bandwidth calculation was run.
+
+[2026-09-14T20:41:06+0800] Start new task scenario_2_gateb48_unified_basis_refinement_5B
+Mode: new task; Scenario 2 Gate-B48 unified-support refinement.
+Contract: Development-only selection, Validation after freeze; no retrieval/DPD/clustering/low-bandwidth.
+Raw snapshot before: {"bytes": 2258448137, "exists": true, "file_count": 429, "latest_mtime_ns": 1789320379280916143, "mat_count": 427}
+[2026-09-14T20:44:47+0800] Completed scenario_2_gateb48_unified_basis_refinement_5B
+Worker count=16; raw unchanged=True; adopted=False; final_support_K=17; final_lambda=1e-08.
+Results: 00_parallel_benchmark.csv through 13_ridge_scan.png plus search_checkpoint.json.
+No LUT retrieval, clustering, DPD, or low-bandwidth calculation was run.
+
+[2026-09-14T20:47:00+0800] Final post-run closure
+08_validation_comparison.csv contains exactly 170 Validation rows after metadata-only split labeling;
+Pareto and Ridge figures were refreshed for compact readable labels. Final result/raw guard PASS;
+no numeric model output was changed after the completed run.

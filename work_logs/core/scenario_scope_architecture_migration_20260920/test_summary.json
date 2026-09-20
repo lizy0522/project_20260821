@@ -1,0 +1,9 @@
+{
+  "collection_count": 317,
+  "executed_passed": 127,
+  "executed_failed": 20,
+  "remaining_not_executed_after_maxfail": 170,
+  "status": "PARTIAL_WITH_PREEXISTING_MISSING_ARTIFACT_FAILURES",
+  "command_scope": "non-protected modules only",
+  "reason": "failed tests require historical result artifacts absent from the pre-migration inventory; no result artifact was generated or copied"
+}

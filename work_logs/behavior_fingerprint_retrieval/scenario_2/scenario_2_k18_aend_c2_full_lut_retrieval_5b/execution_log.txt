@@ -1,0 +1,12 @@
+2026-09-18T15:09:22+0800 | START fixed K18 Aend/C2 Full-425 LUT retrieval
+2026-09-18T15:09:22+0800 | PRECHECK PASS raw={'sha256': '910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0', 'file_count': 429, 'mat_count': 427, 'bytes': 2258448137}; candidate=final_add_ENV_p04_m2_q1_lambda_3em12; K=18; lambda=3.16227766e-12; Common-B=b3a794e22b6beb7171f696d41685714da122f948ca8284553abaaa9a68c4abac
+2026-09-18T15:09:47+0800 | MODEL FITTING COMPLETE states=425; elapsed_s=24.6
+2026-09-18T15:09:49+0800 | RETRIEVAL COMPLETE counts={'N_self': 270, 'N_fallback': 149, 'N_valid': 419, 'N_fail': 6}; matrix=(425, 425); Real-B strict threshold=-40.0 dB
+2026-09-18T15:09:51+0800 | OUTPUTS WRITTEN status=SUCCESS raw_unchanged=True historical_Q_match=True
+2026-09-18T15:10:41+0800 | START fixed K18 Aend/C2 Full-425 LUT retrieval
+2026-09-18T15:10:41+0800 | PRECHECK PASS raw={'sha256': '910b06e4be6b60b1f4dc63409a3083eb328765347fbec3b89a97a41d6633a1e0', 'file_count': 429, 'mat_count': 427, 'bytes': 2258448137}; candidate=final_add_ENV_p04_m2_q1_lambda_3em12; K=18; lambda=3.16227766e-12; Common-B=b3a794e22b6beb7171f696d41685714da122f948ca8284553abaaa9a68c4abac
+2026-09-18T15:11:07+0800 | MODEL FITTING COMPLETE states=425; elapsed_s=25.3
+2026-09-18T15:11:08+0800 | RETRIEVAL COMPLETE counts={'N_self': 270, 'N_fallback': 149, 'N_valid': 419, 'N_fail': 6}; matrix=(425, 425); Real-B strict threshold=-40.0 dB
+2026-09-18T15:11:10+0800 | OUTPUTS WRITTEN status=SUCCESS raw_unchanged=True historical_Q_match=True
+Validation: FAIL; checks=33; failures=['excel_readable']
+Validation: PASS; checks=33; failures=[]

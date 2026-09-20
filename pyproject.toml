@@ -1,6 +1,27 @@
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+extend-exclude = [
+    ".git",
+    ".pytest_cache",
+    ".ruff_cache",
+    "data",
+    "results",
+    "work_logs",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["scripts"]
+python_files = ["test_*.py"]
+addopts = ["-ra"]
+norecursedirs = [
+    ".git",
+    ".pytest_cache",
+    ".ruff_cache",
+    "data",
+    "results",
+    "work_logs",
+]
